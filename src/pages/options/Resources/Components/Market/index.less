@@ -1,0 +1,30 @@
+.market-container {
+  height: 300px;
+  padding: 8px 24px;
+  overflow: auto;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+.img-list {
+  .ant-list-items {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  display: flex;
+  flex-wrap: wrap;
+
+  .img-item {
+    width: 120px;
+    height: 120px;
+    padding: 10px;
+    > img {
+      width: 90px;
+      height: 90px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    > img:hover {
+      transform: scale(1.1);
+    }
+  }
+}

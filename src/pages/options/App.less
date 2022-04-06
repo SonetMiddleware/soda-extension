@@ -1,0 +1,125 @@
+.root-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+}
+.options-container {
+  display: flex;
+  width: 1220px;
+  height: 710px;
+
+  background: #ffffff;
+  border-radius: 50px;
+  box-shadow: -8px -8px 20px rgba(0, 0, 0, 0.05),
+    8px 8px 20px rgba(0, 0, 0, 0.05);
+  .navbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 256px;
+    height: 710px;
+
+    background: #ffffff;
+    border-radius: 50px 0px 0px 50px;
+    box-shadow: 8px 0px 20px rgba(0, 0, 0, 0.05);
+    .logo {
+      width: 122px;
+      height: 45px;
+      margin: 40px 43px;
+    }
+    > ul {
+      padding: 0 20px;
+      font-weight: 600;
+      font-size: 16px;
+      font-family: PingFang SC;
+      font-style: normal;
+      line-height: 22px;
+      list-style: none;
+      .link-item {
+        display: flex;
+        align-items: center;
+        width: 216px;
+        height: 56px;
+        padding: 16px 22px;
+        color: #808191;
+        font-weight: 600;
+        font-size: 14px;
+        font-family: Poppins;
+        font-style: normal;
+        line-height: 20px;
+        > img {
+          width: 20px;
+          height: 20px;
+          margin-right: 17px;
+        }
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+      .link-item-active {
+        width: 216px;
+        height: 56px;
+        color: #fff;
+        background: linear-gradient(
+          94.78deg,
+          #ff9a46 4.87%,
+          #ff67c1 54.61%,
+          #9d5fe9 97.32%
+        );
+        border-radius: 10px;
+      }
+      li {
+      }
+
+      a:hover {
+        color: #ccc;
+      }
+    }
+  }
+  .options-content {
+    flex: 1;
+    height: 100%;
+    padding: 64px;
+  }
+}
+
+.page-title {
+  margin-bottom: 60px;
+  /* identical to box height, or 107% */
+
+  color: #000000;
+  font-weight: 600;
+  font-size: 40px;
+  font-family: Poppins;
+  font-style: normal;
+  line-height: 60px;
+}
+
+.ant-tabs-tab {
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  color: #000000 !important;
+  font-size: 16px !important;
+  font-family: Poppins !important;
+  font-style: normal !important;
+  text-align: center !important;
+}
+
+.ant-tabs-tab-active {
+  .ant-tabs-tab-btn {
+    color: #000000 !important;
+    font-weight: 600 !important;
+  }
+}
+.ant-tabs-ink-bar,
+.ant-tabs-ink-bar-animate {
+  height: 3px !important;
+  background: linear-gradient(
+    90deg,
+    rgb(255, 154, 70) 8.04%,
+    rgb(255, 103, 193) 54.98%,
+    rgb(157, 95, 233) 100%
+  ) !important;
+}
