@@ -27,6 +27,10 @@ export default defineConfig({
         matches: ['https://www.facebook.com/*'],
         entries: ['@/contentScripts/facebook', '@/injectedScripts'],
       },
+      {
+        matches: ['http://*/*', 'https://*/*'],
+        entries: ['@/contentScripts/index.ts'],
+      },
     ],
     icons: {
       16: 'logo/sodalogo@16.png',
