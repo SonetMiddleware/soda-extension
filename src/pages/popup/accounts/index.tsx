@@ -7,7 +7,7 @@ import './index.less';
 import { useIntl } from 'umi';
 import type { IRouteProps } from '@/pages/components/RouteWithSubRoutes';
 
-interface IProps {
+export interface IProps {
   routes: IRouteProps[];
 }
 

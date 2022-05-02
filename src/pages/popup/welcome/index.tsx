@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import './index.less';
 import { Link, useHistory } from 'react-router-dom';
-import { useIntl } from 'umi';
+// import { useIntl } from 'umi';
 import { hasCreated, getLocal, StorageKeys } from '@/utils';
 
 export default () => {
-  const t = useIntl();
+  // const t = useIntl();
   const history = useHistory();
 
   useEffect(() => {

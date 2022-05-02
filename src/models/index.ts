@@ -1,4 +1,4 @@
 import useStoreModel from './store';
 import useAccountModel from './accounts';
-
-export { useStoreModel, useAccountModel };
+import useDaoModel from './dao'
+export { useStoreModel, useAccountModel, useDaoModel };

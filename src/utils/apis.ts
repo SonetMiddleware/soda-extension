@@ -111,7 +111,7 @@ export interface IOwnedNFTData {
   contract: string; // contract address
   erc: string; // 1155 or 721
   token_id: string; //
-  amount: string; //
+  amount: number; //
   uri: string; //
   owner: string; //
   update_block: string; //
@@ -239,10 +239,7 @@ export const getAcceptedReferralCode = async (
   return res.data.data;
 };
 
-
-export const getAcceptedCount = async (
-  code: string,
-): Promise<number> => {
+export const getAcceptedCount = async (code: string): Promise<number> => {
   const url = `${BACKEND_HOST}/referral/count`;
   const res = await axios.get(url, {
     params: {
@@ -253,16 +250,114 @@ export const getAcceptedCount = async (
 };
 
 export interface IGetMyReferralCodeParams {
-  addr: string
-  platform: string
-  tid: string
+  addr: string;
+  platform: string;
+  tid: string;
 }
 export const getMyReferralCode = async (
-  params: IGetMyReferralCodeParams
+  params: IGetMyReferralCodeParams,
 ): Promise<string> => {
   const url = `${BACKEND_HOST}/referral`;
   const res = await axios.get(url, {
-    params
+    params,
+  });
+  return res.data.data;
+};
+
+export interface IGetCollectionListParams {
+  addr: string;
+  page: number;
+  gap: number;
+}
+
+export interface ICollectionItem {
+  id: string;
+  name: string;
+  img: string;
+  dao: IDaoItem;
+}
+
+export interface IDaoItem {
+  name: string;
+  start_date: number;
+  total_member: number;
+  facebook: string;
+  twitter: string;
+  id: string | number;
+  img: '';
+}
+export interface IGetCollectionListResult {
+  total: number;
+  data: ICollectionItem[];
+}
+export const getCollectionList = async (
+  params: IGetMyReferralCodeParams,
+): Promise<IGetCollectionListResult> => {
+  const url = `${BACKEND_HOST}/collection`;
+  const res = await axios.get(url, {
+    params,
+  });
+  return res.data.data;
+};
+
+export interface IGetDaoListParams {
+  addr?: string;
+  page: number;
+  gap: number;
+}
+export interface IGetDaoListResult {
+  total: number;
+  data: IDaoItem[];
+}
+export const getDaoList = async (
+  params: IGetDaoListParams,
+): Promise<IGetDaoListResult> => {
+  const url = `${BACKEND_HOST}/dao`;
+  const res = await axios.get(url, {
+    params,
+  });
+  return res.data.data;
+};
+
+export interface IGetProposalListParams {
+  dao: string;
+  page: number;
+  gap: number;
+}
+
+export enum ProposalStatusEnum {
+  SOON,
+  OPEN,
+  PASSED,
+  NOT_PASSED,
+}
+export enum ProposalVoteEnum {
+  ADDRESS = 1,
+  NFT = 2,
+  SON = 3,
+}
+export interface IProposalItem {
+  id: string;
+  title: string;
+  description: string;
+  start_time: number;
+  end_time: number;
+  ballot_threshold: number;
+  status: ProposalStatusEnum; // 0：等待投票开始；1: 正在投票，还没结束；2：通过了；3：没通过；
+  items: string[]; // 提案的各种选项
+  results: number[]; // 跟选项对应的投票人数
+  voter_type: ProposalVoteEnum; // 1: 一个地址一票，2：一个NFT一票，3：一个SON一票
+}
+export interface IGetProposalListResult {
+  total: number;
+  data: IProposalItem[];
+}
+export const getProposalList = async (
+  params: IGetProposalListParams,
+): Promise<IGetProposalListResult> => {
+  const url = `${BACKEND_HOST}/proposal`;
+  const res = await axios.get(url, {
+    params,
   });
   return res.data.data;
 };

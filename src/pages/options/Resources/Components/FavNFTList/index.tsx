@@ -6,7 +6,7 @@ import { addToFav, getFavNFT } from '@/utils/apis';
 import {
   getMinter,
   getOwner,
-} from '@/contentScripts/twitter/utils/messageHandler';
+} from '@soda/soda-core';
 import { message, Input, Button, Pagination, Spin } from 'antd';
 interface IProps {
   account: string;
@@ -22,7 +22,7 @@ export default (props: IProps) => {
   const [selectedImg, setSelectedImg] = useState<number>();
 
   const fetchFavList = async (currentPage: number) => {
-    debugger;
+
     if (account) {
       setLoading(true);
       const params = {

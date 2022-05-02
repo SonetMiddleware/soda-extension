@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import SearchIcon from '@material-ui/icons/Search';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

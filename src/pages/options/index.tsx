@@ -10,6 +10,10 @@ import Plugins from './Plugins';
 import Settings from './Settings';
 import Help from './Help';
 import About from './About';
+import DaoCreate from './Dao/DaoCreate';
+import NewProposal from './Dao/NewProposal';
+import DAO from './Dao/index';
+import DaoDetail from './Dao/DaoDetail';
 import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
@@ -41,8 +45,24 @@ const routes: IRouteProps[] = [
     component: About,
   },
   {
+    path: '/dao',
+    component: DAO,
+  },
+  {
+    path: '/daoDetail',
+    component: DaoDetail,
+  },
+  {
     path: '/resources',
     component: Resources,
+  },
+  {
+    path: '/daoCreate',
+    component: DaoCreate,
+  },
+  {
+    path: '/daoNewProposal',
+    component: NewProposal,
   },
   {
     path: '*',
@@ -146,6 +166,27 @@ const App = (props: any) => {
                       alt=""
                     />
                     NFT Resources
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/dao">
+                  <span
+                    className={`link-item ${
+                      hash.includes('#/dao') ? 'link-item-active' : ''
+                    }`}
+                  >
+                    <img
+                      src={
+                        hash.includes('#/dao')
+                          ? chrome.extension.getURL(
+                              'images/icon-dao-active.svg',
+                            )
+                          : chrome.extension.getURL('images/icon-dao.png')
+                      }
+                      alt=""
+                    />
+                    DAO
                   </span>
                 </Link>
               </li>

@@ -2,14 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './index.less';
 import { Tabs, message, Input, Upload, Spin, Button } from 'antd';
 import CommonButton from '@/pages/components/Button';
-import {
-  addToFav,
-  ipfsAdd,
-  MessageTypes,
-  sendMessage,
-  FavNFTList,
-  OwnedNFTList,
-} from '@soda/soda-core';
+import { addToFav, ipfsAdd, MessageTypes, sendMessage } from '@soda/soda-core';
+import FavNFTList from './Components/FavNFTList';
+import OwnedNFTList from './Components/OwnedNFTList';
 
 const { TabPane } = Tabs;
 
@@ -89,7 +84,7 @@ export default () => {
 
   return (
     <div>
-      <p className="page-title">NFT Resources</p>
+      <p className="resource-page-title">NFT Resources</p>
       <Spin spinning={loading}>
         <div className="resources-container">
           <CommonButton
@@ -103,7 +98,7 @@ export default () => {
           <Tabs
             style={{ height: '100%' }}
             animated={false}
-            defaultActiveKey="1"
+            defaultActiveKey="3"
           >
             <TabPane tab="My Favorite" key="1" className="fav-list">
               <FavNFTList account={account} />

@@ -88,9 +88,8 @@ export function createWeb3() {
 }
 
 export async function requestAccounts() {
-  
   const web3 = createWeb3();
- 
+
   // update accounts
   const accounts = await web3.eth.requestAccounts();
 
