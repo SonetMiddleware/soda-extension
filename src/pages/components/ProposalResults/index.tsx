@@ -37,7 +37,7 @@ export default (props: IProps) => {
             className={styles['custom-progress']}
             strokeColor={ProgressColors[index % 2]}
           />
-          <p>{results[index]} Votes</p>
+          <p className={styles['vote-nums']}>{results[index]} Votes</p>
         </div>
       ))}
     </div>

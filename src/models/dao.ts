@@ -1,14 +1,15 @@
 import { createModel } from 'hox';
 import { useState } from 'react';
-import { IDaoItem } from '@/utils/apis';
+import { IDaoItem, ICollectionItem } from '@/utils/apis';
 
 function createDaoStore() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [collections, setCollections] = useState<string[]>([]);
+  const [collectionForDaoCreation, setCollectionForDaoCreation] =
+    useState<ICollectionItem>();
   const [currentDao, setCurrentDao] = useState<IDaoItem>();
   return {
-    collections,
-    setCollections,
+    collectionForDaoCreation,
+    setCollectionForDaoCreation,
     currentDao,
     setCurrentDao,
   };

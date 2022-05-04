@@ -1,9 +1,11 @@
-import { getChainId } from '@soda/soda-core';
+import { getChainId, MessageTypes, sendMessage } from '@soda/soda-core';
 import React, { useEffect } from 'react';
 import './index.less';
 import { message } from 'antd';
+import { useWalletModel } from '@/models';
 const DEFAULT_CHAINID = '80001';
 export default () => {
+  const { setAccount } = useWalletModel();
   useEffect(() => {
     (async () => {
       const chainId = await getChainId();
@@ -12,6 +14,13 @@ export default () => {
           'Please switch the network of Metamask to matic-test(https://rpc-mumbai.maticvigil.com)',
         );
       }
+      const req = {
+        type: MessageTypes.Connect_Metamask,
+      };
+      const resp: any = await sendMessage(req);
+      console.log('get account: ', resp);
+      const { account: _account } = resp.result;
+      setAccount(_account);
     })();
   }, []);
   return (
@@ -26,14 +35,16 @@ export default () => {
         Please install{' '}
         <a
           target="_blank"
-          href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=chrome-ntp-icon" rel="noreferrer"
+          href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=chrome-ntp-icon"
+          rel="noreferrer"
         >
           Metamask
         </a>{' '}
         and set the network to Polygon Testnet. Please refer to the{' '}
         <a
           target="_blank"
-          href="https://soda-extension.medium.com/how-to-connect-polygon-testnet-to-metamask-wallet-f90cf5daab7b" rel="noreferrer"
+          href="https://soda-extension.medium.com/how-to-connect-polygon-testnet-to-metamask-wallet-f90cf5daab7b"
+          rel="noreferrer"
         >
           guide
         </a>

@@ -11,6 +11,7 @@ const TestnetContracts = {
   MarketWithoutRPC: '0x0E992194Cc939beE333e8d35c25BfCe7C2f99a6a',
   MarketProxyWithoutRPC: '0xc7225694A6Fe8793eEf5B171559Cbd245E73b987',
   PlatwinMEME2WithoutRPC: '0x0daB724e3deC31e5EB0a000Aa8FfC42F1EC917C5',
+  DAORegistry: '0x9a7e176576abb82496e6b3791E15Bea08ecc723e'
 };
 
 export default {
@@ -55,4 +56,8 @@ export default {
       80001: TestnetContracts.MarketProxyWithoutRPC,
       137: '',
   },
+  DaoRegistery: {
+    80001: TestnetContracts.DAORegistry,
+    137: '',
+  }
 };

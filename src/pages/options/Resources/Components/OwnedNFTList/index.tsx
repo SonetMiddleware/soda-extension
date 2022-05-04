@@ -2,7 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './index.less';
 import { Spin, Radio, Pagination, message, Checkbox } from 'antd';
 import ImgDisplay from '@/pages/components/ImgDisplay';
-import { getOwnedNFT, IOwnedNFTData } from '@/utils/apis';
+import {
+  getOwnedNFT,
+  IOwnedNFTData,
+  getCollectionList,
+  IDaoItem,
+  ICollectionItem,
+} from '@/utils/apis';
 import IconDao from '@/theme/images/icon-dao.svg';
 import CommonButton from '@/pages/components/Button';
 import { useDaoModel } from '@/models';
@@ -11,8 +17,7 @@ interface IProps {
   account: string;
 }
 interface INFTCollection {
-  name: string;
-  hasDao: boolean;
+  collection: ICollectionItem;
   nfts: IOwnedNFTData[];
 }
 export default (props: IProps) => {
@@ -22,69 +27,54 @@ export default (props: IProps) => {
   const [selectedImg, setSelectedImg] = useState<number>();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [selectedCollections, setSelectedCollections] = useState<
-    Record<string, boolean>
-  >({});
+  const [selectedCollection, setSelectedCollection] =
+    useState<ICollectionItem>();
 
-  const { setCollections } = useDaoModel();
+  const { setCollectionForDaoCreation } = useDaoModel();
   const history = useHistory();
 
-  const fetchOwnedList = useCallback(
-    async (page: number) => {
-      if (account) {
-        try {
-          setLoading(true);
-          const params = {
-            addr: account,
-            page,
-            gap: 10,
-          };
-          const nfts = await getOwnedNFT(params);
-          console.log('ownedNFTs: ', nfts);
-          setOwnedNFTs([]);
-          const list = [
-            {
-              name: 'Collection1',
-              hasDao: true,
-              nfts: nfts.data,
-            },
-          ];
-          setOwnedNFTs(list);
-          // setTotal(nfts.total);
-          // setPage(page);
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
+  const fetchOwnedList = useCallback(async () => {
+    if (account) {
+      try {
+        setLoading(true);
+        const collections = await getCollectionList({ addr: account });
+        console.log('collections: ', collections);
+        const nftResp = await Promise.all(
+          collections.data.map((item) => {
+            const params = {
+              addr: account,
+              collection: item.id,
+              contract: item.id,
+            };
+            return getOwnedNFT(params);
+          }),
+        );
+        const nftList = [];
+        for (let i = 0; i < nftResp.length; i++) {
+          const collectionNFTItem = nftResp[i].data;
+          nftList.push({
+            collection: collections.data[i],
+            nfts: collectionNFTItem,
+          });
         }
-      }
-    },
-    [account],
-  );
-
-  const handleChangePage = (page: number) => {
-    fetchOwnedList(page);
-  };
-
-  useEffect(() => {
-    fetchOwnedList(1);
-  }, [account]);
-
-  const handleSelectCollection = (e: any, name: string) => {
-    const obj = { ...selectedCollections };
-    obj[name] = e.target.checked;
-    setSelectedCollections(obj);
-  };
-
-  const handleCreateDao = () => {
-    const items = [];
-    for (const key of Object.keys(selectedCollections)) {
-      if (selectedCollections[key]) {
-        items.push(key);
+        setOwnedNFTs(nftList);
+        // setTotal(nfts.total);
+        // setPage(page);
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
       }
     }
-    if (items.length > 0) {
-      setCollections(items);
-      history.push('/dao/create');
+  }, [account]);
+
+  useEffect(() => {
+    fetchOwnedList();
+  }, [account]);
+
+  const handleCreateDao = () => {
+    if (selectedCollection) {
+      setCollectionForDaoCreation(selectedCollection);
+      history.push('/daoCreate');
     } else {
       message.warning('Please select NFT collections to create DAO.');
     }
@@ -102,38 +92,48 @@ export default (props: IProps) => {
         </CommonButton>
       </div>
       <Spin spinning={loading}>
-        {ownedNFTs.map((collection) => (
-          <div key={collection.name} className="collection-container">
-            <div className="collection-title">
-              <Checkbox
-                onChange={(e: any) => {
-                  handleSelectCollection(e, collection.name);
-                }}
-              >
-                <span>{collection.name}</span>{' '}
-              </Checkbox>
-              <img src={IconDao} alt="" />
+        <div className="collection-list">
+          {ownedNFTs.map((collectionNFTItem) => (
+            <div
+              key={collectionNFTItem.collection.id}
+              className="collection-container"
+            >
+              <div className="collection-title">
+                <Radio
+                  checked={
+                    selectedCollection?.id === collectionNFTItem.collection.id
+                  }
+                  onChange={(e: any) => {
+                    setSelectedCollection(collectionNFTItem.collection);
+                  }}
+                  disabled={collectionNFTItem.collection.dao !== null}
+                >
+                  <span>{collectionNFTItem.collection.name}</span>{' '}
+                </Radio>
+                {collectionNFTItem.collection.dao && (
+                  <img src={IconDao} alt="" />
+                )}
+              </div>
+              <ul className="collection-nft-list">
+                {collectionNFTItem.nfts.map((item) => (
+                  <li key={item.uri}>
+                    <div className="item-detail">
+                      <ImgDisplay
+                        className="img-item"
+                        src={
+                          item.uri.startsWith('http')
+                            ? item.uri
+                            : `https://${item.uri}.ipfs.dweb.link/`
+                        }
+                      />
+                      <p className="item-name">#{item.token_id}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="nft-list">
-              {collection.nfts.map((item) => (
-                <li key={item.uri}>
-                  <div className="item-detail">
-                    <ImgDisplay
-                      className="img-item"
-                      src={
-                        item.uri.startsWith('http')
-                          ? item.uri
-                          : `https://${item.uri}.ipfs.dweb.link/`
-                      }
-                    />
-                    <p className="item-name">#{item.token_id}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
+          ))}
+        </div>
         {/* <div className="list-pagination">
           <Pagination
             total={total}

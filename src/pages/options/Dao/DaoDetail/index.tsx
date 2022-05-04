@@ -5,74 +5,52 @@ import { useDaoModel } from '@/models';
 import { formatDate } from '@/utils';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import CommonButton from '@/pages/components/Button';
-import { IProposalItem } from '@/utils/apis';
+import { IProposalItem, getProposalList } from '@/utils/apis';
 import { debounce } from 'lodash-es';
 import ProposalItem from '@/pages/components/ProposalItem';
 import ProposalResults from '@/pages/components/ProposalResults';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
+import { useHistory } from 'umi';
 export default () => {
   const { currentDao } = useDaoModel();
+  const history = useHistory();
   const [filterText, setFilterText] = useState('');
   const [list, setList] = useState<IProposalItem[]>([]);
   const [filterList, setFilterList] = useState<IProposalItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState<IProposalItem>();
-  const fetchProposalList = async () => {
-    const list = [
-      {
-        id: '1',
-        title: 'Test proposal1',
-        description: 'Vote on a proposal using your DAO NFT',
-        start_time: 1651399352010,
-        end_time: 1651399452010,
-        ballot_threshold: 200,
-        status: 0, // 0：等待投票开始；1: 正在投票，还没结束；2：通过了；3：没通过；
-        items: ['Approve', 'Disapprove'], // 提案的各种选项
-        results: [100, 66], // 跟选项对应的投票人数
-        voter_type: 2,
-      },
-      {
-        id: '2',
-        title: 'Test proposal2',
-        description: 'Vote on a proposal using your DAO NFT',
-        start_time: 1651399352010,
-        end_time: 1651399452010,
-        ballot_threshold: 200,
-        status: 1, // 0：等待投票开始；1: 正在投票，还没结束；2：通过了；3：没通过；
-        items: ['Approve', 'Disapprove'], // 提案的各种选项
-        results: [100, 66], // 跟选项对应的投票人数
-        voter_type: 2,
-      },
-      {
-        id: '3',
-        title: 'Test proposal3',
-        description: 'Vote on a proposal using your DAO NFT',
-        start_time: 1651399352010,
-        end_time: 1651399452010,
-        ballot_threshold: 200,
-        status: 2, // 0：等待投票开始；1: 正在投票，还没结束；2：通过了；3：没通过；
-        items: ['Approve', 'Disapprove'], // 提案的各种选项
-        results: [100, 66], // 跟选项对应的投票人数
-        voter_type: 2,
-      },
-    ];
+  const fetchProposalList = async (updatedProposalId?: string) => {
+    const listResp = await getProposalList({ dao: currentDao!.id });
+    const list = listResp.data;
     setList(list);
     setFilterList(list);
-    setSelectedProposal(list[0]);
+    if (updatedProposalId) {
+      const index = list.findIndex(
+        (item) => String(item.id) === String(updatedProposalId),
+      );
+      if (index > -1) {
+        setSelectedProposal(list[index]);
+      } else {
+        setSelectedProposal(list[0]);
+      }
+    } else {
+      setSelectedProposal(list[0]);
+    }
   };
 
-  const handleDetailDialogClose = () => {
+  const handleDetailDialogClose = (updatedProposalId?: string) => {
     setShowModal(false);
+    fetchProposalList(updatedProposalId); // update proposal votes
   };
 
-  const handleFilter = debounce((e: any) => {
+  const handleFilter = (e: any) => {
     const val = e.target.value;
+    setFilterText(val);
     if (val) {
-      setFilterText(val);
       const _list = list.filter((item) => item.title.includes(val));
       setFilterList(_list);
     }
-  }, 300);
+  };
 
   useEffect(() => {
     fetchProposalList();
@@ -100,10 +78,16 @@ export default () => {
       <div className="dao-detail-list-header">
         <Input
           value={filterText}
-          onChange={handleFilter}
+          onChange={(e) => {
+            handleFilter(e);
+          }}
           placeholder="Filter"
         />
-        <CommonButton type="primary" className="btn-new-proposal">
+        <CommonButton
+          type="primary"
+          className="btn-new-proposal"
+          onClick={() => history.push('/daoNewProposal')}
+        >
           New Proposal
         </CommonButton>
       </div>

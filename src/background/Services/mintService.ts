@@ -5,6 +5,7 @@ import RpcRouterAbi from '../configs/abis/RPCRouter.json';
 import Meme2Abi from '../configs/abis/PlatwinMEME2.json';
 import ERC20abi from '../configs/ERC20abi.json';
 import MarketAbi from '../configs/abis/Market.json';
+import RegisterDaoAbi from '../configs/abis/DAORegistry.json';
 import { getOrderByTokenId } from '../../utils/apis';
 import { AbiItem } from 'web3-utils';
 const maxUint256 = web3.utils
@@ -12,6 +13,29 @@ const maxUint256 = web3.utils
   .pow(web3.utils.toBN(256))
   .sub(web3.utils.toBN(1));
 const CHAIN_ID = 80001;
+
+export const registerDao = async (params: any) => {
+  const { collectionId, name, facebook, twitter } = params;
+  const web3 = createWeb3();
+  const { accounts } = await requestAccounts();
+  const account = accounts[0];
+  const daoContract = new web3.eth.Contract(
+    RegisterDaoAbi.abi as AbiItem[],
+    Contracts.DaoRegistery[CHAIN_ID],
+  );
+  return new Promise((resolve, reject) => {
+    daoContract.methods
+      .createDao(collectionId, name, facebook, twitter)
+      .send({ from: account })
+      .on('receipt', function (receipt: any) {
+        resolve(true);
+      })
+      .on('error', function (error: Error) {
+        console.log('MintService error:', error);
+        reject(error);
+      });
+  });
+};
 
 export const mintToken = async (hash: string) => {
   const web3 = createWeb3();

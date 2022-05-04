@@ -103,11 +103,14 @@ export const getOrderByTokenId = async (tokenId: string, status?: number) => {
 export interface IGetOwnedNFTParams {
   addr: string;
   contract?: string;
+  collection?: string;
   token_id?: string;
   page?: number;
   gap?: number;
 }
 export interface IOwnedNFTData {
+  collection_id: ''; // collection id
+  collection_name: ''; // collection name
   contract: string; // contract address
   erc: string; // 1155 or 721
   token_id: string; //
@@ -266,8 +269,8 @@ export const getMyReferralCode = async (
 
 export interface IGetCollectionListParams {
   addr: string;
-  page: number;
-  gap: number;
+  page?: number;
+  gap?: number;
 }
 
 export interface ICollectionItem {
@@ -283,7 +286,7 @@ export interface IDaoItem {
   total_member: number;
   facebook: string;
   twitter: string;
-  id: string | number;
+  id: string;
   img: '';
 }
 export interface IGetCollectionListResult {
@@ -291,7 +294,7 @@ export interface IGetCollectionListResult {
   data: ICollectionItem[];
 }
 export const getCollectionList = async (
-  params: IGetMyReferralCodeParams,
+  params: IGetCollectionListParams,
 ): Promise<IGetCollectionListResult> => {
   const url = `${BACKEND_HOST}/collection`;
   const res = await axios.get(url, {
@@ -321,8 +324,8 @@ export const getDaoList = async (
 
 export interface IGetProposalListParams {
   dao: string;
-  page: number;
-  gap: number;
+  page?: number;
+  gap?: number;
 }
 
 export enum ProposalStatusEnum {
@@ -352,6 +355,22 @@ export interface IGetProposalListResult {
   total: number;
   data: IProposalItem[];
 }
+
+export const getProposalStatus = (item: IProposalItem) => {
+  const now = Date.now();
+  const totalVotes = item.results.reduce((a, b) => a + b);
+  if (now < item.start_time) {
+    return ProposalStatusEnum.SOON;
+  } else if (now > item.start_time && now < item.end_time) {
+    return ProposalStatusEnum.OPEN;
+  } else if (now >= item.end_time) {
+    if (totalVotes >= item.ballot_threshold) {
+      return ProposalStatusEnum.PASSED;
+    } else {
+      return ProposalStatusEnum.NOT_PASSED;
+    }
+  }
+};
 export const getProposalList = async (
   params: IGetProposalListParams,
 ): Promise<IGetProposalListResult> => {
@@ -359,5 +378,47 @@ export const getProposalList = async (
   const res = await axios.get(url, {
     params,
   });
-  return res.data.data;
+  const result: any = res.data.data;
+  result.data.forEach((temp: any) => (temp.items = temp.items.split(',')));
+  result.data.forEach(
+    (temp: any) =>
+      (temp.results = temp.results
+        .split(',')
+        .map((num: string) => parseInt(num))),
+  );
+  result.data.forEach((temp: any) => (temp.status = getProposalStatus(temp)));
+  return result;
+};
+
+interface ICreateProposalParams {
+  creator: string;
+  snapshot_block: number;
+  collection_id: string;
+  title: string;
+  description: string;
+  start_time: number;
+  end_time: number;
+  ballot_threshold: number;
+  items: string;
+  voter_type: number;
+  sig: string;
+}
+
+export const createProposal = async (params: ICreateProposalParams) => {
+  const url = `${BACKEND_HOST}/proposal/create`;
+  const res = await axios.post(url, params);
+  return true;
+};
+
+export interface IVoteProposalParams {
+  voter: string
+  collection_id: string;
+  proposal_id: string;
+  item: string;
+  sig: string; 
+}
+export const voteProposal = async (params: IVoteProposalParams) => {
+  const url = `${BACKEND_HOST}/proposal/vote`;
+  const res = await axios.post(url, params);
+  return true;
 };

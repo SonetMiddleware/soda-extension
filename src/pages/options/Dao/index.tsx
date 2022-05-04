@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import './index.less';
 import { useDaoModel } from '@/models';
-import { Button, message, Modal, Select, Form, Input, DatePicker } from 'antd';
+import { Pagination, Spin, Tooltip } from 'antd';
 import CommonButton from '@/pages/components/Button';
-import { IDaoItem } from '@/utils/apis';
+import { IDaoItem, getDaoList, IGetDaoListParams } from '@/utils/apis';
 import { useHistory } from 'umi';
+import { MessageTypes, sendMessage } from '@soda/soda-core';
+
 enum ListSwitchEnum {
   All_List,
   My_List,
 }
 
 export default () => {
-  const [form] = Form.useForm();
   const history = useHistory();
   const { setCurrentDao } = useDaoModel();
+  const [account, setAccount] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [listSwitch, setListSwitch] = useState<ListSwitchEnum>(
     ListSwitchEnum.All_List,
   );
   const [daos, setDaos] = useState<IDaoItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleListSwitch = (val: ListSwitchEnum) => {
     if (val !== listSwitch) {
@@ -25,40 +30,39 @@ export default () => {
     }
   };
 
-  const fetchDaoList = async () => {
-    setDaos([
-      {
-        id: 1,
-        name: 'DAO1',
-        img: '',
-        start_date: 1651496939852,
-        total_member: 200,
-        facebook: '@soda_facebook',
-        twitter: '@soda_twitter',
-      },
-      {
-        id: 2,
-        name: 'DAO2',
-        img: '',
-        start_date: 1651496939852,
-        total_member: 200,
-        facebook: '@soda_facebook',
-        twitter: '@soda_twitter',
-      },
-      {
-        id: 3,
-        name: 'DAO3',
-        img: '',
-        start_date: 1651496939852,
-        total_member: 200,
-        facebook: '@soda_facebook',
-        twitter: '@soda_twitter',
-      },
-    ]);
+  const fetchDaoList = async (page: number) => {
+    setLoading(true);
+    const params = {
+      page,
+      gap: 8,
+    } as IGetDaoListParams;
+    if (listSwitch === ListSwitchEnum.My_List) {
+      params.addr = account;
+    }
+    const daosResp = await getDaoList(params);
+    setTotal(daosResp.total);
+    setDaos(daosResp.data);
+    setLoading(false);
+  };
+
+  const handleChangePage = (newPage: number, pageSize: number | undefined) => {
+    fetchDaoList(newPage);
   };
 
   useEffect(() => {
-    fetchDaoList();
+    (async () => {
+      const req = {
+        type: MessageTypes.Connect_Metamask,
+      };
+      const resp: any = await sendMessage(req);
+      console.log('get account: ', resp);
+      const { account: _account } = resp.result;
+      setAccount(_account);
+    })();
+  }, []);
+
+  useEffect(() => {
+    fetchDaoList(1);
   }, [listSwitch]);
 
   const handleDaoClick = (item: IDaoItem) => {
@@ -90,18 +94,30 @@ export default () => {
           </span>
         </div>
       </div>
-      <div className="dao-list-container">
-        {daos.map((item) => (
-          <div
-            className="dao-list-item"
-            onClick={() => {
-              handleDaoClick(item);
-            }}
-          >
-            <img src={item.img} alt="" />
-            <p>{item.name}</p>
-          </div>
-        ))}
+      <Spin spinning={loading}>
+        <div className="dao-list-container">
+          {daos.map((item) => (
+            <div
+              className="dao-list-item"
+              onClick={() => {
+                handleDaoClick(item);
+              }}
+            >
+              <img src={item.img} alt="" />
+              <Tooltip title={item.name}>
+                <p>{item.name}</p>
+              </Tooltip>
+            </div>
+          ))}
+        </div>
+      </Spin>
+      <div className="list-pagination">
+        <Pagination
+          total={total}
+          pageSize={8}
+          onChange={handleChangePage}
+          current={page}
+        />
       </div>
     </div>
   );

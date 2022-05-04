@@ -14,6 +14,8 @@ import DaoCreate from './Dao/DaoCreate';
 import NewProposal from './Dao/NewProposal';
 import DAO from './Dao/index';
 import DaoDetail from './Dao/DaoDetail';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/lib/locale/en_US';
 import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
@@ -268,4 +270,8 @@ const App = (props: any) => {
   );
 };
 
-export default App;
+export default (props: any) => (
+  <ConfigProvider locale={enUS}>
+    <App {...props} />
+  </ConfigProvider>
+);

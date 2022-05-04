@@ -1,20 +1,26 @@
 import React, { useMemo, useState } from 'react';
 import styles from './index.less';
 import { IProposalItem } from '@/utils/apis';
-import { Button, Modal, Radio, Space } from 'antd';
+import { Button, Modal, Radio, Space, message } from 'antd';
 import { formatDateTime } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';
 import ProposalStatus from '../ProposalItemStatus';
+import { ProposalStatusEnum, voteProposal } from '@/utils/apis';
+import { MessageTypes, sendMessage } from '@soda/soda-core';
+import { useDaoModel, useWalletModel } from '@/models';
+
 interface IProps {
   show: boolean;
   detail: IProposalItem;
-  onClose: () => void;
+  onClose: (updatedProposalId?: string) => void;
 }
 
 export default (props: IProps) => {
   const { show, detail, onClose } = props;
-  const [vote, setVote] = useState(0);
-
+  const [vote, setVote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { account } = useWalletModel();
+  const { currentDao } = useDaoModel();
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
     if (totalVotersNum >= detail.ballot_threshold) {
@@ -28,7 +34,43 @@ export default (props: IProps) => {
     setVote(e.target.value);
   };
 
-  const handleVoteSubmit = async () => {};
+  const handleVoteSubmit = async () => {
+    if (!vote) {
+      message.warn('Please set one option to vote.');
+      return;
+    }
+    if (!account) {
+      message.warn('No metamask installed.');
+      return;
+    }
+    try {
+      setSubmitting(true);
+      const str = detail.id + vote;
+      const msg = {
+        type: MessageTypes.Sing_Message,
+        request: {
+          message: str,
+          account,
+        },
+      };
+      const res: any = await sendMessage(msg);
+      const params = {
+        voter: account,
+        collection_id: currentDao!.id,
+        proposal_id: detail.id,
+        item: vote,
+        sig: res.result,
+      };
+      await voteProposal(params);
+      message.success('Vote successfully.');
+      setSubmitting(false);
+      onClose(String(detail.id));
+    } catch (e) {
+      setSubmitting(false);
+      console.log(e);
+      message.warn('Vote failed.');
+    }
+  };
 
   return (
     <Modal
@@ -67,18 +109,23 @@ export default (props: IProps) => {
           >
             <Space direction="vertical">
               {detail.items.map((option, index) => (
-                <Radio value={index}>{option}</Radio>
+                <Radio value={option} key={index}>
+                  {option}
+                </Radio>
               ))}
             </Space>
           </Radio.Group>
           <div>
-            <Button
-              type="primary"
-              onClick={handleVoteSubmit}
-              className={styles['vote-btn']}
-            >
-              Vote now
-            </Button>
+            {detail.status === ProposalStatusEnum.OPEN && (
+              <Button
+                type="primary"
+                onClick={handleVoteSubmit}
+                className={styles['vote-btn']}
+                loading={submitting}
+              >
+                Vote now
+              </Button>
+            )}
           </div>
         </div>
       </div>

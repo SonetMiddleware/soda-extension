@@ -1,7 +1,12 @@
 import * as MetaMask from './Services/metamask';
 import { first } from 'lodash-es';
 import { MessageTypes } from '@soda/soda-core';
-import { mintToken, getMinter, getOwner } from './Services/mintService';
+import {
+  mintToken,
+  getMinter,
+  getOwner,
+  registerDao,
+} from './Services/mintService';
 import { requestSignMsg } from './Services/signMsgService';
 
 export async function connectMetaMask() {
@@ -62,6 +67,15 @@ async function messageHandler(requestMsg: any) {
           }
         } else {
           return;
+        }
+        break;
+      }
+      case MessageTypes.Register_DAO: {
+        try {
+          const res = await registerDao(requestData.request);
+          response.result = res;
+        } catch (err) {
+          response.result = { error: err };
         }
         break;
       }
