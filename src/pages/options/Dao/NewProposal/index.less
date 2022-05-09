@@ -1,5 +1,5 @@
 .new-proposal-container {
-  padding: 48px;
+  // padding: 48px;
   overflow: auto;
   height: 100%;
   > .page-title {
@@ -21,7 +21,7 @@
       box-sizing: border-box;
       border-radius: 10px;
       margin-bottom: 25px;
-      width: 152px;
+      // width: 152px;
       text-align: center;
       padding: 10px;
       > img {
@@ -42,6 +42,40 @@
   }
   .form-right {
     width: 365px;
+    .snapshot-blockheight {
+      display: flex;
+      align-items: center;
+      margin-bottom: 18px;
+      > span {
+        font-family: 'Poppins';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 12px;
+        color: #808191;
+      }
+      > span:first-child {
+        margin-right: 12px;
+      }
+      > .snapshot-block-item-divide {
+        margin-left: 4px;
+        margin-right: 4px;
+      }
+      > .snapshot-block-item {
+        border: 1px solid #e5e5e5;
+        box-sizing: border-box;
+        border-radius: 10px;
+        margin-right: 10px;
+        height: 24px;
+        /* width: 100px; */
+        line-height: 24px;
+        padding: 0px 8px;
+        text-align: center;
+        min-width: 76px;
+      }
+      > .snapshot-block-item:last-child {
+        margin-right: 4px;
+      }
+    }
   }
 
   .proposal-footer-btns {

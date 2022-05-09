@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import './index.less';
-import { Button, message, Modal, Select, Form, Input, DatePicker } from 'antd';
+import {
+  Button,
+  message,
+  Modal,
+  Select,
+  Form,
+  Input,
+  DatePicker,
+  Tooltip,
+} from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import CommonButton from '@/pages/components/Button';
 import ProposalFormItems from '@/pages/components/ProposalFormItems';
@@ -8,7 +17,10 @@ import { createProposal } from '@/utils/apis';
 import web3 from 'web3';
 import axios from 'axios';
 import { MessageTypes, sendMessage } from '@soda/soda-core';
-import moment, { Moment } from 'moment';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import { useHistory } from 'umi';
+const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 export default () => {
   const { currentDao } = useDaoModel();
@@ -16,7 +28,7 @@ export default () => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [snapshotBlock, setSnapShotBlock] = useState<number[]>([]);
-
+  const history = useHistory();
   const VoterBollotOptions = [
     {
       value: 1,
@@ -37,6 +49,10 @@ export default () => {
     startTimeMilliseconds: number,
     endTimeMilliseconds: number,
   ) => {
+    if (!startTimeMilliseconds || !endTimeMilliseconds) {
+      setSnapShotBlock([0, 0]);
+      return;
+    }
     const now = Math.floor(Date.now() / 1000);
     const url1 = `https://api-testnet.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=${now}&closest=before`;
     const resp1 = await axios.get(url1);
@@ -103,7 +119,7 @@ export default () => {
       };
       await createProposal(params);
       message.success('Your proposal is created successfully.');
-      history.back();
+      history.goBack();
       setSubmitting(false);
     } catch (e) {
       setSubmitting(false);
@@ -166,7 +182,11 @@ export default () => {
                 },
               ]}
             >
-              <Input className="dao-form-input" placeholder="Description" />
+              <TextArea
+                className="dao-form-input dao-form-textarea"
+                rows={4}
+                placeholder="Description"
+              />
             </Form.Item>
           </div>
         </div>
@@ -189,6 +209,18 @@ export default () => {
               }}
             />
           </Form.Item>
+          <div className="snapshot-blockheight">
+            <span>Block height: </span>
+            <span className="snapshot-block-item">{snapshotBlock[0]}</span>
+            <span className="snapshot-block-item-divide"> - </span>
+            <span className="snapshot-block-item">{snapshotBlock[1]}</span>
+            <Tooltip
+              title="Please be aware, the block height been calculated by input time may not be accurate.\n 
+            The proposal will be enabled during the period marked by block height precisely."
+            >
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </div>
           <Form.Item
             label="Target Ballot Threshold*"
             name="ballot_threshold"
@@ -205,6 +237,18 @@ export default () => {
             />
           </Form.Item>
           <Form.Item
+            label="Voter ballot*"
+            name="voter_type"
+            rules={[
+              {
+                required: true,
+                message: 'Please select voter ballot.',
+              },
+            ]}
+          >
+            <Select options={VoterBollotOptions} />
+          </Form.Item>
+          <Form.Item
             label="Items*"
             name="items"
             rules={[
@@ -219,18 +263,6 @@ export default () => {
           {/* <Form.Item label="Who can participate" name="participator">
             <Input className="dao-form-input" value="Owner" disabled />
           </Form.Item> */}
-          <Form.Item
-            label="Voter ballot*"
-            name="voter_type"
-            rules={[
-              {
-                required: true,
-                message: 'Please select voter ballot.',
-              },
-            ]}
-          >
-            <Select options={VoterBollotOptions} />
-          </Form.Item>
         </div>
       </Form>
       <div className="proposal-footer-btns">
@@ -246,7 +278,7 @@ export default () => {
           type="secondary"
           className="btn-cancel"
           onClick={() => {
-            history.back();
+            history.goBack();
           }}
         >
           Cancel

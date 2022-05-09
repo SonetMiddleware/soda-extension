@@ -5,24 +5,24 @@ import { message } from 'antd';
 import { useWalletModel } from '@/models';
 const DEFAULT_CHAINID = '80001';
 export default () => {
-  const { setAccount } = useWalletModel();
-  useEffect(() => {
-    (async () => {
-      const chainId = await getChainId();
-      if (chainId != DEFAULT_CHAINID) {
-        message.warning(
-          'Please switch the network of Metamask to matic-test(https://rpc-mumbai.maticvigil.com)',
-        );
-      }
-      const req = {
-        type: MessageTypes.Connect_Metamask,
-      };
-      const resp: any = await sendMessage(req);
-      console.log('get account: ', resp);
-      const { account: _account } = resp.result;
-      setAccount(_account);
-    })();
-  }, []);
+  // const { setAccount } = useWalletModel();
+  // useEffect(() => {
+  //   (async () => {
+  //     const chainId = await getChainId();
+  //     if (chainId != DEFAULT_CHAINID) {
+  //       message.warning(
+  //         'Please switch the network of Metamask to matic-test(https://rpc-mumbai.maticvigil.com)',
+  //       );
+  //     }
+  //     const req = {
+  //       type: MessageTypes.Connect_Metamask,
+  //     };
+  //     const resp: any = await sendMessage(req);
+  //     console.log('get account: ', resp);
+  //     const { account: _account } = resp.result;
+  //     setAccount(_account);
+  //   })();
+  // }, []);
   return (
     <div className="home-container">
       <h2 className="page-title">Welcome to Soda</h2>

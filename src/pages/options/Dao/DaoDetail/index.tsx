@@ -5,22 +5,29 @@ import { useDaoModel } from '@/models';
 import { formatDate } from '@/utils';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import CommonButton from '@/pages/components/Button';
-import { IProposalItem, getProposalList } from '@/utils/apis';
-import { debounce } from 'lodash-es';
+import {
+  IProposalItem,
+  getProposalList,
+  getCollectionWithId,
+} from '@/utils/apis';
 import ProposalItem from '@/pages/components/ProposalItem';
 import ProposalResults from '@/pages/components/ProposalResults';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
-import { useHistory } from 'umi';
+import { useHistory, useLocation } from 'umi';
 export default () => {
-  const { currentDao } = useDaoModel();
+  const { setCurrentDao, currentDao } = useDaoModel();
   const history = useHistory();
+  const location = useLocation();
   const [filterText, setFilterText] = useState('');
   const [list, setList] = useState<IProposalItem[]>([]);
   const [filterList, setFilterList] = useState<IProposalItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState<IProposalItem>();
-  const fetchProposalList = async (updatedProposalId?: string) => {
-    const listResp = await getProposalList({ dao: currentDao!.id });
+  const fetchProposalList = async (
+    daoId: string,
+    updatedProposalId?: string,
+  ) => {
+    const listResp = await getProposalList({ dao: daoId });
     const list = listResp.data;
     setList(list);
     setFilterList(list);
@@ -38,9 +45,20 @@ export default () => {
     }
   };
 
+  const fetchDaoDetail = async (daoId: string) => {
+    const collection = await getCollectionWithId(daoId);
+    if (collection) {
+      const dao = { ...collection.dao ,id: collection.id, };
+      setCurrentDao(dao);
+      return collection;
+    }
+  };
+
   const handleDetailDialogClose = (updatedProposalId?: string) => {
     setShowModal(false);
-    fetchProposalList(updatedProposalId); // update proposal votes
+    if (updatedProposalId) {
+      fetchProposalList(currentDao!.id, updatedProposalId); // update proposal votes
+    }
   };
 
   const handleFilter = (e: any) => {
@@ -53,25 +71,32 @@ export default () => {
   };
 
   useEffect(() => {
-    fetchProposalList();
-  }, []);
+    if (currentDao) {
+      fetchProposalList(currentDao.id);
+    } else {
+      console.log(location);
+      const { dao: daoId } = location.query;
+      fetchDaoDetail(daoId);
+      fetchProposalList(daoId);
+    }
+  }, [location.pathname]);
   return (
     <div className="dao-detail-container">
       <div className="dao-detail-header">
-        <img src={currentDao!.img} alt="" />
+        <img src={currentDao?.img} alt="" />
         <div className="dao-detail-info">
-          <p className="dao-name">{currentDao!.name}</p>
+          <p className="dao-name">{currentDao?.name}</p>
           <p className="dao-info-item">
             <span className="label">Start date</span>
-            <span className="value">{formatDate(currentDao!.start_date)}</span>
+            <span className="value">{formatDate(currentDao?.start_date)}</span>
           </p>
           <p className="dao-info-item">
             <span className="label">Total members</span>
-            <span className="value">{currentDao!.total_member}</span>
+            <span className="value">{currentDao?.total_member}</span>
           </p>
           <p className="dao-info-twitter">
             <img src={IconTwitter} alt="" />
-            <span>{currentDao!.twitter}</span>
+            <span>{currentDao?.twitter}</span>
           </p>
         </div>
       </div>

@@ -103,14 +103,13 @@ export const getOrderByTokenId = async (tokenId: string, status?: number) => {
 export interface IGetOwnedNFTParams {
   addr: string;
   contract?: string;
-  collection?: string;
   token_id?: string;
   page?: number;
   gap?: number;
 }
 export interface IOwnedNFTData {
-  collection_id: ''; // collection id
-  collection_name: ''; // collection name
+  // collection_id: ''; // collection id
+  // collection_name: ''; // collection name
   contract: string; // contract address
   erc: string; // 1155 or 721
   token_id: string; //
@@ -287,7 +286,7 @@ export interface IDaoItem {
   facebook: string;
   twitter: string;
   id: string;
-  img: '';
+  img: string;
 }
 export interface IGetCollectionListResult {
   total: number;
@@ -296,7 +295,36 @@ export interface IGetCollectionListResult {
 export const getCollectionList = async (
   params: IGetCollectionListParams,
 ): Promise<IGetCollectionListResult> => {
-  const url = `${BACKEND_HOST}/collection`;
+  const url = `${BACKEND_HOST}/collection-list`;
+  const res = await axios.get(url, {
+    params,
+  });
+  const result = res.data.data as IGetCollectionListResult;
+  result.data.forEach((item) => {
+    item.dao.img = item.img;
+    item.dao.id = item.id;
+  });
+  return result;
+};
+
+export interface IGetCollectionNFTListParams {
+  collection_id: string;
+  addr?: string;
+  page?: number;
+  gap?: number;
+}
+
+export interface IGetCollectionNFTListResult {
+  total: number;
+  collection_id: ''; // collection id
+  collection_name: ''; // collection name
+  collection_img: ''; // collection img
+  data: IOwnedNFTData[];
+}
+export const getCollectionNFTList = async (
+  params: IGetCollectionNFTListParams,
+): Promise<IGetCollectionNFTListResult> => {
+  const url = `${BACKEND_HOST}/collection/nfts`;
   const res = await axios.get(url, {
     params,
   });
@@ -379,13 +407,10 @@ export const getProposalList = async (
     params,
   });
   const result: any = res.data.data;
-  result.data.forEach((temp: any) => (temp.items = temp.items.split(',')));
-  result.data.forEach(
-    (temp: any) =>
-      (temp.results = temp.results
-        .split(',')
-        .map((num: string) => parseInt(num))),
-  );
+  result.data.forEach((temp: any) => {
+    temp.items = temp.items.split(',');
+    temp.results = temp.results.split(',').map((num: string) => parseInt(num));
+  });
   result.data.forEach((temp: any) => (temp.status = getProposalStatus(temp)));
   return result;
 };
@@ -411,14 +436,44 @@ export const createProposal = async (params: ICreateProposalParams) => {
 };
 
 export interface IVoteProposalParams {
-  voter: string
+  voter: string;
   collection_id: string;
   proposal_id: string;
   item: string;
-  sig: string; 
+  sig: string;
 }
 export const voteProposal = async (params: IVoteProposalParams) => {
   const url = `${BACKEND_HOST}/proposal/vote`;
   const res = await axios.post(url, params);
   return true;
+};
+
+export interface IGetUserVoteParams {
+  proposal_id: string;
+  collection_id: string;
+  addr: string;
+}
+export interface IGetUserVoteResult {
+  collection_id: string;
+  id: string;
+  voter: string;
+  item: string; //
+  votes: string; //
+}
+export const getUserVoteInfo = async (
+  params: IGetUserVoteParams,
+): Promise<IGetUserVoteResult | null> => {
+  const url = `${BACKEND_HOST}/proposal/votes`;
+  const res = await axios.get(url, {
+    params,
+  });
+  return res.data.data;
+};
+
+export const getCollectionWithId = async (
+  id: string,
+): Promise<ICollectionItem | null> => {
+  const url = `${BACKEND_HOST}/collection?contract=${id}`;
+  const res = await axios.get(url, {});
+  return res.data.data || null;
 };

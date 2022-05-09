@@ -6,6 +6,7 @@ import {
   getMinter,
   getOwner,
   registerDao,
+  invokeERC721,
 } from './Services/mintService';
 import { requestSignMsg } from './Services/signMsgService';
 
@@ -95,6 +96,20 @@ async function messageHandler(requestMsg: any) {
         const { tokenId } = requestData.request;
         const owner = await getOwner(tokenId);
         response.result = owner;
+        break;
+      }
+      case MessageTypes.Open_OptionPage: {
+        const { uri } = requestData.request;
+        chrome.tabs.create({
+          url: `chrome-extension://${chrome.runtime.id}/options.html#/${uri}`,
+        });
+        response.result = true;
+        break;
+      }
+      case MessageTypes.InvokeERC721Contract: {
+        const { contract, method, readOnly, args } = requestData.request;
+        const result = await invokeERC721(contract, method, readOnly, args);
+        response.result = result;
         break;
       }
       default:

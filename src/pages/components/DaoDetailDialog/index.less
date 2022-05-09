@@ -1,0 +1,91 @@
+.container {
+  position: relative;
+  .icon-close {
+    position: absolute;
+    top: 10px;
+    right: 0px;
+    cursor: pointer;
+    width: 12px;
+  }
+  .content {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    .left {
+      > img {
+        border-radius: 16px;
+        width: 134px;
+        height: 134px;
+        margin-right: 22px;
+      }
+    }
+    .right {
+      .title {
+        font-family: 'Poppins';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 18px;
+        color: #11142d;
+        margin-bottom: 8px;
+      }
+      .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        .label {
+          font-family: 'Poppins';
+          font-style: normal;
+          font-weight: 500;
+          font-size: 10px;
+          line-height: 15px;
+          color: #808191;
+          margin-right: 4px;
+        }
+        .value {
+          font-family: 'Poppins';
+          font-style: normal;
+          font-weight: 500;
+          font-size: 10px;
+          line-height: 15px;
+          text-align: center;
+
+          color: #11142d;
+        }
+      }
+      .info-twitter {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        > img {
+          width: 12px;
+          height: 12px;
+          margin-right: 4px;
+        }
+        > span {
+          font-family: 'Poppins';
+          font-style: normal;
+          font-weight: 500;
+          font-size: 10px;
+          line-height: 15px;
+          text-align: center;
+          text-decoration-line: underline;
+          color: #11142d;
+        }
+      }
+    }
+  }
+  .footer-btns {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    > button:first-child {
+      margin-right: 20px;
+    }
+    .footer-btn {
+      width: 128px;
+      height: 32px;
+    }
+  }
+}

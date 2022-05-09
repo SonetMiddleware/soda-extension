@@ -13,6 +13,9 @@ export default () => {
     // Go to options page
     if (location.pathname.indexOf('options.html') < 0) {
       chrome.runtime.openOptionsPage();
+      // chrome.tabs.create({
+      //   url: `chrome-extension://${chrome.runtime.id}/options.html#/daoDetail?dao=0x917be393EeF337f280eF2000430F16c1340CAcAd`,
+      // });
     } else {
       history.replace('/accounts/home');
     }

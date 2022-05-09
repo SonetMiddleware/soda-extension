@@ -98,7 +98,7 @@ export default () => {
           <Tabs
             style={{ height: '100%' }}
             animated={false}
-            defaultActiveKey="3"
+            defaultActiveKey="1"
           >
             <TabPane tab="My Favorite" key="1" className="fav-list">
               <FavNFTList account={account} />

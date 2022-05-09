@@ -8,9 +8,11 @@ import {
   getCollectionList,
   IDaoItem,
   ICollectionItem,
+  getCollectionNFTList,
 } from '@/utils/apis';
 import IconDao from '@/theme/images/icon-dao.svg';
 import CommonButton from '@/pages/components/Button';
+import DaoDetailDialog from '@/pages/components/DaoDetailDialog';
 import { useDaoModel } from '@/models';
 import { useHistory } from 'umi';
 interface IProps {
@@ -27,10 +29,11 @@ export default (props: IProps) => {
   const [selectedImg, setSelectedImg] = useState<number>();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [showModal, setShowModal] = useState(false);
   const [selectedCollection, setSelectedCollection] =
     useState<ICollectionItem>();
 
-  const { setCollectionForDaoCreation } = useDaoModel();
+  const { setCollectionForDaoCreation, setCurrentDao } = useDaoModel();
   const history = useHistory();
 
   const fetchOwnedList = useCallback(async () => {
@@ -43,10 +46,9 @@ export default (props: IProps) => {
           collections.data.map((item) => {
             const params = {
               addr: account,
-              collection: item.id,
-              contract: item.id,
+              collection_id: item.id,
             };
-            return getOwnedNFT(params);
+            return getCollectionNFTList(params);
           }),
         );
         const nftList = [];
@@ -80,6 +82,16 @@ export default (props: IProps) => {
     }
   };
 
+  const handleDaoSelect = (item: ICollectionItem) => {
+    setCurrentDao(item.dao);
+    setCollectionForDaoCreation(item);
+    setShowModal(true);
+  };
+  const onModalClose = () => {
+    setShowModal(false);
+    setCollectionForDaoCreation(undefined);
+  };
+
   return (
     <div className="owned-list-container">
       <div className="btn-container">
@@ -111,7 +123,13 @@ export default (props: IProps) => {
                   <span>{collectionNFTItem.collection.name}</span>{' '}
                 </Radio>
                 {collectionNFTItem.collection.dao && (
-                  <img src={IconDao} alt="" />
+                  <img
+                    src={IconDao}
+                    alt=""
+                    onClick={() =>
+                      handleDaoSelect(collectionNFTItem.collection)
+                    }
+                  />
                 )}
               </div>
               <ul className="collection-nft-list">
@@ -143,6 +161,7 @@ export default (props: IProps) => {
           />
         </div> */}
       </Spin>
+      <DaoDetailDialog onClose={onModalClose} show={showModal} />
     </div>
   );
 };

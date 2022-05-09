@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.less';
 import { HashRouter as Router, Switch, Link } from 'react-router-dom';
 import Accounts from '../popup/accounts';
@@ -16,9 +16,12 @@ import DAO from './Dao/index';
 import DaoDetail from './Dao/DaoDetail';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/lib/locale/en_US';
+import { message } from 'antd';
+import { useWalletModel } from '@/models';
 import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
+import { getChainId, MessageTypes, sendMessage } from '@soda/soda-core';
 
 import '@/theme/index.less';
 const routes: IRouteProps[] = [
@@ -71,10 +74,29 @@ const routes: IRouteProps[] = [
     component: Home,
   },
 ];
-
+const DEFAULT_CHAINID = '80001';
 const App = (props: any) => {
   const { hash } = props.location;
+  const { setAccount } = useWalletModel();
   console.log(hash);
+
+  useEffect(() => {
+    (async () => {
+      const chainId = await getChainId();
+      if (chainId != DEFAULT_CHAINID) {
+        message.warning(
+          'Please switch the network of Metamask to matic-test(https://rpc-mumbai.maticvigil.com)',
+        );
+      }
+      const req = {
+        type: MessageTypes.Connect_Metamask,
+      };
+      const resp: any = await sendMessage(req);
+      console.log('get account: ', resp);
+      const { account: _account } = resp.result;
+      setAccount(_account);
+    })();
+  }, []);
   return (
     <div className="root-container">
       <Router>

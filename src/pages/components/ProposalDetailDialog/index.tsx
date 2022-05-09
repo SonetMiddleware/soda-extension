@@ -1,11 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
 import { IProposalItem } from '@/utils/apis';
 import { Button, Modal, Radio, Space, message } from 'antd';
 import { formatDateTime } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';
 import ProposalStatus from '../ProposalItemStatus';
-import { ProposalStatusEnum, voteProposal } from '@/utils/apis';
+import {
+  ProposalStatusEnum,
+  voteProposal,
+  getUserVoteInfo,
+} from '@/utils/apis';
 import { MessageTypes, sendMessage } from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
 
@@ -17,10 +21,11 @@ interface IProps {
 
 export default (props: IProps) => {
   const { show, detail, onClose } = props;
-  const [vote, setVote] = useState('');
+  const [vote, setVote] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const { account } = useWalletModel();
   const { currentDao } = useDaoModel();
+  const [voted, setVoted] = useState(false);
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
     if (totalVotersNum >= detail.ballot_threshold) {
@@ -72,6 +77,23 @@ export default (props: IProps) => {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      if (show && account && currentDao && detail) {
+        const params = {
+          proposal_id: detail.id,
+          collection_id: currentDao.id,
+          addr: account,
+        };
+        const res = await getUserVoteInfo(params);
+        if (res) {
+          setVoted(true);
+          setVote(res.item);
+        }
+      }
+    })();
+  }, [show]);
+
   return (
     <Modal
       footer={null}
@@ -109,14 +131,18 @@ export default (props: IProps) => {
           >
             <Space direction="vertical">
               {detail.items.map((option, index) => (
-                <Radio value={option} key={index}>
+                <Radio
+                  value={option}
+                  key={index}
+                  disabled={voted && vote !== option}
+                >
                   {option}
                 </Radio>
               ))}
             </Space>
           </Radio.Group>
           <div>
-            {detail.status === ProposalStatusEnum.OPEN && (
+            {detail.status === ProposalStatusEnum.OPEN && !voted && (
               <Button
                 type="primary"
                 onClick={handleVoteSubmit}

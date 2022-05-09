@@ -4,6 +4,7 @@ import Contracts from '../configs/contracts';
 import RpcRouterAbi from '../configs/abis/RPCRouter.json';
 import Meme2Abi from '../configs/abis/PlatwinMEME2.json';
 import ERC20abi from '../configs/ERC20abi.json';
+import ERC721abi from '../configs/abis/ERC721.json';
 import MarketAbi from '../configs/abis/Market.json';
 import RegisterDaoAbi from '../configs/abis/DAORegistry.json';
 import { getOrderByTokenId } from '../../utils/apis';
@@ -132,5 +133,37 @@ export const getMinter = async (tokenId: string) => {
   } catch (err) {
     console.log(err);
     return '';
+  }
+};
+
+export const invokeERC721 = async (
+  contract: string,
+  method: string,
+  readOnly: boolean,
+  args: any[],
+) => {
+  try {
+    const web3 = createWeb3();
+    const erc721 = new web3.eth.Contract(ERC721abi.abi as AbiItem[], contract);
+    if (readOnly) {
+      const res = await erc721.methods[method](...args).call();
+      return res;
+    } else {
+      const { accounts } = await requestAccounts();
+      const account = accounts[0];
+      return new Promise((resolve, reject) => {
+        erc721.methods[method](...args)
+          .send({ from: account })
+          .on('receipt', function (receipt: any) {
+            resolve(receipt);
+          })
+          .on('error', function (error: Error) {
+            reject(error);
+          });
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    return e;
   }
 };
