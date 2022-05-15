@@ -93,8 +93,10 @@ const App = (props: any) => {
       };
       const resp: any = await sendMessage(req);
       console.log('get account: ', resp);
-      const { account: _account } = resp.result;
-      setAccount(_account);
+      if (resp && resp.result) {
+        const { account: _account } = resp.result;
+        setAccount(_account);
+      }
     })();
   }, []);
   return (

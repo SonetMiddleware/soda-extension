@@ -1,6 +1,6 @@
 {
   "name": "@soda/extension",
-  "version": "0.3.0",
+  "version": "0.2.13",
   "description": "A personal asset portal for the Web. Build a socially forward metaverse where assets derive value from communal activity.",
   "private": true,
   "author": "sonet.one",
@@ -57,6 +57,7 @@
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@soda/facebook-kit": "workspace:^0.0.1",
     "@soda/soda-core": "workspace:^0.0.1",
+    "@soda/soda-media-sdk": "workspace:^0.0.1",
     "@soda/twitter-kit": "workspace:^1.0.0",
     "@types/lodash-es": "^4.17.4",
     "@types/pubsub-js": "^1.8.2",

@@ -40,8 +40,24 @@ export default (props: IProps) => {
     if (account) {
       try {
         setLoading(true);
-        const collections = await getCollectionList({ addr: account });
+        const collections = await getCollectionList({
+          addr: account,
+        });
         console.log('collections: ', collections);
+        collections.data.push({
+          id: '0x0000000000000000000000000000000000000000',
+          name: '',
+          img: '',
+          dao: {
+            name: '',
+            start_date: 0,
+            total_member: 0,
+            facebook: '',
+            twitter: '',
+            id: '0x0000000000000000000000000000000000000000',
+            img: '',
+          },
+        });
         const nftResp = await Promise.all(
           collections.data.map((item) => {
             const params = {
@@ -53,11 +69,13 @@ export default (props: IProps) => {
         );
         const nftList = [];
         for (let i = 0; i < nftResp.length; i++) {
-          const collectionNFTItem = nftResp[i].data;
-          nftList.push({
-            collection: collections.data[i],
-            nfts: collectionNFTItem,
-          });
+          if (nftResp[i]) {
+            const collectionNFTItem = nftResp[i]!.data;
+            nftList.push({
+              collection: collections.data[i],
+              nfts: collectionNFTItem,
+            });
+          }
         }
         setOwnedNFTs(nftList);
         // setTotal(nfts.total);
@@ -110,28 +128,30 @@ export default (props: IProps) => {
               key={collectionNFTItem.collection.id}
               className="collection-container"
             >
-              <div className="collection-title">
-                <Radio
-                  checked={
-                    selectedCollection?.id === collectionNFTItem.collection.id
-                  }
-                  onChange={(e: any) => {
-                    setSelectedCollection(collectionNFTItem.collection);
-                  }}
-                  disabled={collectionNFTItem.collection.dao !== null}
-                >
-                  <span>{collectionNFTItem.collection.name}</span>{' '}
-                </Radio>
-                {collectionNFTItem.collection.dao && (
-                  <img
-                    src={IconDao}
-                    alt=""
-                    onClick={() =>
-                      handleDaoSelect(collectionNFTItem.collection)
+              {collectionNFTItem.collection.name && (
+                <div className="collection-title">
+                  <Radio
+                    checked={
+                      selectedCollection?.id === collectionNFTItem.collection.id
                     }
-                  />
-                )}
-              </div>
+                    onChange={(e: any) => {
+                      setSelectedCollection(collectionNFTItem.collection);
+                    }}
+                    disabled={collectionNFTItem.collection.dao !== null}
+                  >
+                    <span>{collectionNFTItem.collection.name}</span>{' '}
+                  </Radio>
+                  {collectionNFTItem.collection.dao && (
+                    <img
+                      src={IconDao}
+                      alt=""
+                      onClick={() =>
+                        handleDaoSelect(collectionNFTItem.collection)
+                      }
+                    />
+                  )}
+                </div>
+              )}
               <ul className="collection-nft-list">
                 {collectionNFTItem.nfts.map((item) => (
                   <li key={item.uri}>

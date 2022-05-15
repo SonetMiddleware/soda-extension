@@ -9,7 +9,7 @@ export default defineConfig({
   },
   locale: { default: 'en-US' },
   extensions: {
-    name: 'Plato Twin',
+    name: 'Soda',
     description:
       'A personal asset portal for the Web. Build a socially forward metaverse where assets derive value from communal activity.',
     optionsUI: {
@@ -33,12 +33,12 @@ export default defineConfig({
       },
     ],
     icons: {
-      16: 'logo/logo@16.png',
-      32: 'logo/logo@32.png',
-      48: 'logo/logo@48.png',
-      128: 'logo/logo@128.png',
+      16: 'logo/sodalogo@16.png',
+      32: 'logo/sodalogo@32.png',
+      48: 'logo/sodalogo@48.png',
+      128: 'logo/sodalogo@128.png',
     },
-    permissions: ['storage'],
+    permissions: ['storage', 'tabs'],
     extends: {
       web_accessible_resources: ['injected.js', 'images/*.png'],
     },

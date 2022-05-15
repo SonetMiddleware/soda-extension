@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.less';
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   Input,
   DatePicker,
   Tooltip,
+  InputNumber,
 } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import CommonButton from '@/pages/components/Button';
@@ -16,32 +17,41 @@ import ProposalFormItems from '@/pages/components/ProposalFormItems';
 import { createProposal } from '@/utils/apis';
 import web3 from 'web3';
 import axios from 'axios';
-import { MessageTypes, sendMessage } from '@soda/soda-core';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import {
+  getCollectionWithId,
+  MessageTypes,
+  sendMessage,
+} from '@soda/soda-core';
+import {
+  ExclamationCircleOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
+
 import moment from 'moment';
-import { useHistory } from 'umi';
+import { useHistory, useLocation } from 'umi';
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 export default () => {
-  const { currentDao } = useDaoModel();
+  const { currentDao, setCurrentDao } = useDaoModel();
   const { account } = useWalletModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [snapshotBlock, setSnapShotBlock] = useState<number[]>([]);
   const history = useHistory();
+  const location = useLocation();
   const VoterBollotOptions = [
     {
       value: 1,
-      label: '1 ballot per address',
+      label: '1 ballot per address(NFT holder)',
     },
     {
       value: 2,
       label: '1 ballot per NFT',
     },
-    {
-      value: 3,
-      label: '1 ballot per SON',
-    },
+    // {
+    //   value: 3,
+    //   label: '1 ballot per SON',
+    // },
   ];
 
   //TODO: change to mainnet api
@@ -119,7 +129,8 @@ export default () => {
       };
       await createProposal(params);
       message.success('Your proposal is created successfully.');
-      history.goBack();
+      // history.goBack();
+      history.push('/daoDetail');
       setSubmitting(false);
     } catch (e) {
       setSubmitting(false);
@@ -131,6 +142,22 @@ export default () => {
     return current && current < moment().endOf('day');
   };
 
+  const fetchDaoDetail = async (daoId: string) => {
+    const collection = await getCollectionWithId(daoId);
+    if (collection) {
+      const dao = { ...collection.dao, id: collection.id, img: collection.img };
+      setCurrentDao(dao);
+      return collection;
+    }
+  };
+
+  useEffect(() => {
+    if (!currentDao) {
+      const { dao: daoId } = location.query;
+      fetchDaoDetail(daoId);
+    }
+  }, [location.pathname]);
+
   return (
     <div className="new-proposal-container">
       <p className="page-title">New Proposal</p>
@@ -140,6 +167,7 @@ export default () => {
         autoComplete="off"
         layout="vertical"
         className="common-form proposal-form"
+        initialValues={{ voter_type: 1 }}
         // onValuesChange={(changedValues: any) =>
         // console.log('form: ', changedValues)
         // }
@@ -202,32 +230,47 @@ export default () => {
             ]}
           >
             <RangePicker
-              showTime
               disabledDate={disabledDate}
+              showTime={{
+                defaultValue: [
+                  moment('00:00:00', 'HH:mm:ss'),
+                  moment('23:59:59', 'HH:mm:ss'),
+                ],
+              }}
               onChange={(val: any) => {
-                getSnapShotBlockheight(val[0].valueOf(), val[1].valueOf());
+                if (val && val.length === 2) {
+                  getSnapShotBlockheight(val[0].valueOf(), val[1].valueOf());
+                }
               }}
             />
           </Form.Item>
           <div className="snapshot-blockheight">
             <span>Block height: </span>
             <span className="snapshot-block-item">{snapshotBlock[0]}</span>
-            <span className="snapshot-block-item-divide"> - </span>
-            <span className="snapshot-block-item">{snapshotBlock[1]}</span>
-            <Tooltip
-              title="Please be aware, the block height been calculated by input time may not be accurate.\n 
-            The proposal will be enabled during the period marked by block height precisely."
-            >
-              <QuestionCircleOutlined />
+            {/* <span className="snapshot-block-item-divide"> - </span> */}
+            {/* <span className="snapshot-block-item">{snapshotBlock[1]}</span> */}
+            <Tooltip title="Please be awared, the block height been calculated by input time may not be accurate. Ballots of the proposal will be calculated based on the blockchain snapshot by the block height precisely.">
+              <ExclamationCircleOutlined />
             </Tooltip>
           </div>
           <Form.Item
-            label="Target Ballot Threshold*"
+            label={
+              <p className="label-ballot-threshold">
+                <span>Ballot Target Threshold* </span>
+                <Tooltip title='For proposal with ballots exceed the threshold will be marked as a "valid" proposal.'>
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </p>
+            }
             name="ballot_threshold"
             rules={[
               {
                 required: true,
-                message: 'Please input target ballot threshold.',
+                message: 'Please input ballot target threshold.',
+              },
+              {
+                pattern: /^[1-9][0-9]*$/,
+                message: 'Please input valid number.',
               },
             ]}
           >
@@ -242,19 +285,19 @@ export default () => {
             rules={[
               {
                 required: true,
-                message: 'Please select voter ballot.',
+                message: 'Please select voter ballot type.',
               },
             ]}
           >
             <Select options={VoterBollotOptions} />
           </Form.Item>
           <Form.Item
-            label="Items*"
+            label="Item(s)*"
             name="items"
             rules={[
               {
                 required: true,
-                message: 'Please input title.',
+                message: 'Please input item content.',
               },
             ]}
           >
@@ -278,7 +321,7 @@ export default () => {
           type="secondary"
           className="btn-cancel"
           onClick={() => {
-            history.goBack();
+            history.push('/daoDetail');
           }}
         >
           Cancel

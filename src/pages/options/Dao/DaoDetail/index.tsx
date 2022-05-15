@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './index.less';
 import { Input } from 'antd';
-import { useDaoModel } from '@/models';
+import { useDaoModel, useWalletModel } from '@/models';
 import { formatDate } from '@/utils';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import CommonButton from '@/pages/components/Button';
@@ -14,6 +14,8 @@ import ProposalItem from '@/pages/components/ProposalItem';
 import ProposalResults from '@/pages/components/ProposalResults';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
 import { useHistory, useLocation } from 'umi';
+import { MessageTypes, sendMessage } from '@soda/soda-core';
+
 export default () => {
   const { setCurrentDao, currentDao } = useDaoModel();
   const history = useHistory();
@@ -22,33 +24,21 @@ export default () => {
   const [list, setList] = useState<IProposalItem[]>([]);
   const [filterList, setFilterList] = useState<IProposalItem[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [inDao, setInDao] = useState(false);
+  const { account } = useWalletModel();
+
   const [selectedProposal, setSelectedProposal] = useState<IProposalItem>();
-  const fetchProposalList = async (
-    daoId: string,
-    updatedProposalId?: string,
-  ) => {
+  const fetchProposalList = async (daoId: string) => {
     const listResp = await getProposalList({ dao: daoId });
     const list = listResp.data;
     setList(list);
     setFilterList(list);
-    if (updatedProposalId) {
-      const index = list.findIndex(
-        (item) => String(item.id) === String(updatedProposalId),
-      );
-      if (index > -1) {
-        setSelectedProposal(list[index]);
-      } else {
-        setSelectedProposal(list[0]);
-      }
-    } else {
-      setSelectedProposal(list[0]);
-    }
   };
 
   const fetchDaoDetail = async (daoId: string) => {
     const collection = await getCollectionWithId(daoId);
     if (collection) {
-      const dao = { ...collection.dao ,id: collection.id, };
+      const dao = { ...collection.dao, id: collection.id, img: collection.img };
       setCurrentDao(dao);
       return collection;
     }
@@ -56,9 +46,7 @@ export default () => {
 
   const handleDetailDialogClose = (updatedProposalId?: string) => {
     setShowModal(false);
-    if (updatedProposalId) {
-      fetchProposalList(currentDao!.id, updatedProposalId); // update proposal votes
-    }
+    fetchProposalList(currentDao!.id);
   };
 
   const handleFilter = (e: any) => {
@@ -67,8 +55,34 @@ export default () => {
     if (val) {
       const _list = list.filter((item) => item.title.includes(val));
       setFilterList(_list);
+    } else {
+      setFilterList(list);
     }
   };
+
+  const fetchUserInDao = async () => {
+    const msg = {
+      type: MessageTypes.InvokeERC721Contract,
+      request: {
+        contract: currentDao?.id,
+        method: 'balanceOf',
+        readOnly: true,
+        args: [account],
+      },
+    };
+    const balanceRes: any = await sendMessage(msg);
+    console.log('GetNFTBalance: ', balanceRes);
+    const balance = balanceRes.result;
+    if (Number(balance) > 0) {
+      setInDao(true);
+    }
+  };
+
+  useEffect(() => {
+    if (currentDao && account) {
+      fetchUserInDao();
+    }
+  }, [currentDao, account]);
 
   useEffect(() => {
     if (currentDao) {
@@ -87,7 +101,7 @@ export default () => {
         <div className="dao-detail-info">
           <p className="dao-name">{currentDao?.name}</p>
           <p className="dao-info-item">
-            <span className="label">Start date</span>
+            <span className="label">Create date</span>
             <span className="value">{formatDate(currentDao?.start_date)}</span>
           </p>
           <p className="dao-info-item">
@@ -112,6 +126,7 @@ export default () => {
           type="primary"
           className="btn-new-proposal"
           onClick={() => history.push('/daoNewProposal')}
+          disabled={!inDao}
         >
           New Proposal
         </CommonButton>
@@ -134,6 +149,7 @@ export default () => {
           show={showModal}
           detail={selectedProposal!}
           onClose={handleDetailDialogClose}
+          inDao={inDao}
         />
       )}
     </div>

@@ -47,7 +47,7 @@ export default (props: IProps) => {
           <div className={styles['right']}>
             <p className={styles['title']}>{currentDao?.name}</p>
             <p className={styles['info-item']}>
-              <span className={styles['label']}>Start date: </span>
+              <span className={styles['label']}>Create date: </span>
               <span className={styles['label']}>
                 {formatDate(currentDao?.start_date)}
               </span>

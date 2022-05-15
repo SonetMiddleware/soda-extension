@@ -16,6 +16,7 @@ export const requestSignMsg = async (msg: string, account: string) => {
     const signParams = [msg, account];
     const method = 'personal_sign';
     const res = await web3.eth.personal.sign(msg, account, '');
+    console.log('SignXXXXXXXXXXXXXXXXXXX:', msg, account, res);
     return res;
     return new Promise((resolve, reject) => {
       //@ts-ignore

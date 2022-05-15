@@ -167,3 +167,23 @@ export const invokeERC721 = async (
     return e;
   }
 };
+
+export const invokeWeb3Api = async (
+  module: string,
+  method: string,
+  args?: any[],
+) => {
+  try {
+    const web3: any = createWeb3();
+    if (args && args.length > 0) {
+      const res = await web3[module][method](...args);
+      return res;
+    } else {
+      const res = await web3[module][method]();
+      return res;
+    }
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};

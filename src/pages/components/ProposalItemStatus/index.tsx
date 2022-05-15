@@ -11,10 +11,10 @@ export default (props: { status: ProposalStatusEnum }) => {
       return 'Soon';
     } else if (status === ProposalStatusEnum.OPEN) {
       return 'Open';
-    } else if (status === ProposalStatusEnum.PASSED) {
-      return 'Soon';
-    } else if (status === ProposalStatusEnum.NOT_PASSED) {
-      return 'Soon';
+    } else if (status === ProposalStatusEnum.VALID) {
+      return 'Valid';
+    } else if (status === ProposalStatusEnum.INVALID) {
+      return 'Invalid';
     }
   }, [status]);
 
@@ -23,8 +23,8 @@ export default (props: { status: ProposalStatusEnum }) => {
       className={classNames(styles.status, {
         [styles.open]: status === ProposalStatusEnum.OPEN,
         [styles.soon]: status === ProposalStatusEnum.SOON,
-        [styles.passed]: status === ProposalStatusEnum.PASSED,
-        [styles.notPassed]: status === ProposalStatusEnum.NOT_PASSED,
+        [styles.passed]: status === ProposalStatusEnum.VALID,
+        [styles.notPassed]: status === ProposalStatusEnum.INVALID,
       })}
     >
       <span className={styles.dot}></span>

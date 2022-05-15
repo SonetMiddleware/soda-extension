@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './index.less';
-import { useDaoModel } from '@/models';
-import { Pagination, Spin, Tooltip } from 'antd';
+import { useDaoModel, useWalletModel } from '@/models';
+import { Pagination, Spin, Tooltip, message } from 'antd';
 import CommonButton from '@/pages/components/Button';
 import { IDaoItem, getDaoList, IGetDaoListParams } from '@/utils/apis';
 import { useHistory } from 'umi';
@@ -15,7 +15,7 @@ enum ListSwitchEnum {
 export default () => {
   const history = useHistory();
   const { setCurrentDao } = useDaoModel();
-  const [account, setAccount] = useState('');
+  const { account } = useWalletModel();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [listSwitch, setListSwitch] = useState<ListSwitchEnum>(
@@ -34,9 +34,16 @@ export default () => {
     setLoading(true);
     const params = {
       page,
-      gap: 8,
+      gap: 10,
     } as IGetDaoListParams;
     if (listSwitch === ListSwitchEnum.My_List) {
+      if (!account) {
+        message.warn('No wallet address found.');
+        setTotal(0);
+        setDaos([]);
+        setLoading(false);
+        return;
+      }
       params.addr = account;
     }
     const daosResp = await getDaoList(params);
@@ -48,18 +55,6 @@ export default () => {
   const handleChangePage = (newPage: number, pageSize: number | undefined) => {
     fetchDaoList(newPage);
   };
-
-  useEffect(() => {
-    (async () => {
-      const req = {
-        type: MessageTypes.Connect_Metamask,
-      };
-      const resp: any = await sendMessage(req);
-      console.log('get account: ', resp);
-      const { account: _account } = resp.result;
-      setAccount(_account);
-    })();
-  }, []);
 
   useEffect(() => {
     fetchDaoList(1);

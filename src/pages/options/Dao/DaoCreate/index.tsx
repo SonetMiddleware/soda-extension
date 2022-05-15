@@ -39,9 +39,12 @@ export default () => {
       };
       message.info('Creating your DAO...');
       const resp: any = await sendMessage(req);
+      if (resp && resp.result && resp.result.error) {
+        message.warn('Create DAO failed.');
+        return;
+      }
       console.log('resp: ', resp);
       message.success('DAO is created successfully!');
-
       setSubmitting(false);
     } catch (e) {
       setSubmitting(false);
@@ -85,7 +88,7 @@ export default () => {
             >
               <Input className="dao-form-input" placeholder="DAO name" />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               label="Start Date*"
               name="startDate"
               rules={[
@@ -96,8 +99,8 @@ export default () => {
               ]}
             >
               <DatePicker placeholder="Start Date" />
-            </Form.Item>
-            <Form.Item
+            </Form.Item> */}
+            {/* <Form.Item
               label="Total Number of Supporters*"
               name="supportersNum"
               rules={[
@@ -111,7 +114,7 @@ export default () => {
                 className="dao-form-input"
                 placeholder="Total Number of Supporters"
               />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item
               label="Founding Twitter Username*"
               name="twitter"

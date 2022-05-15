@@ -7,8 +7,10 @@ import {
   getOwner,
   registerDao,
   invokeERC721,
+  invokeWeb3Api,
 } from './Services/mintService';
 import { requestSignMsg } from './Services/signMsgService';
+const { browser } = require('webextension-polyfill-ts');
 
 export async function connectMetaMask() {
   try {
@@ -98,20 +100,46 @@ async function messageHandler(requestMsg: any) {
         response.result = owner;
         break;
       }
-      case MessageTypes.Open_OptionPage: {
-        const { uri } = requestData.request;
-        chrome.tabs.create({
-          url: `chrome-extension://${chrome.runtime.id}/options.html#/${uri}`,
-        });
-        response.result = true;
-        break;
-      }
       case MessageTypes.InvokeERC721Contract: {
         const { contract, method, readOnly, args } = requestData.request;
         const result = await invokeERC721(contract, method, readOnly, args);
         response.result = result;
         break;
       }
+      case MessageTypes.InvokeWeb3Api: {
+        const { module, method, args } = requestData.request;
+        const result = await invokeWeb3Api(module, method, args);
+        response.result = result;
+        break;
+      }
+      case MessageTypes.Open_OptionPage: {
+        const { uri } = requestData.request;
+
+        chrome.tabs.query({}, function (tabs: any) {
+          const urlPrefix = `chrome-extension://${chrome.runtime.id}/options.html#/`;
+          const url = `${urlPrefix}${uri}`;
+          let found = false;
+          let tabId = -1;
+          for (var i = 0; i < tabs.length; i++) {
+            if (tabs[i].url.search(urlPrefix) > -1) {
+              found = true;
+              tabId = tabs[i].id;
+              break;
+            }
+          }
+          if (found == false) {
+            chrome.tabs.create({
+              url,
+            });
+          } else {
+            chrome.tabs.update(tabId, { selected: true, url });
+          }
+        });
+
+        response.result = true;
+        break;
+      }
+
       default:
         break;
     }
@@ -137,6 +165,14 @@ chrome.runtime.onMessage.addListener(function (
     console.log(err);
   }
 });
+
+// browser.runtime.onMessage.addListener(function (req: any) {
+//   console.log('received from client: ', req);
+//   const promise = Promise.resolve();
+//   return promise.then(() => ({
+//     result: '123###########$#$$$$$$$$$$$$$$$',
+//   }));
+// });
 console.log('This is background page!');
 
 async function test() {
@@ -147,3 +183,15 @@ async function test() {
 }
 
 // test();
+
+// const res1 = encodeNumBase64(80001);
+// const res2 = decodeNumBase64(res1);
+
+// console.log('ressssssssssss1： ', res1);
+// console.log('ressssssssssss2： ', res2);
+
+// const res3 = encodeHexBase64('0daB724e3deC31e5EB0a000Aa8FfC42F1EC917C5');
+// const addr = decodeHexBase64(res3);
+// const res4 = '0000000000000000000000000000000000000000'.substring(addr.length) + addr
+// console.log('ressssssssssss3： ', res3);
+// console.log('ressssssssssss4： ', res4);

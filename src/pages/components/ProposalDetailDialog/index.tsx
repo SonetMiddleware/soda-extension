@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
 import { IProposalItem } from '@/utils/apis';
-import { Button, Modal, Radio, Space, message } from 'antd';
+import { Button, Modal, Radio, Space, message, Tooltip } from 'antd';
 import { formatDateTime } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';
 import ProposalStatus from '../ProposalItemStatus';
+import ProposalResults from '../ProposalResults';
 import {
   ProposalStatusEnum,
   voteProposal,
@@ -12,20 +13,25 @@ import {
 } from '@/utils/apis';
 import { MessageTypes, sendMessage } from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import web3 from 'web3';
 
 interface IProps {
   show: boolean;
   detail: IProposalItem;
   onClose: (updatedProposalId?: string) => void;
+  inDao: boolean;
 }
 
 export default (props: IProps) => {
-  const { show, detail, onClose } = props;
+  const { show, detail, onClose, inDao } = props;
   const [vote, setVote] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const { account } = useWalletModel();
   const { currentDao } = useDaoModel();
   const [voted, setVoted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
     if (totalVotersNum >= detail.ballot_threshold) {
@@ -50,7 +56,8 @@ export default (props: IProps) => {
     }
     try {
       setSubmitting(true);
-      const str = detail.id + vote;
+      //@ts-ignore
+      const str = web3.utils.sha3(detail.id, vote);
       const msg = {
         type: MessageTypes.Sing_Message,
         request: {
@@ -66,10 +73,15 @@ export default (props: IProps) => {
         item: vote,
         sig: res.result,
       };
-      await voteProposal(params);
-      message.success('Vote successfully.');
-      setSubmitting(false);
-      onClose(String(detail.id));
+      const result = await voteProposal(params);
+      if (result) {
+        message.success('Vote successfully.');
+        setSubmitting(false);
+        onClose();
+      } else {
+        message.error('Vote failed');
+        setSubmitting(false);
+      }
     } catch (e) {
       setSubmitting(false);
       console.log(e);
@@ -90,6 +102,25 @@ export default (props: IProps) => {
           setVoted(true);
           setVote(res.item);
         }
+        //get current block height
+        const msg = {
+          type: MessageTypes.InvokeWeb3Api,
+          request: {
+            module: 'eth',
+            method: 'getBlockNumber',
+          },
+        };
+        const blockRes: any = await sendMessage(msg);
+        const { result: currentBlockHeight } = blockRes;
+        console.log('currentBlockHeight: ', currentBlockHeight);
+        if (
+          detail.status === ProposalStatusEnum.OPEN &&
+          detail.snapshot_block <= currentBlockHeight
+        ) {
+          setIsOpen(true);
+        } else {
+          setIsOpen(false);
+        }
       }
     })();
   }, [show]);
@@ -100,12 +131,13 @@ export default (props: IProps) => {
       className="common-modal"
       visible={show}
       closable={false}
+      width={720}
     >
       <div className={styles['container']}>
         <div className={styles['header']}>
           <div className={styles['header-left']}>
             <p className={styles['end-time']}>
-              Ended at {formatDateTime(detail.end_time)}
+              End at {formatDateTime(detail.end_time)}
             </p>
             <p className={styles['title']}>{detail.title}</p>
             <p className={styles['total-supporter']}>
@@ -122,37 +154,47 @@ export default (props: IProps) => {
         <div className={styles['desc']}>
           <p>{detail.description}</p>
         </div>
-        <div className={styles['vote-container']}>
-          <p className={styles['vote-title']}>Cast your vote</p>
-          <Radio.Group
-            onChange={handleVoteChange}
-            value={vote}
-            className="custom-radio"
-          >
-            <Space direction="vertical">
-              {detail.items.map((option, index) => (
-                <Radio
-                  value={option}
-                  key={index}
-                  disabled={voted && vote !== option}
-                >
-                  {option}
-                </Radio>
-              ))}
-            </Space>
-          </Radio.Group>
-          <div>
-            {detail.status === ProposalStatusEnum.OPEN && !voted && (
-              <Button
-                type="primary"
-                onClick={handleVoteSubmit}
-                className={styles['vote-btn']}
-                loading={submitting}
+
+        <div className={styles['vote-submit-results-container']}>
+          {isOpen && inDao && (
+            <div className={styles['vote-container']}>
+              <p className={styles['vote-title']}>Cast your vote</p>
+              <Radio.Group
+                onChange={handleVoteChange}
+                value={vote}
+                className="custom-radio"
               >
-                Vote now
-              </Button>
-            )}
-          </div>
+                <Space direction="vertical">
+                  {detail.items.map((option, index) => (
+                    <Radio
+                      value={option}
+                      key={index}
+                      disabled={voted && vote !== option}
+                      className="custom-radio-item"
+                    >
+                      {option}
+                    </Radio>
+                  ))}
+                </Space>
+              </Radio.Group>
+              {!voted && (
+                <div>
+                  <Button
+                    type="primary"
+                    onClick={handleVoteSubmit}
+                    className={styles['vote-btn']}
+                    loading={submitting}
+                  >
+                    Vote now
+                  </Button>
+                  <Tooltip title="Your vote can not be changed.">
+                    <ExclamationCircleOutlined />
+                  </Tooltip>
+                </div>
+              )}
+            </div>
+          )}
+          <ProposalResults items={detail.items} results={detail.results} />
         </div>
       </div>
     </Modal>
