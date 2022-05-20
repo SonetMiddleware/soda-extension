@@ -21,7 +21,12 @@ import { useWalletModel } from '@/models';
 import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
-import { getChainId, MessageTypes, sendMessage } from '@soda/soda-core';
+import {
+  getChainId,
+  MessageTypes,
+  sendMessage,
+  MAINNET_CHAIN_ID,
+} from '@soda/soda-core';
 
 import '@/theme/index.less';
 const routes: IRouteProps[] = [
@@ -77,7 +82,7 @@ const routes: IRouteProps[] = [
 const DEFAULT_CHAINID = '80001';
 const App = (props: any) => {
   const { hash } = props.location;
-  const { setAccount } = useWalletModel();
+  const { setAccount, setIsCurrentMainNet } = useWalletModel();
   console.log(hash);
 
   useEffect(() => {
@@ -87,6 +92,9 @@ const App = (props: any) => {
         message.warning(
           'Please switch the network of Metamask to matic-test(https://rpc-mumbai.maticvigil.com)',
         );
+      }
+      if (Number(chainId) === MAINNET_CHAIN_ID) {
+        setIsCurrentMainNet(true);
       }
       const req = {
         type: MessageTypes.Connect_Metamask,

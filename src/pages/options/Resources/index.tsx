@@ -2,29 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './index.less';
 import { Tabs, message, Input, Upload, Spin, Button } from 'antd';
 import CommonButton from '@/pages/components/Button';
-import { addToFav, ipfsAdd, MessageTypes, sendMessage } from '@soda/soda-core';
+import {
+  addToFav,
+  ipfsAdd,
+  MessageTypes,
+  sendMessage,
+  isMainNet,
+} from '@soda/soda-core';
 import FavNFTList from './Components/FavNFTList';
 import OwnedNFTList from './Components/OwnedNFTList';
+import { useWalletModel } from '@/models';
 
 const { TabPane } = Tabs;
 
 export default () => {
-  const [account, setAccount] = useState('');
   const [loading, setLoading] = useState(false);
   const [localImg, setLocalImg] = useState<any>([]);
-
-  // 获取钱包地址
-  useEffect(() => {
-    (async () => {
-      const req = {
-        type: MessageTypes.Connect_Metamask,
-      };
-      const resp: any = await sendMessage(req);
-      console.log('get account: ', resp);
-      const { account: _account } = resp.result;
-      setAccount(_account);
-    })();
-  }, []);
+  const { account, isCurrentMainnet } = useWalletModel();
 
   const handleFinish = async () => {
     try {
@@ -103,34 +97,36 @@ export default () => {
             <TabPane tab="My Favorite" key="1" className="fav-list">
               <FavNFTList account={account} />
             </TabPane>
-            <TabPane tab="Mint" key="2">
-              <div className="mint-container">
-                <img
-                  src={chrome.extension.getURL('images/upload.png')}
-                  alt=""
-                />
-                <p>Select local images to mint NFT</p>
-                <Upload
-                  accept=".jpg,.jpeg,.png"
-                  onRemove={onRemove}
-                  fileList={localImg}
-                  beforeUpload={beforeUpload}
-                >
-                  <CommonButton type="primary" className="btn-upload">
-                    Select local image
+            {!isCurrentMainnet && (
+              <TabPane tab="Mint" key="2">
+                <div className="mint-container">
+                  <img
+                    src={chrome.extension.getURL('images/upload.png')}
+                    alt=""
+                  />
+                  <p>Select local images to mint NFT</p>
+                  <Upload
+                    accept=".jpg,.jpeg,.png"
+                    onRemove={onRemove}
+                    fileList={localImg}
+                    beforeUpload={beforeUpload}
+                  >
+                    <CommonButton type="primary" className="btn-upload">
+                      Select local image
+                    </CommonButton>
+                  </Upload>
+                  <CommonButton
+                    type="secondary"
+                    onClick={handleFinish}
+                    className="btn-finish"
+                    loading={loading}
+                  >
+                    Finish
                   </CommonButton>
-                </Upload>
-                <CommonButton
-                  type="secondary"
-                  onClick={handleFinish}
-                  className="btn-finish"
-                  loading={loading}
-                >
-                  Finish
-                </CommonButton>
-                {/* <img id="preview" src={previewLocalImg} alt="" className="preview-local" /> */}
-              </div>
-            </TabPane>
+                  {/* <img id="preview" src={previewLocalImg} alt="" className="preview-local" /> */}
+                </div>
+              </TabPane>
+            )}
             <TabPane tab="NFT Portfolio" key="3" className="fav-list">
               <OwnedNFTList account={account} />
             </TabPane>
