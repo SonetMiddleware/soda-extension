@@ -68,12 +68,7 @@ dl {
         width: 216px;
         height: 56px;
         color: #fff;
-        background: linear-gradient(
-          94.78deg,
-          #ff9a46 4.87%,
-          #ff67c1 54.61%,
-          #9d5fe9 97.32%
-        );
+        background: linear-gradient(270deg, #f8c35d 10.88%, #9d5fe9 77.98%);
         border-radius: 10px;
       }
       li {
@@ -171,5 +166,24 @@ dl {
   .ant-modal-content {
     box-shadow: inset 2px 2px 5px rgba(105, 141, 173, 0.5);
     border-radius: 8px;
+  }
+}
+
+.custom-radio {
+  .ant-radio-checked .ant-radio-inner {
+    border-color: #9d5fe9;
+  }
+  .ant-radio-checked::after {
+    border-color: #9d5fe9;
+  }
+  .ant-radio-inner::after {
+    background-color: #9d5fe9;
+  }
+}
+
+.ant-pagination-item-active {
+  border-color: #9d5fe9;
+  > a {
+    color: #9d5fe9;
   }
 }

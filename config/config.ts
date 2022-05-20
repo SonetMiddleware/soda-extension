@@ -20,16 +20,24 @@ export default defineConfig({
     popupUI: '@/pages/popup',
     contentScripts: [
       {
+        matches: ['http://*/*', 'https://*/*'],
+        entries: ['@/contentScripts/index.ts'],
+      },
+      {
         matches: ['https://twitter.com/*'],
-        entries: ['@/injectedScripts', '@/contentScripts/twitter'],
+        entries: [
+          '@/contentScripts/index.ts',
+          '@/injectedScripts',
+          '@/contentScripts/twitter',
+        ],
       },
       {
         matches: ['https://www.facebook.com/*'],
-        entries: ['@/contentScripts/facebook', '@/injectedScripts'],
-      },
-      {
-        matches: ['http://*/*', 'https://*/*'],
-        entries: ['@/contentScripts/index.ts'],
+        entries: [
+          '@/contentScripts/index.ts',
+          '@/contentScripts/facebook',
+          '@/injectedScripts',
+        ],
       },
     ],
     icons: {
@@ -40,7 +48,7 @@ export default defineConfig({
     },
     permissions: ['storage', 'tabs'],
     extends: {
-      web_accessible_resources: ['injected.js', 'images/*.png'],
+      web_accessible_resources: ['injected.js', 'images/*.png', 'fonts/*.*'],
     },
   },
   extraBabelPlugins: [

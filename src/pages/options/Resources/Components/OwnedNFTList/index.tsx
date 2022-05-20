@@ -15,6 +15,7 @@ import CommonButton from '@/pages/components/Button';
 import DaoDetailDialog from '@/pages/components/DaoDetailDialog';
 import { useDaoModel } from '@/models';
 import { useHistory } from 'umi';
+
 interface IProps {
   account: string;
 }
@@ -71,6 +72,16 @@ export default (props: IProps) => {
         for (let i = 0; i < nftResp.length; i++) {
           if (nftResp[i]) {
             const collectionNFTItem = nftResp[i]!.data;
+            collectionNFTItem.forEach((item) => {
+              if (item.uri && item.uri.includes('{')) {
+                try {
+                  const obj = JSON.parse(item.uri);
+                  if (obj.image) {
+                    item.uri = obj.image;
+                  }
+                } catch (e) {}
+              }
+            });
             nftList.push({
               collection: collections.data[i],
               nfts: collectionNFTItem,

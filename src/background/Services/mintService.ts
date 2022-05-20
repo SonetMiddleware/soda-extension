@@ -13,13 +13,14 @@ const maxUint256 = web3.utils
   .toBN(2)
   .pow(web3.utils.toBN(256))
   .sub(web3.utils.toBN(1));
-const CHAIN_ID = 80001;
+// const CHAIN_ID = 80001;
 
 export const registerDao = async (params: any) => {
   const { collectionId, name, facebook, twitter } = params;
   const web3 = createWeb3();
   const { accounts } = await requestAccounts();
   const account = accounts[0];
+  const CHAIN_ID = await web3.eth.getChainId();
   const daoContract = new web3.eth.Contract(
     RegisterDaoAbi.abi as AbiItem[],
     Contracts.DaoRegistery[CHAIN_ID],
@@ -42,6 +43,7 @@ export const mintToken = async (hash: string) => {
   const web3 = createWeb3();
   const { accounts } = await requestAccounts();
   const account = accounts[0];
+  const CHAIN_ID = await web3.eth.getChainId();
   const cashContract = new web3.eth.Contract(
     ERC20abi.abi as AbiItem[],
     Contracts.MockRPC[CHAIN_ID],
@@ -55,23 +57,23 @@ export const mintToken = async (hash: string) => {
     Contracts.RPCRouter[CHAIN_ID],
   );
   /* Mint MEME2 */
-  let mintFee = await rpcRouter.methods
-    .fixedAmountFee(Contracts.PlatwinMEME2WithoutRPC[CHAIN_ID])
-    .call();
-  console.log(mintFee);
-  const fee = mintFee[0] || 0;
-  // gas > 0
-  if (web3.utils.toBN(fee).gt(web3.utils.toBN(0))) {
-    let allowance = await cashContract.methods
-      .allowance(account, Contracts.RPCRouter[CHAIN_ID])
-      .call();
-    if (allowance.lt(mintFee)) {
-      await cashContract.methods.approve(
-        Contracts.RPCRouter[CHAIN_ID],
-        maxUint256,
-      );
-    }
-  }
+  // let mintFee = await rpcRouter.methods
+  //   .fixedAmountFee(Contracts.PlatwinMEME2WithoutRPC[CHAIN_ID])
+  //   .call();
+  // console.log(mintFee);
+  // const fee = mintFee[0] || 0;
+  // // gas > 0
+  // if (web3.utils.toBN(fee).gt(web3.utils.toBN(0))) {
+  //   let allowance = await cashContract.methods
+  //     .allowance(account, Contracts.RPCRouter[CHAIN_ID])
+  //     .call();
+  //   if (allowance.lt(mintFee)) {
+  //     await cashContract.methods.approve(
+  //       Contracts.RPCRouter[CHAIN_ID],
+  //       maxUint256,
+  //     );
+  //   }
+  // }
   console.log('account ', account);
   // mint
   let tokenId;
@@ -99,7 +101,7 @@ export const mintToken = async (hash: string) => {
 export const getOwner = async (tokenId: string) => {
   try {
     const web3 = createWeb3();
-
+    const CHAIN_ID = await web3.eth.getChainId();
     const meme2Contract = new web3.eth.Contract(
       Meme2Abi.abi as AbiItem[],
       Contracts.PlatwinMEME2WithoutRPC[CHAIN_ID],
@@ -123,7 +125,7 @@ export const getOwner = async (tokenId: string) => {
 export const getMinter = async (tokenId: string) => {
   try {
     const web3 = createWeb3();
-
+    const CHAIN_ID = await web3.eth.getChainId();
     const meme2Contract = new web3.eth.Contract(
       Meme2Abi.abi as AbiItem[],
       Contracts.PlatwinMEME2WithoutRPC[CHAIN_ID],

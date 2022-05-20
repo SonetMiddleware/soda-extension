@@ -53,7 +53,9 @@ export default () => {
     const val = e.target.value;
     setFilterText(val);
     if (val) {
-      const _list = list.filter((item) => item.title.includes(val));
+      const _list = list.filter((item) =>
+        item.title.toLowerCase().includes(val.toLowerCase()),
+      );
       setFilterList(_list);
     } else {
       setFilterList(list);
