@@ -4,6 +4,7 @@ import { Input } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import { formatDate } from '@/utils';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
+import IconFB from '@/theme/images/icon-facebook-gray.svg';
 import CommonButton from '@/pages/components/Button';
 import {
   IProposalItem,
@@ -106,13 +107,27 @@ export default () => {
             <span className="label">Create date</span>
             <span className="value">{formatDate(currentDao?.start_date)}</span>
           </p>
-          <p className="dao-info-item">
+          {/* <p className="dao-info-item">
             <span className="label">Total members</span>
             <span className="value">{currentDao?.total_member}</span>
-          </p>
+          </p> */}
           <p className="dao-info-twitter">
             <img src={IconTwitter} alt="" />
-            <span>{currentDao?.twitter}</span>
+            <a
+              href={`https://twitter.com/${currentDao?.twitter}`}
+              target="_blank"
+            >
+              {currentDao?.facebook}
+            </a>
+          </p>
+          <p className="dao-info-twitter">
+            <img src={IconFB} alt="" />
+            <a
+              href={`https://twitter.com/${currentDao?.facebook}`}
+              target="_blank"
+            >
+              {currentDao?.facebook}
+            </a>
           </p>
         </div>
       </div>

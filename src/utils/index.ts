@@ -10,3 +10,11 @@ export const formatDate = (datetime?: number) => {
 export const formatDateTime = (datetime: number) => {
   return moment(datetime).format('YYYY-MM-DD HH:mm:ss');
 };
+
+export const delay = async (seconds: number): Promise<null> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null);
+    }, seconds * 1000);
+  });
+};

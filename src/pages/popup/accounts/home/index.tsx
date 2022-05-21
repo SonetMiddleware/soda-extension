@@ -2,8 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 
 import './index.less';
 
-import type {
-  IBindResultData} from '@soda/soda-core';
+import type { IBindResultData } from '@soda/soda-core';
 import {
   getUserAccount,
   MessageTypes,
@@ -78,7 +77,7 @@ export default () => {
         ? 'https://twitter.com/' + item.tid
         : 'https://www.facebook.com/' + item.tid;
     Modal.success({
-      title: 'Unbind Successfully.',
+      title: 'Unbind Successful',
       content: "Don't forget to delete your binding tweet/post please.",
       okText: 'OK',
       onOk: () => {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isMainNet } from '../../../soda-core/dist';
 // const BACKEND_HOST = 'http://3.36.115.102:8080/api/v';
 // const BACKEND_HOST = 'https://testapi.platwin.io/api/v1';
 const BACKEND_HOST = process.env.API_HOST; //'https://testapi.platwin.io/api/v1';
@@ -113,10 +114,10 @@ export interface IOwnedNFTData {
   contract: string; // contract address
   erc: string; // 1155 or 721
   token_id: string; //
-  amount: number; //
+  amount?: number; //
   uri: string; //
   owner: string; //
-  update_block: string; //
+  update_block?: string; //
 }
 
 export interface IOwnedNFTResp {
@@ -318,9 +319,9 @@ export interface IGetCollectionNFTListParams {
 
 export interface IGetCollectionNFTListResult {
   total: number;
-  collection_id: ''; // collection id
-  collection_name: ''; // collection name
-  collection_img: ''; // collection img
+  collection_id: string; // collection id
+  collection_name: string; // collection name
+  collection_img: string; // collection img
   data: IOwnedNFTData[];
 }
 export const getCollectionNFTList = async (
@@ -494,4 +495,72 @@ export const getCollectionWithId = async (
   const url = `${BACKEND_HOST}/collection?contract=${id}`;
   const res = await axios.get(url, {});
   return res.data.data || null;
+};
+
+export interface IRetrieveCollectionsParam {
+  owner_address: string;
+  offset?: number;
+  limit?: number;
+  isMainnet?: boolean;
+}
+
+export const retrieveCollections = async (
+  params: IRetrieveCollectionsParam,
+): Promise<IGetCollectionListResult> => {
+  const url = `https://${
+    params.isMainnet ? '' : 'testnets-'
+  }api.opensea.io/api/v1/collections?asset_owner=${
+    params.owner_address
+  }&offset=${params.offset || 0}&limit=${params.limit || 300}`;
+
+  const res: any = await axios.get(url);
+  console.log('retrieveCollections: ', res);
+  const result = {
+    total: res.data.length,
+    data: res.data.map((item: any) => ({
+      id: item.slug,
+      name: item.name,
+      img: item.image_url,
+      dao: null,
+    })),
+  };
+  return result;
+};
+
+export interface IRetrieveAssetsParams {
+  owner: string;
+  offset?: number;
+  limit?: number;
+  collection: string;
+  isMainnet?: boolean;
+}
+export const retrieveAssets = async (
+  params: IRetrieveAssetsParams,
+): Promise<IGetCollectionNFTListResult> => {
+  const url = `https://${
+    params.isMainnet ? '' : 'testnets-'
+  }api.opensea.io/api/v1/assets?owner=${
+    params.owner
+  }&order_direction=desc&offset=${params.offset || 0}&limit=${
+    params.limit || 50
+  }${params.collection ? '&collection=' + params.collection : ''}`;
+  const res: any = await axios.get(url);
+  console.log('retrieveAssets: ', res);
+
+  const assets: any[] = res.data.assets;
+  const result = {
+    total: assets.length,
+    collection_id: params.collection,
+    collection_name: assets[0]?.collection.slug,
+    collection_img: assets[0]?.collection.image_url,
+    data: assets.map((item) => ({
+      contract: item?.asset_contract.address,
+      erc: item?.asset_contract.schema_name,
+      token_id: item.token_id,
+      uri: item.image_url,
+      owner: item?.owner.address,
+      name: item.asset_contract.name,
+    })),
+  };
+  return result;
 };

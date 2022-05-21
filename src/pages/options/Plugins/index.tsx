@@ -24,7 +24,7 @@ export default () => {
           src={chrome.extension.getURL('images/plus.png')}
           alt=""
           onClick={() => {
-            message.info('More webapp(s) coming soon...');
+            message.info('More integrations coming soon.');
           }}
         />
       </div>

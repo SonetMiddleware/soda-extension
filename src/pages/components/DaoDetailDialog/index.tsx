@@ -79,9 +79,9 @@ export default (props: IProps) => {
           <Button
             type="primary"
             onClick={handleView}
-            className={styles['footer-btn']}
+            className={styles['btn-view-proposal']}
           >
-            View Proposals
+            View Proposal
           </Button>
         </div>
       </div>

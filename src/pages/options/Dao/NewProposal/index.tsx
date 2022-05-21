@@ -92,8 +92,7 @@ export default () => {
       const start_time = values.period[0].valueOf();
       const end_time = values.period[1].valueOf();
       const snapshot = snapshotBlock[0];
-      //@ts-ignore
-      const strSha3 = web3.utils.sha3(
+      const strSha3 = web3.utils.soliditySha3(
         String(snapshot),
         //@ts-ignore
         currentDao!.id,
@@ -257,7 +256,7 @@ export default () => {
             label={
               <p className="label-ballot-threshold">
                 <span>Ballot Target Threshold* </span>
-                <Tooltip title='For proposal with ballots exceed the threshold will be marked as a "valid" proposal.'>
+                <Tooltip title='When ballots received exceed the target threshold, your proposal will become valid.'>
                   <QuestionCircleOutlined />
                 </Tooltip>
               </p>
@@ -292,7 +291,7 @@ export default () => {
             <Select options={VoterBollotOptions} />
           </Form.Item>
           <Form.Item
-            label="Item(s)*"
+            label="Voting Option(s)*"
             name="items"
             rules={[
               {

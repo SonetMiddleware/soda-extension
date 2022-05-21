@@ -9,7 +9,6 @@ export default (props: IButtonProps) => {
   const { type, children, className, loading, ...rest } = props;
   return (
     <button {...rest} className={`btn-${type}  ${className}`}>
-      {' '}
       {loading && <LoadingOutlined />}
       {type === 'primary' && <span>{children}</span>}
       {type !== 'primary' && children}

@@ -9,12 +9,16 @@ import {
   IDaoItem,
   ICollectionItem,
   getCollectionNFTList,
+  retrieveCollections,
+  retrieveAssets,
 } from '@/utils/apis';
 import IconDao from '@/theme/images/icon-dao.svg';
 import CommonButton from '@/pages/components/Button';
 import DaoDetailDialog from '@/pages/components/DaoDetailDialog';
 import { useDaoModel } from '@/models';
+import { useWalletModel } from '@/models';
 import { useHistory } from 'umi';
+import { delay } from '@/utils';
 
 interface IProps {
   account: string;
@@ -25,6 +29,7 @@ interface INFTCollection {
 }
 export default (props: IProps) => {
   const { account } = props;
+  const { isCurrentMainnet } = useWalletModel();
   const [ownedNFTs, setOwnedNFTs] = useState<INFTCollection[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedImg, setSelectedImg] = useState<number>();
@@ -41,56 +46,85 @@ export default (props: IProps) => {
     if (account) {
       try {
         setLoading(true);
-        const collections = await getCollectionList({
-          addr: account,
-        });
-        console.log('collections: ', collections);
-        collections.data.push({
-          id: '0x0000000000000000000000000000000000000000',
-          name: '',
-          img: '',
-          dao: {
-            name: '',
-            start_date: 0,
-            total_member: 0,
-            facebook: '',
-            twitter: '',
-            id: '0x0000000000000000000000000000000000000000',
-            img: '',
-          },
-        });
-        const nftResp = await Promise.all(
-          collections.data.map((item) => {
-            const params = {
-              addr: account,
-              collection_id: item.id,
-            };
-            return getCollectionNFTList(params);
-          }),
-        );
-        const nftList = [];
-        for (let i = 0; i < nftResp.length; i++) {
-          if (nftResp[i]) {
-            const collectionNFTItem = nftResp[i]!.data;
-            collectionNFTItem.forEach((item) => {
-              if (item.uri && item.uri.includes('{')) {
-                try {
-                  const obj = JSON.parse(item.uri);
-                  if (obj.image) {
-                    item.uri = obj.image;
-                  }
-                } catch (e) {}
-              }
-            });
-            nftList.push({
-              collection: collections.data[i],
-              nfts: collectionNFTItem,
-            });
+        if (isCurrentMainnet) {
+          const collections = await retrieveCollections({
+            owner_address: account,
+            isMainnet: false, // TODO: for rinkeby
+          });
+          await delay(0.8); // avoid request too fast
+          const nftResp = await Promise.all(
+            collections.data.map((item) => {
+              const params = {
+                owner: account,
+                collection: item.id,
+                isMainnet: false, // TODO: for rinkeby
+              };
+              return retrieveAssets(params);
+            }),
+          );
+          const nftList = [];
+          for (let i = 0; i < nftResp.length; i++) {
+            if (nftResp[i]) {
+              const collectionNFTItem = nftResp[i].data;
+              nftList.push({
+                collection: collections.data[i],
+                nfts: collectionNFTItem,
+              });
+            }
           }
+          setOwnedNFTs(nftList);
+        } else {
+          const collections = await getCollectionList({
+            addr: account,
+          });
+          console.log('collections: ', collections);
+          collections.data.push({
+            id: '0x0000000000000000000000000000000000000000',
+            name: '',
+            img: '',
+            dao: {
+              name: '',
+              start_date: 0,
+              total_member: 0,
+              facebook: '',
+              twitter: '',
+              id: '0x0000000000000000000000000000000000000000',
+              img: '',
+            },
+          });
+          const nftResp = await Promise.all(
+            collections.data.map((item) => {
+              const params = {
+                addr: account,
+                collection_id: item.id,
+              };
+              return getCollectionNFTList(params);
+            }),
+          );
+          const nftList = [];
+          for (let i = 0; i < nftResp.length; i++) {
+            if (nftResp[i]) {
+              const collectionNFTItem = nftResp[i]!.data;
+              collectionNFTItem.forEach((item) => {
+                if (item.uri && item.uri.includes('{')) {
+                  try {
+                    const obj = JSON.parse(item.uri);
+                    if (obj.image) {
+                      item.uri = obj.image;
+                    }
+                  } catch (e) {}
+                }
+              });
+              nftList.push({
+                collection: collections.data[i],
+                nfts: collectionNFTItem,
+              });
+            }
+          }
+          setOwnedNFTs(nftList);
+          // setTotal(nfts.total);
+          // setPage(page);
         }
-        setOwnedNFTs(nftList);
-        // setTotal(nfts.total);
-        // setPage(page);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -141,17 +175,21 @@ export default (props: IProps) => {
             >
               {collectionNFTItem.collection.name && (
                 <div className="collection-title">
-                  <Radio
-                    checked={
-                      selectedCollection?.id === collectionNFTItem.collection.id
-                    }
-                    onChange={(e: any) => {
-                      setSelectedCollection(collectionNFTItem.collection);
-                    }}
-                    disabled={collectionNFTItem.collection.dao !== null}
-                  >
-                    <span>{collectionNFTItem.collection.name}</span>{' '}
-                  </Radio>
+                  {!collectionNFTItem.collection.dao && (
+                    <Radio
+                      checked={
+                        selectedCollection?.id ===
+                        collectionNFTItem.collection.id
+                      }
+                      onChange={(e: any) => {
+                        setSelectedCollection(collectionNFTItem.collection);
+                      }}
+                      disabled={collectionNFTItem.collection.dao !== null}
+                    >
+                      {' '}
+                    </Radio>
+                  )}
+                  <span>{collectionNFTItem.collection.name}</span>{' '}
                   {collectionNFTItem.collection.dao && (
                     <img
                       src={IconDao}
@@ -170,7 +208,7 @@ export default (props: IProps) => {
                       <ImgDisplay
                         className="img-item"
                         src={
-                          item.uri.startsWith('http')
+                          item.uri && item.uri.startsWith('http')
                             ? item.uri
                             : `https://${item.uri}.ipfs.dweb.link/`
                         }

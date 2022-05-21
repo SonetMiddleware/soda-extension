@@ -88,33 +88,6 @@ export default () => {
             >
               <Input className="dao-form-input" placeholder="DAO name" />
             </Form.Item>
-            {/* <Form.Item
-              label="Start Date*"
-              name="startDate"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select start date.',
-                },
-              ]}
-            >
-              <DatePicker placeholder="Start Date" />
-            </Form.Item> */}
-            {/* <Form.Item
-              label="Total Number of Supporters*"
-              name="supportersNum"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input number of supporters.',
-                },
-              ]}
-            >
-              <Input
-                className="dao-form-input"
-                placeholder="Total Number of Supporters"
-              />
-            </Form.Item> */}
             <Form.Item
               label="Founding Twitter Username*"
               name="twitter"
