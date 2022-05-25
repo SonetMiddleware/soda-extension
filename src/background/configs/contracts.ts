@@ -13,6 +13,15 @@ const TestnetContracts = {
   PlatwinMEME2WithoutRPC: '0x0daB724e3deC31e5EB0a000Aa8FfC42F1EC917C5',
   DAORegistry: '0x9a7e176576abb82496e6b3791E15Bea08ecc723e',
 };
+const RinkebyContracts = {
+  PlatwinMEMEWithMeta: '0x4b2b1f6f2accf4bcdd53fc65e1e4a4ef2b289399',
+  TestERC20: '0x37e8a25c96c05243007b1f3124c7bb65cf48852c',
+  DealRouter: '0xf7C44f215F85453D888A069a1c543D7c488606B6',
+  MarketWithoutRPC: '0x1443D92E71eFADE956Aa0198F7EC5eeb6d5f2E0F',
+  MarketProxyWithoutRPC: '0x7eBADFBe8679f63313080f36460369714106F834',
+  PlatwinMEME2WithoutRPC: '0x12DafDC77B0c754481395783Fa2e59024e92C2eF',
+  DAORegistry: '0x6CEc4160f0Bf0Be55b9AB4Ba48fe019019Df9C48',
+};
 type ContractConfigs = {
   [key: string]: {
     [key: number]: string;
@@ -22,6 +31,7 @@ const configs: ContractConfigs = {
   MockRPC: {
     137: '',
     80001: TestnetContracts.MockRPC,
+    4: '',
   },
 
   RPCRouter: {
@@ -39,7 +49,7 @@ const configs: ContractConfigs = {
   PlatwinMEME2WithoutRPC: {
     80001: TestnetContracts.PlatwinMEME2WithoutRPC,
     137: '',
-    4: '0x4b2b1f6f2accf4bcdd53fc65e1e4a4ef2b289399',
+    4: RinkebyContracts.PlatwinMEME2WithoutRPC,
   },
   PlatwinBatchMeme: {
     80001: TestnetContracts.PlatwinBatchMeme,
@@ -52,18 +62,22 @@ const configs: ContractConfigs = {
   MarketWithoutRPC: {
     80001: TestnetContracts.MarketWithoutRPC,
     137: '',
+    4: RinkebyContracts.MarketWithoutRPC,
   },
   MarketProxy: {
     80001: TestnetContracts.MarketProxy,
     137: '',
+    4: '',
   },
   MarketProxyWithoutRPC: {
     80001: TestnetContracts.MarketProxyWithoutRPC,
     137: '',
+    4: RinkebyContracts.MarketProxyWithoutRPC,
   },
   DaoRegistery: {
     80001: TestnetContracts.DAORegistry,
     137: '',
+    4: RinkebyContracts.DAORegistry,
   },
 };
 export default configs;

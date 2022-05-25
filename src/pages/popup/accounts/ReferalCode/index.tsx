@@ -4,8 +4,9 @@ import {
   getAcceptedCount,
   getAcceptedReferralCode,
   getMyReferralCode,
-} from '@/utils/apis';
-import { PLATFORM } from '@/utils/apis';
+  PLATFORM,
+} from '@soda/soda-core';
+
 import React, { useState, useEffect } from 'react';
 import { Input, Button, message as Notification } from 'antd';
 

@@ -1,16 +1,16 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
-import { IProposalItem } from '@/utils/apis';
+import {
+  IProposalItem,
+  ProposalStatusEnum,
+  voteProposal,
+  getUserVoteInfo,
+} from '@soda/soda-core';
 import { Button, Modal, Radio, Space, message, Tooltip } from 'antd';
 import { formatDateTime } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';
 import ProposalStatus from '../ProposalItemStatus';
 import ProposalResults from '../ProposalResults';
-import {
-  ProposalStatusEnum,
-  voteProposal,
-  getUserVoteInfo,
-} from '@/utils/apis';
 import { MessageTypes, sendMessage } from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -113,8 +113,8 @@ export default (props: IProps) => {
         const { result: currentBlockHeight } = blockRes;
         console.log('currentBlockHeight: ', currentBlockHeight);
         if (
-          detail.status === ProposalStatusEnum.OPEN &&
-          detail.snapshot_block <= currentBlockHeight
+          detail.status === ProposalStatusEnum.OPEN
+          // && detail.snapshot_block <= currentBlockHeight //TODO
         ) {
           setIsOpen(true);
         } else {

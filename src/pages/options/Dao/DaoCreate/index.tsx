@@ -4,26 +4,16 @@ import { useDaoModel } from '@/models';
 import { Button, message, Modal, Select, Form, Input, DatePicker } from 'antd';
 import CommonButton from '@/pages/components/Button';
 import { useHistory } from 'umi';
-import { IDaoItem } from '@/utils/apis';
-
+import { IDaoItem } from '@soda/soda-core';
+import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
+import IconFB from '@/theme/images/icon-facebook-gray.svg';
 import { MessageTypes, sendMessage } from '@soda/soda-core';
 export default () => {
   const { collectionForDaoCreation, setCurrentDao } = useDaoModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const history = useHistory();
-  const handleProceedCreate = async () => {
-    await handleCreate();
-    const values = form.getFieldsValue();
-    const dao = {
-      name: values.name,
-      id: collectionForDaoCreation?.id,
-      img: collectionForDaoCreation?.img,
-    } as IDaoItem;
-    setCurrentDao(dao);
-    history.push('/daoNewProposal');
-  };
-  const handleCreate = async () => {
+  const createDao = async () => {
     try {
       const values = await form.validateFields();
       console.log('create dao: ', values);
@@ -33,7 +23,7 @@ export default () => {
         request: {
           collectionId: collectionForDaoCreation?.id,
           name: values.name,
-          facebook: values.facebook,
+          facebook: values.facebook || '',
           twitter: values.twitter,
         },
       };
@@ -46,12 +36,35 @@ export default () => {
       console.log('resp: ', resp);
       message.success('DAO is created successfully!');
       setSubmitting(false);
+      return true;
     } catch (e) {
       setSubmitting(false);
-
       console.log(e);
+      return false;
     }
   };
+  const handleProceedCreate = async () => {
+    const res = await createDao();
+    if (!res) {
+      return;
+    }
+    const values = form.getFieldsValue();
+    const dao = {
+      name: values.name,
+      id: collectionForDaoCreation?.id,
+      img: collectionForDaoCreation?.img,
+    } as IDaoItem;
+    setCurrentDao(dao);
+    history.push('/daoNewProposal');
+  };
+  const handleCreate = async () => {
+    const res = await createDao();
+    if (!res) {
+      return;
+    }
+    history.push('/dao');
+  };
+
   const handleCancel = () => {
     history.goBack();
   };
@@ -77,7 +90,7 @@ export default () => {
             className="common-form dao-form"
           >
             <Form.Item
-              label="DAO Name*"
+              label="DAO Name"
               name="name"
               rules={[
                 {
@@ -89,33 +102,43 @@ export default () => {
               <Input className="dao-form-input" placeholder="DAO name" />
             </Form.Item>
             <Form.Item
-              label="Founding Twitter Username*"
+              label={
+                <p className="label-twitter">
+                  <img src={IconTwitter} alt="" />
+                  <span>Founding Twitter Account</span>
+                </p>
+              }
               name="twitter"
               rules={[
                 {
                   required: true,
-                  message: 'Please input funding twitter username.',
+                  message: 'Please input funding twitter account.',
                 },
               ]}
             >
               <Input
                 className="dao-form-input"
-                placeholder="Founding Twitter Username"
+                placeholder="Founding Twitter Account"
               />
             </Form.Item>
             <Form.Item
-              label="Founding Facebook Username"
+              label={
+                <p className="label-twitter">
+                  <img src={IconFB} alt="" />
+                  <span>Founding Facebook Account</span>
+                </p>
+              }
               name="facebook"
               rules={[
                 {
-                  required: true,
-                  message: 'Please input funding facebook username.',
+                  required: false,
+                  message: 'Please input funding facebook account.',
                 },
               ]}
             >
               <Input
                 className="dao-form-input"
-                placeholder="Founding Facebook Username"
+                placeholder="Founding Facebook Account"
               />
             </Form.Item>
           </Form>

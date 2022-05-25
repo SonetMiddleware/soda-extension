@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import styles from './index.less';
-import { IProposalItem, ProposalStatusEnum } from '@/utils/apis';
-import classNames from 'classnames';
+import type { IProposalItem } from '@soda/soda-core';
 import ProposalItemStatus from '@/pages/components/ProposalItemStatus';
 import ProposalResults from '@/pages/components/ProposalResults';
 import { formatDate } from '@/utils';
@@ -19,7 +18,7 @@ export default (props: IProps) => {
 
   return (
     <div className={styles['proposal-item-container']}>
-      <div className={styles["proposal-left"]}>
+      <div className={styles['proposal-left']}>
         <p className={styles['proposal-title']} onClick={handleSelect}>
           {item.title}
         </p>

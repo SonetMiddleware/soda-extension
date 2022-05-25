@@ -14,14 +14,14 @@ import {
 import { useDaoModel, useWalletModel } from '@/models';
 import CommonButton from '@/pages/components/Button';
 import ProposalFormItems from '@/pages/components/ProposalFormItems';
-import { createProposal } from '@/utils/apis';
+import {
+  createProposal,
+  getCollectionWithCollectionId,
+  SUCCESS_CODE,
+} from '@soda/soda-core';
 import web3 from 'web3';
 import axios from 'axios';
-import {
-  getCollectionWithId,
-  MessageTypes,
-  sendMessage,
-} from '@soda/soda-core';
+import { MessageTypes, sendMessage } from '@soda/soda-core';
 import {
   ExclamationCircleOutlined,
   QuestionCircleOutlined,
@@ -29,11 +29,12 @@ import {
 
 import moment from 'moment';
 import { useHistory, useLocation } from 'umi';
+import { delay } from '@/utils';
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 export default () => {
   const { currentDao, setCurrentDao } = useDaoModel();
-  const { account } = useWalletModel();
+  const { account, isCurrentMainnet } = useWalletModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [snapshotBlock, setSnapShotBlock] = useState<number[]>([]);
@@ -42,7 +43,7 @@ export default () => {
   const VoterBollotOptions = [
     {
       value: 1,
-      label: '1 ballot per address(NFT holder)',
+      label: '1 ballot per address (NFT holder)',
     },
     {
       value: 2,
@@ -64,21 +65,38 @@ export default () => {
       return;
     }
     const now = Math.floor(Date.now() / 1000);
-    const url1 = `https://api-testnet.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=${now}&closest=before`;
-    const resp1 = await axios.get(url1);
-    const nowBlock = Number(resp1.data.result);
+    const msg = {
+      type: MessageTypes.InvokeWeb3Api,
+      request: {
+        module: 'eth',
+        method: 'getBlockNumber',
+      },
+    };
+    const blockRes: any = await sendMessage(msg);
+    const { result } = blockRes;
+    const nowBlock = result;
     const startTime = Math.floor(startTimeMilliseconds / 1000);
     const endTime = Math.floor(endTimeMilliseconds / 1000);
-    const url2 = `https://api-testnet.polygonscan.com/api?module=block&action=getblockcountdown&blockno=${
-      nowBlock + 100
-    }`;
+    let url2 = '';
+    if (isCurrentMainnet) {
+      url2 = `https://api-rinkeby.etherscan.io/api?module=block&action=getblockcountdown&blockno=${
+        nowBlock + 100
+      }`;
+      // url2 = `https://api-testnet.polygonscan.com/api?module=block&action=getblockcountdown&blockno=${
+      //   nowBlock + 200
+      // }`;
+    } else {
+      url2 = `https://api-testnet.polygonscan.com/api?module=block&action=getblockcountdown&blockno=${
+        nowBlock + 100
+      }`;
+    }
     const resp2 = await axios.get(url2);
     const timePerBlock =
       Number(resp2.data.result.EstimateTimeInSec) /
       Number(resp2.data.result.RemainingBlock);
     const startBlock = nowBlock + Math.ceil((startTime - now) / timePerBlock);
     const endBlock = nowBlock + Math.ceil((endTime - now) / timePerBlock);
-    setSnapShotBlock([startBlock, endBlock]);
+    setSnapShotBlock([startBlock]);
   };
 
   const handleCreate = async () => {
@@ -126,12 +144,27 @@ export default () => {
         voter_type: values.voter_type,
         sig: res.result,
       };
-      await createProposal(params);
-      message.success('Your proposal is created successfully.');
-      // history.goBack();
-      history.push('/daoDetail');
-      setSubmitting(false);
+      const result = await createProposal(params);
+      if (result && result.data && result.data.code === SUCCESS_CODE) {
+        message.success('Your proposal is created successfully.');
+        // history.goBack();
+        history.push('/daoDetail');
+        setSubmitting(false);
+      } else {
+        if (
+          result &&
+          result.data &&
+          result.data.error.includes('Duplicate entry ')
+        ) {
+          message.error("Proposal's title or description is duplicated.");
+          setSubmitting(false);
+          return;
+        }
+        message.error('Create proposal failed.');
+        setSubmitting(false);
+      }
     } catch (e) {
+      console.log(e);
       setSubmitting(false);
     }
   };
@@ -142,7 +175,7 @@ export default () => {
   };
 
   const fetchDaoDetail = async (daoId: string) => {
-    const collection = await getCollectionWithId(daoId);
+    const collection = await getCollectionWithCollectionId(daoId);
     if (collection) {
       const dao = { ...collection.dao, id: collection.id, img: collection.img };
       setCurrentDao(dao);
@@ -248,7 +281,7 @@ export default () => {
             <span className="snapshot-block-item">{snapshotBlock[0]}</span>
             {/* <span className="snapshot-block-item-divide"> - </span> */}
             {/* <span className="snapshot-block-item">{snapshotBlock[1]}</span> */}
-            <Tooltip title="Please be awared, the block height been calculated by input time may not be accurate. Ballots of the proposal will be calculated based on the blockchain snapshot by the block height precisely.">
+            <Tooltip title="Extra time will refer to the actual block height when the DAO is created.">
               <ExclamationCircleOutlined />
             </Tooltip>
           </div>
@@ -256,7 +289,7 @@ export default () => {
             label={
               <p className="label-ballot-threshold">
                 <span>Ballot Target Threshold* </span>
-                <Tooltip title='When ballots received exceed the target threshold, your proposal will become valid.'>
+                <Tooltip title="When ballots received exceed the target threshold, your proposal will become valid.">
                   <QuestionCircleOutlined />
                 </Tooltip>
               </p>

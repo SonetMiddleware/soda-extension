@@ -95,8 +95,8 @@ async function messageHandler(requestMsg: any) {
         break;
       }
       case MessageTypes.Get_Owner: {
-        const { tokenId } = requestData.request;
-        const owner = await getOwner(tokenId);
+        const { contract, tokenId } = requestData.request;
+        const owner = await getOwner(contract, tokenId);
         response.result = owner;
         break;
       }

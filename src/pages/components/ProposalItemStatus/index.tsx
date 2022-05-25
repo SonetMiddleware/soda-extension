@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import styles from './index.less';
-import { ProposalStatusEnum } from '@/utils/apis';
+import { ProposalStatusEnum } from '@soda/soda-core';
+
 import classNames from 'classnames';
 
 export default (props: { status: ProposalStatusEnum }) => {

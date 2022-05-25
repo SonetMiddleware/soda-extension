@@ -19,7 +19,7 @@ export default () => {
   const [loading, setLoading] = useState(false);
   const [localImg, setLocalImg] = useState<any>([]);
   const { account, isCurrentMainnet } = useWalletModel();
-
+  const [activeKey, setActiveKey] = useState('1');
   const handleFinish = async () => {
     try {
       if (localImg && localImg[0]) {
@@ -67,10 +67,13 @@ export default () => {
 
     // handle local img
   };
-
   const onRemove = () => {
     setLocalImg([]);
   };
+  useEffect(() => {
+    onRemove();
+  }, [activeKey]);
+
   const beforeUpload = (file: any) => {
     setLocalImg([file]);
     return false;
@@ -81,21 +84,23 @@ export default () => {
       <p className="resource-page-title">NFT Resources</p>
       <Spin spinning={loading}>
         <div className="resources-container">
-          <CommonButton
-            type="primary"
-            onClick={() => window.open('https://nash.market/', '_blank')}
-            className="btn-market"
-          >
-            To NFT Market
-          </CommonButton>
-
+          {!isCurrentMainnet && (
+            <CommonButton
+              type="primary"
+              onClick={() => window.open('https://nash.market/', '_blank')}
+              className="btn-market"
+            >
+              To NFT Market
+            </CommonButton>
+          )}
           <Tabs
             style={{ height: '100%' }}
             animated={false}
             defaultActiveKey="1"
+            onChange={(v) => setActiveKey(v)}
           >
             <TabPane tab="My Favorite" key="1" className="fav-list">
-              <FavNFTList account={account} />
+              <FavNFTList account={account} refresh={activeKey === '1'} />
             </TabPane>
             {!isCurrentMainnet && (
               <TabPane tab="Mint" key="2">
@@ -128,7 +133,7 @@ export default () => {
               </TabPane>
             )}
             <TabPane tab="NFT Portfolio" key="3" className="fav-list">
-              <OwnedNFTList account={account} />
+              <OwnedNFTList account={account} refresh={activeKey === '3'} />
             </TabPane>
           </Tabs>
         </div>

@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import './index.less';
 import ImgDisplay from '@/pages/components/ImgDisplay';
-import type { IFavNFTData } from '@/utils/apis';
-import { addToFav, getFavNFT } from '@/utils/apis';
 import {
   getMinter,
   getOwner,
+  addToFav,
+  getFavNFT,
+  IFavNFTData,
+  retrieveAsset,
 } from '@soda/soda-core';
 import { message, Input, Button, Pagination, Spin } from 'antd';
+import { useDaoModel, useWalletModel } from '@/models';
+import { delay } from '@/utils';
+import { ListNoData } from '@soda/soda-core';
 interface IProps {
   account: string;
+  refresh: boolean;
 }
 
 export default (props: IProps) => {
-  const { account } = props;
+  const { account, refresh } = props;
+  const { isCurrentMainnet } = useWalletModel();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -22,37 +29,52 @@ export default (props: IProps) => {
   const [selectedImg, setSelectedImg] = useState<number>();
 
   const fetchFavList = async (currentPage: number) => {
+    try {
+      if (account) {
+        setLoading(true);
+        const params = {
+          addr: account,
+          page: currentPage,
+          gap: 10,
+        };
+        const nfts = await getFavNFT(params);
+        nfts.data.forEach((item) => {
+          try {
+            if (item.uri && item.uri.includes('{')) {
+              const obj = JSON.parse(item.uri);
+              item.uri = obj.image;
+            }
+          } catch (e) {}
+        });
+        console.log('favNFTs: ', nfts);
+        setTotal(nfts.total);
+        const _nfts = [];
+        for (const item of nfts.data) {
+          item.isMinted = false;
+          item.isOwned = false;
+          const ownerAddress = await getOwner(
+            item.contract,
+            String(item.token_id),
+          );
+          const minterAddress = await getMinter(String(item.token_id));
+          if (ownerAddress === item.addr) {
+            item.isOwned = true;
+          }
+          if (minterAddress === item.addr) {
+            item.isMinted = true;
+          }
+          _nfts.push({ ...item });
+        }
 
-    if (account) {
-      setLoading(true);
-      const params = {
-        addr: account,
-        page: currentPage,
-        gap: 10,
-      };
-      const nfts = await getFavNFT(params);
-      console.log('favNFTs: ', nfts);
-      setTotal(nfts.total);
-      const _nfts = [];
-      for (const item of nfts.data) {
-        item.isMinted = false;
-        item.isOwned = false;
-        const ownerAddress = await getOwner(String(item.token_id));
-        const minterAddress = await getMinter(String(item.token_id));
-        if (ownerAddress === item.addr) {
-          item.isOwned = true;
-        }
-        if (minterAddress === item.addr) {
-          item.isMinted = true;
-        }
-        _nfts.push({ ...item });
+        console.log('favNFTs: ', _nfts);
+        setLoading(false);
+        setFavNFTs([]);
+        setFavNFTs([..._nfts]);
+        setPage(currentPage);
       }
-
-      console.log('favNFTs: ', _nfts);
+    } catch (e) {
       setLoading(false);
-      setFavNFTs([]);
-      setFavNFTs([..._nfts]);
-      setPage(currentPage);
+      console.log(e);
     }
   };
 
@@ -79,8 +101,10 @@ export default (props: IProps) => {
   };
 
   useEffect(() => {
-    fetchFavList(1);
-  }, [account]);
+    if (account && refresh) {
+      fetchFavList(1);
+    }
+  }, [account, refresh]);
 
   return (
     <div className="fav-list-container">
@@ -110,7 +134,7 @@ export default (props: IProps) => {
                 <ImgDisplay
                   className="img-item"
                   src={
-                    item.uri.startsWith('http')
+                    item.uri && item.uri.startsWith('http')
                       ? item.uri
                       : `https://${item.uri}.ipfs.dweb.link/`
                   }
@@ -138,6 +162,7 @@ export default (props: IProps) => {
               </div>
             </li>
           ))}
+          {favNFTs.length === 0 && <ListNoData />}
         </ul>
         <div className="list-pagination">
           <Pagination

@@ -182,8 +182,18 @@ dl {
 }
 
 .ant-pagination-item-active {
-  border-color: #9d5fe9;
+  border-color: #9d5fe9 !important;
   > a {
-    color: #9d5fe9;
+    color: #9d5fe9 !important;
+  }
+}
+
+.ant-pagination-item {
+  &:hover,
+  &:focus-visible {
+    border-color: #9d5fe9 !important;
+    > a {
+      color: #9d5fe9 !important;
+    }
   }
 }

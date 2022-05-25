@@ -1,5 +1,4 @@
 import { createWeb3, requestAccounts } from './metamask';
-import { bindTwitterId, IBindTwitterParams } from '../../utils/apis';
 
 export const requestSignMsg = async (msg: string, account: string) => {
   const web3 = createWeb3();

@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
-import { IProposalItem } from '@/utils/apis';
 import { Button, Modal, Radio, Space, message } from 'antd';
 import { formatDate } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';

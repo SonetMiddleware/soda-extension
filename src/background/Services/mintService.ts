@@ -7,7 +7,7 @@ import ERC20abi from '../configs/ERC20abi.json';
 import ERC721abi from '../configs/abis/ERC721.json';
 import MarketAbi from '../configs/abis/Market.json';
 import RegisterDaoAbi from '../configs/abis/DAORegistry.json';
-import { getOrderByTokenId } from '../../utils/apis';
+import { getOrderByTokenId } from '@soda/soda-core';
 import { AbiItem } from 'web3-utils';
 const maxUint256 = web3.utils
   .toBN(2)
@@ -98,13 +98,13 @@ export const mintToken = async (hash: string) => {
   });
 };
 
-export const getOwner = async (tokenId: string) => {
+export const getOwner = async (contract: string, tokenId: string) => {
   try {
     const web3 = createWeb3();
     const CHAIN_ID = await web3.eth.getChainId();
     const meme2Contract = new web3.eth.Contract(
-      Meme2Abi.abi as AbiItem[],
-      Contracts.PlatwinMEME2WithoutRPC[CHAIN_ID],
+      ERC721abi.abi as AbiItem[],
+      contract,
     );
     let owner = await meme2Contract.methods.ownerOf(tokenId).call();
     console.log('owner: ', owner);

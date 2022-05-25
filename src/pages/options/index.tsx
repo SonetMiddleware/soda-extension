@@ -26,6 +26,7 @@ import {
   MessageTypes,
   sendMessage,
   MAINNET_CHAIN_ID,
+  isMainNet,
 } from '@soda/soda-core';
 
 import '@/theme/index.less';
@@ -79,7 +80,7 @@ const routes: IRouteProps[] = [
     component: Home,
   },
 ];
-const DEFAULT_CHAINID = '80001';
+const DEFAULT_CHAINID = [80001, 4, 1];
 const App = (props: any) => {
   const { hash } = props.location;
   const { setAccount, setIsCurrentMainNet } = useWalletModel();
@@ -88,14 +89,14 @@ const App = (props: any) => {
   useEffect(() => {
     (async () => {
       const chainId = await getChainId();
-      if (chainId != DEFAULT_CHAINID) {
+      if (!DEFAULT_CHAINID.includes(Number(chainId))) {
         message.warning(
-          'Please switch the network of Metamask to matic-test(https://rpc-mumbai.maticvigil.com)',
+          'Please switch to proper Metamask network. Valid Soda networks: matic-test, Rinkeby, Ethereum.',
         );
       }
-      if (Number(chainId) === MAINNET_CHAIN_ID) {
-        setIsCurrentMainNet(true);
-      }
+      const isCurrentMainnet = await isMainNet();
+      setIsCurrentMainNet(true);
+
       const req = {
         type: MessageTypes.Connect_Metamask,
       };
