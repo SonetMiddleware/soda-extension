@@ -8,6 +8,7 @@ import {
   getFavNFT,
   IFavNFTData,
   retrieveAsset,
+  getNFTSource,
 } from '@soda/soda-core';
 import { message, Input, Button, Pagination, Spin } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
@@ -65,6 +66,15 @@ export default (props: IProps) => {
           }
           _nfts.push({ ...item });
         }
+        const images = await Promise.all(
+          nfts.data.map((item) => {
+            return getNFTSource(item.uri);
+          }),
+        );
+        console.log('images: ', images);
+        _nfts.forEach((item, index) => {
+          item.uri = images[index];
+        });
 
         console.log('favNFTs: ', _nfts);
         setLoading(false);
@@ -131,14 +141,7 @@ export default (props: IProps) => {
           {favNFTs.map((item, index) => (
             <li key={item.uri}>
               <div className="item-detail">
-                <ImgDisplay
-                  className="img-item"
-                  src={
-                    item.uri && item.uri.startsWith('http')
-                      ? item.uri
-                      : `https://${item.uri}.ipfs.dweb.link/`
-                  }
-                />
+                <ImgDisplay className="img-item" src={item.uri} />
 
                 <div className="item-name-tags">
                   <p className="item-name">#{item.token_id}</p>
@@ -148,17 +151,17 @@ export default (props: IProps) => {
                     {item.isOwned && <span className="item-owned" />}
                   </p>
                 </div>
-                {!item.isOwned && !item.isMinted && (
-                  <div className="item-btns">
-                    <Button
-                      size="small"
-                      className="btn-remove"
-                      onClick={() => handleRemoveFav(item, index)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                )}
+                {/* {!item.isOwned && !item.isMinted && ( */}
+                <div className="item-btns">
+                  <Button
+                    size="small"
+                    className="btn-remove"
+                    onClick={() => handleRemoveFav(item, index)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+                {/* )} */}
               </div>
             </li>
           ))}
@@ -167,7 +170,7 @@ export default (props: IProps) => {
         <div className="list-pagination">
           <Pagination
             total={total}
-            pageSize={9}
+            pageSize={10}
             onChange={handleChangePage}
             current={page}
           />

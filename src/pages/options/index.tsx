@@ -95,7 +95,7 @@ const App = (props: any) => {
         );
       }
       const isCurrentMainnet = await isMainNet();
-      setIsCurrentMainNet(true);
+      setIsCurrentMainNet(isCurrentMainnet);
 
       const req = {
         type: MessageTypes.Connect_Metamask,

@@ -12,6 +12,7 @@ import {
   retrieveCollections,
   getCollectionWithCollectionId,
   ListNoData,
+  getNFTSource,
 } from '@soda/soda-core';
 import IconDao from '@/theme/images/icon-dao.svg';
 import CommonButton from '@/pages/components/Button';
@@ -80,15 +81,14 @@ export default (props: IProps) => {
           for (let i = 0; i < nftResp.length; i++) {
             if (nftResp[i]) {
               const collectionNFTItem = nftResp[i]!.data;
-              collectionNFTItem.forEach((item) => {
-                if (item.uri && item.uri.includes('{')) {
-                  try {
-                    const obj = JSON.parse(item.uri);
-                    if (obj.image) {
-                      item.uri = obj.image;
-                    }
-                  } catch (e) {}
-                }
+              const images = await Promise.all(
+                collectionNFTItem.map((item) => {
+                  return getNFTSource(item.uri);
+                }),
+              );
+              // console.log('images: ', images);
+              collectionNFTItem.forEach((item, index) => {
+                item.uri = images[index];
               });
               nftList.push({
                 collection: collections.data[i],
@@ -109,7 +109,7 @@ export default (props: IProps) => {
       console.log(e);
       setLoading(false);
     }
-  }, [account,refresh]);
+  }, [account, refresh]);
 
   useEffect(() => {
     if (account && refresh) {
@@ -187,14 +187,7 @@ export default (props: IProps) => {
                   {collectionNFTItem.nfts.map((item) => (
                     <li key={item.uri}>
                       <div className="item-detail">
-                        <ImgDisplay
-                          className="img-item"
-                          src={
-                            item.uri && item.uri.startsWith('http')
-                              ? item.uri
-                              : `https://${item.uri}.ipfs.dweb.link/`
-                          }
-                        />
+                        <ImgDisplay className="img-item" src={item.uri} />
                         <p className="item-name">#{item.token_id}</p>
                       </div>
                     </li>

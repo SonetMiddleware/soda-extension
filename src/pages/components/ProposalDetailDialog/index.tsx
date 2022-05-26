@@ -140,7 +140,7 @@ export default (props: IProps) => {
             </p>
             <p className={styles['title']}>{detail.title}</p>
             <p className={styles['total-supporter']}>
-              Total supporter - {totalSupporters}
+              Votes - {totalSupporters}
             </p>
           </div>
           <div className={styles['header-right']}>

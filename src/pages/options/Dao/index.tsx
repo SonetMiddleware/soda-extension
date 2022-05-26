@@ -33,11 +33,19 @@ export default () => {
     }
   };
 
+  const fetchAllMyDaoList = async () => {
+    const params = {
+      addr: account,
+    } as IGetDaoListParams;
+    const res = await getDaoList(params);
+    setAllMyDaos(res.data);
+  };
+
   const fetchDaoList = async (page: number) => {
     try {
       setLoading(true);
-      let _allMyDaos = [];
-      if (!allMyDaosFetched) {
+      let _allMyDaos: IDaoItem[] = [];
+      if (!allMyDaosFetched && account) {
         const params = {
           addr: account,
         } as IGetDaoListParams;
@@ -45,7 +53,7 @@ export default () => {
         setAllMyDaos(res.data);
         setAllMyDaosFetched(true);
         _allMyDaos = res.data;
-      } else {
+      } else if (allMyDaos.length > 0) {
         _allMyDaos = allMyDaos;
       }
       const params = {
@@ -95,6 +103,10 @@ export default () => {
   useEffect(() => {
     fetchDaoList(1);
   }, [listSwitch]);
+
+  useEffect(() => {
+    fetchAllMyDaoList();
+  }, [account]);
 
   const handleDaoClick = (item: IDaoItem) => {
     setCurrentDao(item);
