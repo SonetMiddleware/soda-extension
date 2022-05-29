@@ -75,7 +75,7 @@ export default () => {
     const url =
       item.platform === PLATFORM.Twitter
         ? 'https://twitter.com/' + item.tid
-        : 'https://www.facebook.com/' + item.tid;
+        : 'https://www.facebook.com/';
     Modal.success({
       title: 'Unbind Successful',
       content: "Don't forget to delete your binding tweet/post please.",
