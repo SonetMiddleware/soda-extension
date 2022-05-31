@@ -9,11 +9,13 @@ import {
   IFavNFTData,
   retrieveAsset,
   getNFTSource,
+  IOwnedNFTData,
 } from '@soda/soda-core';
 import { message, Input, Button, Pagination, Spin } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import { delay } from '@/utils';
 import { ListNoData } from '@soda/soda-core';
+import ImgDetailDialog from '@/pages/components/ImgDetailDialog';
 interface IProps {
   account: string;
   refresh: boolean;
@@ -26,8 +28,6 @@ export default (props: IProps) => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [favNFTs, setFavNFTs] = useState<IFavNFTData[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [selectedImg, setSelectedImg] = useState<number>();
 
   const fetchFavList = async (currentPage: number) => {
     try {
@@ -188,6 +188,14 @@ export default (props: IProps) => {
           </div>
         </div>
       </Spin>
+      {/* <ImgDetailDialog
+        show={showImgDetail}
+        onClose={() => {
+          setShowImgDetail(false);
+        }}
+        nft={selectedNFT}
+        collection={collection}
+      /> */}
     </div>
   );
 };

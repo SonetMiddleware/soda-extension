@@ -1,0 +1,37 @@
+.container {
+  padding: 15px;
+  .img-big {
+    width: 400px;
+    margin: 0 auto;
+    display: block;
+  }
+  .toolbar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 5px;
+    .toolbar-icon {
+      margin-right: 3px;
+    }
+  }
+}
+.toolbar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.15);
+  }
+}

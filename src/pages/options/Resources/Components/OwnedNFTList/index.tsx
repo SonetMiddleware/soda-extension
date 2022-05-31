@@ -20,7 +20,7 @@ import DaoDetailDialog from '@/pages/components/DaoDetailDialog';
 import { useDaoModel } from '@/models';
 import { useWalletModel } from '@/models';
 import { useHistory } from 'umi';
-import { delay } from '@/utils';
+import CollectionNFTList from './CollectionNFTList';
 
 interface IProps {
   account: string;
@@ -33,7 +33,7 @@ interface INFTCollection {
 export default (props: IProps) => {
   const { account, refresh } = props;
   const { isCurrentMainnet } = useWalletModel();
-  const [ownedNFTs, setOwnedNFTs] = useState<INFTCollection[]>([]);
+  const [collections, setCollections] = useState<ICollectionItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedImg, setSelectedImg] = useState<number>();
   const [page, setPage] = useState(1);
@@ -54,52 +54,21 @@ export default (props: IProps) => {
             addr: account,
           });
           console.log('collections: ', collections);
-          collections.data.push({
-            id: '0x0000000000000000000000000000000000000000',
-            name: '',
-            img: '',
-            dao: {
-              name: '',
-              start_date: 0,
-              total_member: 0,
-              facebook: '',
-              twitter: '',
-              id: '0x0000000000000000000000000000000000000000',
-              img: '',
-            },
-          });
-          const nftResp = await Promise.all(
-            collections.data.map((item) => {
-              const params = {
-                addr: account,
-                collection_id: item.id,
-              };
-              return getCollectionNFTList(params);
-            }),
-          );
-          const nftList = [];
-          for (let i = 0; i < nftResp.length; i++) {
-            if (nftResp[i]) {
-              const collectionNFTItem = nftResp[i]!.data;
-              const images = await Promise.all(
-                collectionNFTItem.map((item) => {
-                  return getNFTSource(item.uri);
-                }),
-              );
-              // console.log('images: ', images);
-              collectionNFTItem.forEach((item, index) => {
-                item.uri = images[index];
-              });
-              nftList.push({
-                collection: collections.data[i],
-                nfts: collectionNFTItem,
-              });
-            }
-          }
-          setOwnedNFTs(nftList);
-          // setTotal(nfts.total);
-          // setPage(page);
-
+          // collections.data.push({
+          //   id: '0x0000000000000000000000000000000000000000',
+          //   name: '',
+          //   img: '',
+          //   dao: {
+          //     name: '',
+          //     start_date: 0,
+          //     total_member: 0,
+          //     facebook: '',
+          //     twitter: '',
+          //     id: '0x0000000000000000000000000000000000000000',
+          //     img: '',
+          //   },
+          // });
+          setCollections(collections.data);
           setLoading(false);
         } catch (err) {
           setLoading(false);
@@ -149,61 +118,36 @@ export default (props: IProps) => {
       </div>
       <Spin spinning={loading}>
         <div className="collection-list">
-          {ownedNFTs.length === 0 && <ListNoData />}
-          {ownedNFTs.length > 0 &&
-            ownedNFTs.map((collectionNFTItem) => (
-              <div
-                key={collectionNFTItem.collection.id}
-                className="collection-container"
-              >
-                {collectionNFTItem.collection.name && (
+          {collections.length === 0 && <ListNoData />}
+          {collections.length > 0 &&
+            collections.map((item) => (
+              <div key={item.id} className="collection-container">
+                {item.name && (
                   <div className="collection-title">
-                    {!collectionNFTItem.collection.dao && (
+                    {!item.dao && (
                       <Radio
-                        checked={
-                          selectedCollection?.id ===
-                          collectionNFTItem.collection.id
-                        }
+                        checked={selectedCollection?.id === item.id}
                         onChange={(e: any) => {
-                          setSelectedCollection(collectionNFTItem.collection);
+                          setSelectedCollection(item);
                         }}
-                        disabled={collectionNFTItem.collection.dao !== null}
+                        disabled={item.dao !== null}
                         className="custom-radio"
                       ></Radio>
                     )}
-                    <span>{collectionNFTItem.collection.name}</span>{' '}
-                    {collectionNFTItem.collection.dao && (
+                    <span>{item.name}</span>{' '}
+                    {item.dao && (
                       <img
                         src={IconDao}
                         alt=""
-                        onClick={() =>
-                          handleDaoSelect(collectionNFTItem.collection)
-                        }
+                        onClick={() => handleDaoSelect(item)}
                       />
                     )}
                   </div>
                 )}
-                <ul className="collection-nft-list">
-                  {collectionNFTItem.nfts.map((item) => (
-                    <li key={item.uri}>
-                      <div className="item-detail">
-                        <ImgDisplay className="img-item" src={item.uri} />
-                        <p className="item-name">#{item.token_id}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <CollectionNFTList account={account} collection_id={item.id} />
               </div>
             ))}
         </div>
-        {/* <div className="list-pagination">
-          <Pagination
-            total={total}
-            pageSize={9}
-            onChange={handleChangePage}
-            current={page}
-          />
-        </div> */}
       </Spin>
       <DaoDetailDialog onClose={onModalClose} show={showModal} />
     </div>

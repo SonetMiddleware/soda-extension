@@ -1,0 +1,47 @@
+.collection-nft-list {
+  display: flex;
+  flex-wrap: wrap;
+
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  > li {
+    margin-right: 20px;
+  }
+  > li:nth-child(5n) {
+    margin-right: 0;
+  }
+  .item-detail {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 152px;
+    height: 212px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    cursor: pointer;
+    &:hover {
+      border: 1px solid #7b61ff;
+    }
+    .img-uri {
+      width: 100px;
+      height: 100px;
+      background-position: center center;
+      background-size: contain;
+    }
+    .item-name {
+      color: #000000;
+      font-weight: 600;
+      font-size: 14px;
+      font-family: Poppins;
+      font-style: normal;
+      text-align: center;
+    }
+  }
+}
+.collection-nft-list-footer {
+  display: flex;
+  justify-content: flex-end;
+}

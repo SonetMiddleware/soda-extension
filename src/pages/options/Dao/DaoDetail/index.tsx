@@ -152,7 +152,7 @@ export default () => {
             <p className="dao-info-twitter">
               <img src={IconFB} alt="" />
               <a
-                href={`https://twitter.com/${currentDao?.facebook}`}
+                href={`https://facebook.com/${currentDao?.facebook}`}
                 target="_blank"
                 rel="noreferrer"
               >
