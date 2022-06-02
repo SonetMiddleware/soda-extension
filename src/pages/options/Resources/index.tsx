@@ -37,7 +37,7 @@ export default () => {
         setLoading(true);
         const res = await mint(localImg[0]);
         if (!res.error) {
-          console.log(res.error);
+          console.error(res.error);
           setLoading(false);
           return;
         }
@@ -50,7 +50,7 @@ export default () => {
         return;
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setLoading(false);
       message.error('Wallet issue/Balance issue');
     }

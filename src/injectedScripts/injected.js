@@ -31,10 +31,10 @@
               // here you get the REQUEST HEADERS, in JSON format, so you can also use JSON.parse
               this._requestHeaders = postData;
             } catch (err) {
-              console.log(
+              console.error(
                 'Request Header JSON decode failed, transfer_encoding field could be base64',
+                err,
               );
-              console.log(err);
             }
           } else if (
             typeof postData === 'object' ||
@@ -103,11 +103,10 @@
                 document.dispatchEvent(event);
               }
             } catch (err) {
-              console.log(err);
+              console.error(err);
             }
           } catch (err) {
-            console.log('Error in responseType try catch');
-            console.log(err);
+            console.error('Error in responseType try catch', err);
           }
         }
       }

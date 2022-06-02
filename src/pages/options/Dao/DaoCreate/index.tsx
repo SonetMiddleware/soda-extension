@@ -27,7 +27,7 @@ export default () => {
   const handleCreate = async () => {
     try {
       const values = await form.validateFields();
-      console.log('create dao: ', values);
+      console.debug('[extension] create dao: ', values);
       setSubmitting(true);
       message.info('Creating your DAO...');
       const res = await registerDao({

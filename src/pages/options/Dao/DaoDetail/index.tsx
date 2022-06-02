@@ -100,7 +100,6 @@ export default () => {
     if (currentDao) {
       fetchProposalList(currentDao.id);
     } else {
-      console.log(location);
       const { dao: daoId } = (location as any).query;
       fetchDaoDetail(daoId);
       fetchProposalList(daoId);
