@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import styles from './index.less';
-import type { IProposalItem } from '@soda/soda-core';
+import { Proposal, formatDate } from '@soda/soda-core';
+import classNames from 'classnames';
 import ProposalItemStatus from '@/pages/components/ProposalItemStatus';
 import ProposalResults from '@/pages/components/ProposalResults';
-import { formatDate } from '@/utils';
 interface IProps {
-  item: IProposalItem;
-  onSelect?: (item: IProposalItem) => void;
+  item: Proposal;
+  onSelect?: (item: Proposal) => void;
 }
 
 export default (props: IProps) => {
@@ -26,8 +26,8 @@ export default (props: IProps) => {
         <div className={styles['proposal-item-footer']}>
           <ProposalItemStatus status={item.status} />
           <p className="start-date-time">
-            #{item.snapshot_block} (app. {formatDate(item.start_time)}) ~{' '}
-            {formatDate(item.end_time)}
+            #{item.snapshotBlock} (app. {formatDate(item.startTime)}) ~{' '}
+            {formatDate(item.endTime)}
           </p>
         </div>
       </div>

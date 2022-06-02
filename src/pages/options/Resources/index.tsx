@@ -3,14 +3,13 @@ import './index.less';
 import { Tabs, message, Input, Upload, Spin, Button } from 'antd';
 import CommonButton from '@/pages/components/Button';
 import {
-  addToFav,
-  ipfsAdd,
-  MessageTypes,
-  sendMessage,
-  isMainNet,
+  addTokenToFav,
+  getCapableServiceNames,
+  getInlineMarketplace,
 } from '@soda/soda-core';
-import FavNFTList from './Components/FavNFTList';
-import OwnedNFTList from './Components/OwnedNFTList';
+import { mint } from '@soda/soda-core-ui';
+import FavTokenList from './Components/FavTokenList';
+import OwnedTokenList from './Components/OwnedTokenList';
 import { useWalletModel } from '@/models';
 
 const { TabPane } = Tabs;
@@ -18,42 +17,33 @@ const { TabPane } = Tabs;
 export default () => {
   const [loading, setLoading] = useState(false);
   const [localImg, setLocalImg] = useState<any>([]);
-  const { account, isCurrentMainnet } = useWalletModel();
   const [activeKey, setActiveKey] = useState('1');
+  const [mpUrl, setMpUrl] = useState('');
+  const { address, chainId } = useWalletModel();
+  const [isMintable, setMintable] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { assetServices } = await getCapableServiceNames('mint');
+      setMintable(assetServices.length > 0);
+      const res: any = await getInlineMarketplace();
+      setMpUrl(res.url);
+    })();
+  }, []);
+
   const handleFinish = async () => {
     try {
       if (localImg && localImg[0]) {
         setLoading(true);
-        // 1. upload to ipfs
-        message.info('Uploading your resource to IPFS...', 5);
-        const hash = await ipfsAdd(localImg[0]);
-        console.log('hash: ', hash);
-        // 3. mint NFT
-        const req = {
-          type: MessageTypes.Mint_Token,
-          request: {
-            hash,
-          },
-        };
-        message.info('Minting your NFT...');
-        const resp: any = await sendMessage(req);
-        console.log('mint resp:', resp);
-        const { tokenId } = resp.result;
-        if (!tokenId) {
-          console.log(resp.result.error);
+        const res = await mint(localImg[0]);
+        if (!res.error) {
+          console.log(res.error);
           setLoading(false);
           return;
         }
-        message.success('Your NFT has successfully minted.', 5);
+        message.success('Your NFT has been minted successfully.', 5);
         //add to fav
-        const params = {
-          addr: account,
-          contract: '0x0daB724e3deC31e5EB0a000Aa8FfC42F1EC917C5',
-          token_id: tokenId,
-          fav: 1,
-          uri: hash,
-        };
-        await addToFav(params);
+        await addTokenToFav({ address, token: res.token });
         setLoading(false);
       } else {
         message.warning('Please select local image to mint your NFT');
@@ -84,10 +74,10 @@ export default () => {
       <p className="resource-page-title">NFT Resources</p>
       <Spin spinning={loading}>
         <div className="resources-container">
-          {!isCurrentMainnet && (
+          {mpUrl && (
             <CommonButton
               type="primary"
-              onClick={() => window.open('https://nash.market/', '_blank')}
+              onClick={() => window.open(mpUrl, '_blank')}
               className="btn-market"
             >
               To NFT Market
@@ -100,9 +90,9 @@ export default () => {
             onChange={(v) => setActiveKey(v)}
           >
             <TabPane tab="My Favorite" key="1" className="fav-list">
-              <FavNFTList account={account} refresh={activeKey === '1'} />
+              <FavTokenList address={address} refresh={activeKey === '1'} />
             </TabPane>
-            {!isCurrentMainnet && (
+            {isMintable && (
               <TabPane tab="Mint" key="2">
                 <div className="mint-container">
                   <img
@@ -111,6 +101,7 @@ export default () => {
                   />
                   <p>Select local images to mint NFT</p>
                   <Upload
+                    capture=""
                     accept=".jpg,.jpeg,.png"
                     onRemove={onRemove}
                     fileList={localImg}
@@ -133,7 +124,7 @@ export default () => {
               </TabPane>
             )}
             <TabPane tab="NFT Portfolio" key="3" className="fav-list">
-              <OwnedNFTList account={account} refresh={activeKey === '3'} />
+              <OwnedTokenList address={address} refresh={activeKey === '3'} />
             </TabPane>
           </Tabs>
         </div>

@@ -1,90 +1,76 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './index.less';
 import { Spin, Radio, Pagination, message, Checkbox } from 'antd';
-import ImgDisplay from '@/pages/components/ImgDisplay';
 import {
-  getOwnedNFT,
-  IOwnedNFTData,
-  getCollectionList,
-  IDaoItem,
-  ICollectionItem,
-  getCollectionNFTList,
-  retrieveCollections,
-  getCollectionWithCollectionId,
-  ListNoData,
-  getNFTSource,
+  getCollectionDaoList,
+  CollectionDao,
+  getCollectionTokenList,
+  NFT,
 } from '@soda/soda-core';
+import { ListNoData } from '@soda/soda-core-ui';
+import CollectionTokenList from './CollectionTokenList';
 import IconDao from '@/theme/images/icon-dao.svg';
 import CommonButton from '@/pages/components/Button';
 import DaoDetailDialog from '@/pages/components/DaoDetailDialog';
 import { useDaoModel } from '@/models';
 import { useWalletModel } from '@/models';
 import { useHistory } from 'umi';
-import CollectionNFTList from './CollectionNFTList';
 
 interface IProps {
-  account: string;
+  address: string;
   refresh: boolean;
 }
-interface INFTCollection {
-  collection: ICollectionItem;
-  nfts: IOwnedNFTData[];
+interface ITokenCollection {
+  collectionDao: CollectionDao;
+  nfts: NFT[];
 }
+const PAGE_SIZE = 10;
 export default (props: IProps) => {
-  const { account, refresh } = props;
-  const { isCurrentMainnet } = useWalletModel();
-  const [collections, setCollections] = useState<ICollectionItem[]>([]);
+  const { address, refresh } = props;
+  const [collectionDaos, setCollectionDaos] = useState<CollectionDao[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedImg, setSelectedImg] = useState<number>();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [selectedCollection, setSelectedCollection] =
-    useState<ICollectionItem>();
+  const [selectedCollection, setSelectedCollection] = useState<CollectionDao>();
 
   const { setCollectionForDaoCreation, setCurrentDao } = useDaoModel();
   const history = useHistory();
 
   const fetchOwnedList = useCallback(async () => {
-    try {
-      if (account) {
-        try {
-          setLoading(true);
-          const collections = await getCollectionList({
-            addr: account,
-          });
-          console.log('collections: ', collections);
-          // collections.data.push({
-          //   id: '0x0000000000000000000000000000000000000000',
-          //   name: '',
-          //   img: '',
-          //   dao: {
-          //     name: '',
-          //     start_date: 0,
-          //     total_member: 0,
-          //     facebook: '',
-          //     twitter: '',
-          //     id: '0x0000000000000000000000000000000000000000',
-          //     img: '',
-          //   },
-          // });
-          setCollections(collections.data);
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
-        }
+    if (address) {
+      setLoading(true);
+      try {
+        const collectionDaos = await getCollectionDaoList({ address });
+        // collectionDaos.data.push({
+        //   collection: {
+        //     id: '0x0000000000000000000000000000000000000000',
+        //     name: '',
+        //     image: '',
+        //   },
+        //   dao: {
+        //     name: '',
+        //     startDate: 0,
+        //     totalMember: 0,
+        //     accounts: { facebook: '', twitter: '' },
+        //     id: '0x0000000000000000000000000000000000000000',
+        //     image: '',
+        //   },
+        // });
+        setCollectionDaos(collectionDaos.data);
+      } catch (err) {
+        console.error('[extension-option] getOwnedList: ' + err);
       }
-    } catch (e) {
-      console.log(e);
       setLoading(false);
     }
-  }, [account, refresh]);
+  }, [address, refresh]);
 
   useEffect(() => {
-    if (account && refresh) {
+    if (address && refresh) {
       fetchOwnedList();
     }
-  }, [account, refresh]);
+  }, [address, refresh]);
 
   const handleCreateDao = () => {
     if (selectedCollection) {
@@ -95,7 +81,7 @@ export default (props: IProps) => {
     }
   };
 
-  const handleDaoSelect = (item: ICollectionItem) => {
+  const handleDaoSelect = (item: CollectionDao) => {
     setCurrentDao(item.dao);
     setCollectionForDaoCreation(item);
     setShowModal(true);
@@ -118,23 +104,28 @@ export default (props: IProps) => {
       </div>
       <Spin spinning={loading}>
         <div className="collection-list">
-          {collections.length === 0 && <ListNoData />}
-          {collections.length > 0 &&
-            collections.map((item) => (
-              <div key={item.id} className="collection-container">
-                {item.name && (
+          {collectionDaos.length === 0 && <ListNoData />}
+          {collectionDaos.length > 0 &&
+            collectionDaos.map((item) => (
+              <div key={item.collection.id} className="collection-container">
+                {item.collection.name && (
                   <div className="collection-title">
                     {!item.dao && (
                       <Radio
-                        checked={selectedCollection?.id === item.id}
+                        checked={
+                          selectedCollection?.collection.id ===
+                          item.collection.id
+                        }
                         onChange={(e: any) => {
                           setSelectedCollection(item);
                         }}
                         disabled={item.dao !== null}
                         className="custom-radio"
-                      ></Radio>
+                      >
+                        &nbsp;{' '}
+                      </Radio>
                     )}
-                    <span>{item.name}</span>{' '}
+                    <span>{item.collection.name}</span>{' '}
                     {item.dao && (
                       <img
                         src={IconDao}
@@ -144,7 +135,7 @@ export default (props: IProps) => {
                     )}
                   </div>
                 )}
-                <CollectionNFTList account={account} collection_id={item.id} />
+                <CollectionTokenList address={address} collectionDao={item} />
               </div>
             ))}
         </div>

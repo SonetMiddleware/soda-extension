@@ -3,25 +3,25 @@ import {
   genReferralCode,
   getAcceptedCount,
   getAcceptedReferralCode,
-  getMyReferralCode,
-  PLATFORM,
+  getReferralCode,
+  sign,
 } from '@soda/soda-core';
-
 import React, { useState, useEffect } from 'react';
 import { Input, Button, message as Notification } from 'antd';
 
 import './index.less';
-import { MessageTypes, sendMessage } from '@soda/soda-core';
+import { APP_NAME } from '@soda/twitter-kit';
 
+const application = APP_NAME;
 interface IProps {
-  account: string;
-  tid: string;
+  address: string;
+  appid: string;
 }
 const ACCEPT_SUCCESS_MSG = 'Succeeded to accept the referral code.';
 const ACCEPT_FAILED_MSG =
   'Failed to accept the referral code. Please connect to your wallet and retry again.';
 export default (props: IProps) => {
-  const { account, tid } = props;
+  const { address, appid } = props;
   const [acceptedCode, setAcceptedCode] = useState('');
   const [submitCode, setSubmitCode] = useState('');
   const [myCode, setMyCode] = useState('');
@@ -30,12 +30,11 @@ export default (props: IProps) => {
   const [genLoading, setGenLoading] = useState(false);
 
   const fetchMyCodeInfo = async () => {
-    const params = {
-      addr: account,
-      platform: PLATFORM.Twitter,
-      tid,
-    };
-    const code = await getMyReferralCode(params);
+    const code = await getReferralCode({
+      address,
+      application,
+      appid,
+    });
     setMyCode(code);
     if (code) {
       const count = await getAcceptedCount(code);
@@ -44,7 +43,7 @@ export default (props: IProps) => {
   };
 
   const fetchAcceptedCode = async () => {
-    const code = await getAcceptedReferralCode(account);
+    const code = await getAcceptedReferralCode(address);
     setAcceptedCode(code);
   };
 
@@ -53,20 +52,12 @@ export default (props: IProps) => {
       try {
         setSubmitLoading(true);
         const message = submitCode;
-        const msg = {
-          type: MessageTypes.Sing_Message,
-          request: {
-            message,
-            account,
-          },
-        };
-        const res: any = await sendMessage(msg);
-        const params = {
-          addr: account,
+        const res = await sign({ message, address });
+        const result = await acceptReferralCode({
+          address,
           referral: submitCode,
           sig: res.result,
-        };
-        const result = await acceptReferralCode(params);
+        });
         if (result) {
           Notification.success(ACCEPT_SUCCESS_MSG);
           setAcceptedCode(submitCode);
@@ -75,7 +66,7 @@ export default (props: IProps) => {
         }
         setSubmitLoading(false);
       } catch (e) {
-        console.log(e);
+        console.error(e);
         setSubmitLoading(false);
         Notification.error(ACCEPT_FAILED_MSG);
       }
@@ -83,24 +74,23 @@ export default (props: IProps) => {
   };
 
   const handleGenCode = async () => {
-    const params = {
-      addr: account,
-      platform: PLATFORM.Twitter,
-      tid,
-    };
-    const code = await genReferralCode(params);
+    const code = await genReferralCode({
+      address,
+      application,
+      appid,
+    });
     setMyCode(code);
     setMyAcceptedCount(0);
   };
 
   useEffect(() => {
-    if (account && tid) {
+    if (address && appid) {
       fetchMyCodeInfo();
     }
-    if (account) {
+    if (address) {
       fetchAcceptedCode();
     }
-  }, [account, tid]);
+  }, [address, appid]);
 
   return (
     <div className="referral-container">
@@ -130,14 +120,17 @@ export default (props: IProps) => {
         Soda is your digital twin in the Metaverse. It helps you manage your
         personal accounts, digital assets and web identites across platforms.
       </p>
-      {(!account || !tid) && (
+      {(!address || !appid) && (
         <p className="accepted-referral-text">
-          Connect your wallet with Twitter account to get your own referral
-          code.
+          Connect your wallet with{' '}
+          <a href="https://twitter.com/home" target="__twitter__">
+            Twitter account
+          </a>{' '}
+          to get your own referral code.
         </p>
       )}
       <div className="gen-referral-container">
-        {!myCode && tid && (
+        {!myCode && appid && (
           <Button className="gen-btn" onClick={handleGenCode}>
             Get your referral code
           </Button>

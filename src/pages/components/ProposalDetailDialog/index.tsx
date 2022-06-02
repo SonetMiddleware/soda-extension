@@ -1,24 +1,24 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
-import {
-  IProposalItem,
-  ProposalStatusEnum,
-  voteProposal,
-  getUserVoteInfo,
-} from '@soda/soda-core';
 import { Button, Modal, Radio, Space, message, Tooltip } from 'antd';
-import { formatDateTime } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';
 import ProposalStatus from '../ProposalItemStatus';
 import ProposalResults from '../ProposalResults';
-import { MessageTypes, sendMessage } from '@soda/soda-core';
+import {
+  formatDateTime,
+  ProposalStatusEnum,
+  Proposal,
+  vote as voteProposal,
+  getUserVoteInfo,
+  sign,
+  sha3,
+} from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import web3 from 'web3';
 
 interface IProps {
   show: boolean;
-  detail: IProposalItem;
+  detail: Proposal;
   onClose: (updatedProposalId?: string) => void;
   inDao: boolean;
 }
@@ -27,17 +27,17 @@ export default (props: IProps) => {
   const { show, detail, onClose, inDao } = props;
   const [vote, setVote] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
-  const { account } = useWalletModel();
+  const { address } = useWalletModel();
   const { currentDao } = useDaoModel();
   const [voted, setVoted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
-    if (totalVotersNum >= detail.ballot_threshold) {
+    if (totalVotersNum >= detail.ballotThreshold) {
       return totalVotersNum;
     } else {
-      return `${totalVotersNum}/${detail.ballot_threshold}`;
+      return `${totalVotersNum}/${detail.ballotThreshold}`;
     }
   }, [detail]);
 
@@ -50,31 +50,24 @@ export default (props: IProps) => {
       message.warn('Please set one option to vote.');
       return;
     }
-    if (!account) {
+    if (!address) {
       message.warn('No metamask installed.');
       return;
     }
     try {
       setSubmitting(true);
-      const str = web3.utils.soliditySha3(detail.id, vote);
-      const msg = {
-        type: MessageTypes.Sing_Message,
-        request: {
-          message: str,
-          account,
-        },
-      };
-      const res: any = await sendMessage(msg);
-      const params = {
-        voter: account,
-        collection_id: currentDao!.id,
-        proposal_id: detail.id,
+      //@ts-ignore
+      const str = sha3(detail.id, vote);
+      const res = await sign({ message: str || '', address });
+      const result = await voteProposal({
+        voter: address,
+        collectionId: currentDao!.id,
+        proposalId: detail.id,
         item: vote,
         sig: res.result,
-      };
-      const result = await voteProposal(params);
+      });
       if (result) {
-        message.success('Vote successfully.');
+        message.success('Vote successful.');
         setSubmitting(false);
         onClose();
       } else {
@@ -83,39 +76,24 @@ export default (props: IProps) => {
       }
     } catch (e) {
       setSubmitting(false);
-      console.log(e);
+      console.error(e);
       message.warn('Vote failed.');
     }
   };
 
   useEffect(() => {
     (async () => {
-      if (show && account && currentDao && detail) {
-        const params = {
-          proposal_id: detail.id,
-          collection_id: currentDao.id,
-          addr: account,
-        };
-        const res = await getUserVoteInfo(params);
+      if (show && address && currentDao && detail) {
+        const res = await getUserVoteInfo({
+          proposalId: detail.id,
+          collectionId: currentDao.id,
+          address,
+        });
         if (res) {
           setVoted(true);
           setVote(res.item);
         }
-        //get current block height
-        const msg = {
-          type: MessageTypes.InvokeWeb3Api,
-          request: {
-            module: 'eth',
-            method: 'getBlockNumber',
-          },
-        };
-        const blockRes: any = await sendMessage(msg);
-        const { result: currentBlockHeight } = blockRes;
-        console.log('currentBlockHeight: ', currentBlockHeight);
-        if (
-          detail.status === ProposalStatusEnum.OPEN
-          // && detail.snapshot_block <= currentBlockHeight //TODO
-        ) {
+        if (detail.status === ProposalStatusEnum.OPEN) {
           setIsOpen(true);
         } else {
           setIsOpen(false);
@@ -136,7 +114,7 @@ export default (props: IProps) => {
         <div className={styles['header']}>
           <div className={styles['header-left']}>
             <p className={styles['end-time']}>
-              End at {formatDateTime(detail.end_time)}
+              End at {formatDateTime(detail.endTime)}
             </p>
             <p className={styles['title']}>{detail.title}</p>
             <p className={styles['total-supporter']}>

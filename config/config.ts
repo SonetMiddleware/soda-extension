@@ -19,12 +19,16 @@ export default defineConfig({
     background: { scripts: ['@/background/index'], persistent: false },
     popupUI: '@/pages/popup',
     contentScripts: [
+      // {
+      //   matches: ['http://*/*', 'https://*/*'],
+      //   entries: [
+      //     '@/contentScripts/index.ts',
+      //     '@/injectedScripts',
+      //     // '@/contentScripts/common',
+      //   ],
+      // },
       {
-        matches: ['http://*/*', 'https://*/*'],
-        entries: ['@/contentScripts/index.ts'],
-      },
-      {
-        matches: ['https://twitter.com/*','https://mobile.twitter.com/*'],
+        matches: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
         entries: [
           '@/contentScripts/index.ts',
           '@/injectedScripts',
@@ -35,8 +39,8 @@ export default defineConfig({
         matches: ['https://www.facebook.com/*'],
         entries: [
           '@/contentScripts/index.ts',
-          '@/contentScripts/facebook',
           '@/injectedScripts',
+          '@/contentScripts/facebook',
         ],
       },
     ],

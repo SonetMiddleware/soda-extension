@@ -21,13 +21,8 @@ import { useWalletModel } from '@/models';
 import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
-import {
-  getChainId,
-  MessageTypes,
-  sendMessage,
-  MAINNET_CHAIN_ID,
-  isMainNet,
-} from '@soda/soda-core';
+import { getAppConfig } from '@soda/soda-package-index';
+import { getAddress, getChainId } from '@soda/soda-core';
 
 import '@/theme/index.less';
 const routes: IRouteProps[] = [
@@ -80,32 +75,23 @@ const routes: IRouteProps[] = [
     component: Home,
   },
 ];
-const DEFAULT_CHAINID = [80001, 4, 1];
 const App = (props: any) => {
-  const { hash } = props.location;
-  const { setAccount, setIsCurrentMainNet } = useWalletModel();
-  console.log(hash);
+  const { hash: appPath } = props.location;
+  const { setAddress, setChainId } = useWalletModel();
+  console.debug('[app]: ', appPath);
 
   useEffect(() => {
     (async () => {
       const chainId = await getChainId();
-      if (!DEFAULT_CHAINID.includes(Number(chainId))) {
+      try {
+        const config = getAppConfig(Number(chainId));
+      } catch (e) {
         message.warning(
-          'Please switch to proper Metamask network. Valid Soda networks: matic-test, Rinkeby, Ethereum.',
+          'Please switch to proper Metamask network. Valid Soda network: Polygon Mumbai testnet, Rinkeby testnet, Ethereum mainnet',
         );
       }
-      const isCurrentMainnet = await isMainNet();
-      setIsCurrentMainNet(isCurrentMainnet);
-
-      const req = {
-        type: MessageTypes.Connect_Metamask,
-      };
-      const resp: any = await sendMessage(req);
-      console.log('get account: ', resp);
-      if (resp && resp.result) {
-        const { account: _account } = resp.result;
-        setAccount(_account);
-      }
+      const address = await getAddress();
+      setAddress(address);
     })();
   }, []);
   return (
@@ -124,12 +110,12 @@ const App = (props: any) => {
                 <Link to="/">
                   <span
                     className={`link-item ${
-                      hash === '#/' ? 'link-item-active' : ''
+                      appPath === '#/' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/'
+                        appPath === '#/'
                           ? chrome.extension.getURL(
                               'images/icon-home-active.png',
                             )
@@ -145,12 +131,12 @@ const App = (props: any) => {
                 <Link to="/accounts/home">
                   <span
                     className={`link-item ${
-                      hash === '#/accounts/home' ? 'link-item-active' : ''
+                      appPath === '#/accounts/home' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/accounts/home'
+                        appPath === '#/accounts/home'
                           ? chrome.extension.getURL(
                               'images/icon-account-active.png',
                             )
@@ -166,12 +152,12 @@ const App = (props: any) => {
                 <Link to="/plugins">
                   <span
                     className={`link-item ${
-                      hash === '#/plugins' ? 'link-item-active' : ''
+                      appPath === '#/plugins' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/plugins'
+                        appPath === '#/plugins'
                           ? chrome.extension.getURL(
                               'images/icon-plugins-active.png',
                             )
@@ -187,12 +173,12 @@ const App = (props: any) => {
                 <Link to="/resources">
                   <span
                     className={`link-item ${
-                      hash === '#/resources' ? 'link-item-active' : ''
+                      appPath === '#/resources' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/resources'
+                        appPath === '#/resources'
                           ? chrome.extension.getURL(
                               'images/icon-discovery-active.png',
                             )
@@ -208,12 +194,12 @@ const App = (props: any) => {
                 <Link to="/dao">
                   <span
                     className={`link-item ${
-                      hash.includes('#/dao') ? 'link-item-active' : ''
+                      appPath.includes('#/dao') ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash.includes('#/dao')
+                        appPath.includes('#/dao')
                           ? chrome.extension.getURL(
                               'images/icon-dao-active.svg',
                             )
@@ -229,12 +215,12 @@ const App = (props: any) => {
                 <Link to="/settings">
                   <span
                     className={`link-item ${
-                      hash === '#/settings' ? 'link-item-active' : ''
+                      appPath === '#/settings' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/settings'
+                        appPath === '#/settings'
                           ? chrome.extension.getURL(
                               'images/icon-setting-active.png',
                             )
@@ -250,12 +236,12 @@ const App = (props: any) => {
                 <Link to="/help">
                   <span
                     className={`link-item ${
-                      hash === '#/help' ? 'link-item-active' : ''
+                      appPath === '#/help' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/help'
+                        appPath === '#/help'
                           ? chrome.extension.getURL(
                               'images/icon-help-active.png',
                             )
@@ -271,12 +257,12 @@ const App = (props: any) => {
                 <Link to="/about">
                   <span
                     className={`link-item ${
-                      hash === '#/about' ? 'link-item-active' : ''
+                      appPath === '#/about' ? 'link-item-active' : ''
                     }`}
                   >
                     <img
                       src={
-                        hash === '#/about'
+                        appPath === '#/about'
                           ? chrome.extension.getURL(
                               'images/icon-about-active.png',
                             )
@@ -308,3 +294,11 @@ export default (props: any) => (
     <App {...props} />
   </ConfigProvider>
 );
+
+import coreInit from '@soda/soda-core';
+import { init as twitterInit } from '@soda/twitter-kit';
+import { init as facebookInit } from '@soda/facebook-kit';
+
+coreInit();
+twitterInit();
+facebookInit();

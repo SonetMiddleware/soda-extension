@@ -1,20 +1,20 @@
-import React, { useEffect } from 'react';
-import { Button } from '@material-ui/core';
-import './index.less';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react'
+import { Button } from '@material-ui/core'
+import './index.less'
+import { Link, useHistory } from 'react-router-dom'
 // import { useIntl } from 'umi';
-import { hasCreated, getLocal, StorageKeys } from '@/utils';
+import { getLocal, StorageKeys } from '@soda/soda-core-ui'
 
 export default () => {
   // const t = useIntl();
-  const history = useHistory();
+  const history = useHistory()
 
   useEffect(() => {
     // Go to options page
     if (location.pathname.indexOf('options.html') < 0) {
-      chrome.runtime.openOptionsPage();
+      chrome.runtime.openOptionsPage()
     } else {
-      history.replace('/accounts/home');
+      history.replace('/accounts/home')
     }
     // (async () => {
     //     const mnesCreating = await getLocal(StorageKeys.MNEMONICS_CREATING)
@@ -32,15 +32,14 @@ export default () => {
     //         }
     //     });
     // })();
-  }, []);
+  }, [])
   return (
     <div className="container">
       <a
         href=""
         onClick={() => {
-          chrome.runtime.openOptionsPage();
-        }}
-      >
+          chrome.runtime.openOptionsPage()
+        }}>
         To dashboard
       </a>
       {/* <div className="content">
@@ -59,5 +58,5 @@ export default () => {
                 </Button>
             </div> */}
     </div>
-  );
-};
+  )
+}

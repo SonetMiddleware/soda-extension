@@ -3,28 +3,28 @@ import './index.less';
 import { useDaoModel, useWalletModel } from '@/models';
 import { Pagination, Spin, Tooltip, message } from 'antd';
 import CommonButton from '@/pages/components/Button';
-import { IDaoItem, IGetDaoListParams, ListNoData } from '@soda/soda-core';
-import { getDaoList } from '@soda/soda-core';
+import { ListNoData } from '@soda/soda-core-ui';
+import { getDaoList, DaoItem } from '@soda/soda-core';
 import { useHistory } from 'umi';
-import { MessageTypes, sendMessage } from '@soda/soda-core';
 
 enum ListSwitchEnum {
   All_List,
   My_List,
 }
 
+const PAGE_SIZE = 10;
 export default () => {
   const history = useHistory();
   const { setCurrentDao } = useDaoModel();
-  const { account } = useWalletModel();
+  const { address } = useWalletModel();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [listSwitch, setListSwitch] = useState<ListSwitchEnum>(
     ListSwitchEnum.All_List,
   );
-  const [allMyDaos, setAllMyDaos] = useState<IDaoItem[]>([]);
+  const [allMyDaos, setAllMyDaos] = useState<DaoItem[]>([]);
   const [allMyDaosFetched, setAllMyDaosFetched] = useState(false);
-  const [daos, setDaos] = useState<IDaoItem[]>([]);
+  const [daos, setDaos] = useState<DaoItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleListSwitch = (val: ListSwitchEnum) => {
@@ -34,22 +34,16 @@ export default () => {
   };
 
   const fetchAllMyDaoList = async () => {
-    const params = {
-      addr: account,
-    } as IGetDaoListParams;
-    const res = await getDaoList(params);
+    const res = await getDaoList({ address });
     setAllMyDaos(res.data);
   };
 
   const fetchDaoList = async (page: number) => {
     try {
       setLoading(true);
-      let _allMyDaos: IDaoItem[] = [];
-      if (!allMyDaosFetched && account) {
-        const params = {
-          addr: account,
-        } as IGetDaoListParams;
-        const res = await getDaoList(params);
+      let _allMyDaos: DaoItem[] = [];
+      if (!allMyDaosFetched && address) {
+        const res = await getDaoList({ address });
         setAllMyDaos(res.data);
         setAllMyDaosFetched(true);
         _allMyDaos = res.data;
@@ -57,18 +51,18 @@ export default () => {
         _allMyDaos = allMyDaos;
       }
       const params = {
-        page,
-        gap: 10,
-      } as IGetDaoListParams;
+        offset: (page - 1) * PAGE_SIZE,
+        limit: PAGE_SIZE,
+      };
       if (listSwitch === ListSwitchEnum.My_List) {
-        if (!account) {
+        if (!address) {
           message.warn('No wallet address found.');
           setTotal(0);
           setDaos([]);
           setLoading(false);
           return;
         }
-        params.addr = account;
+        params.address = address;
       }
       const daosResp = await getDaoList(params);
       const list = daosResp.data;
@@ -81,10 +75,10 @@ export default () => {
       }
       setTotal(daosResp.total);
       setDaos(list);
-      setLoading(false);
     } catch (e) {
-      setLoading(false);
+      console.error('[extension-dao] fetchDaoList: ' + e);
     }
+    setLoading(false);
   };
 
   const handleChangePage = (newPage: number, pageSize: number | undefined) => {
@@ -93,10 +87,7 @@ export default () => {
 
   useEffect(() => {
     (async () => {
-      const params = {
-        addr: account,
-      } as IGetDaoListParams;
-      const res = await getDaoList(params);
+      const res = await getDaoList({ address });
       setAllMyDaos(res.data);
     })();
   }, []);
@@ -106,9 +97,9 @@ export default () => {
 
   useEffect(() => {
     fetchAllMyDaoList();
-  }, [account]);
+  }, [address]);
 
-  const handleDaoClick = (item: IDaoItem) => {
+  const handleDaoClick = (item: DaoItem) => {
     setCurrentDao(item);
     history.push('/daoDetail');
   };
@@ -145,10 +136,10 @@ export default () => {
               <div
                 key={item.id}
                 className={
-                  'dao-list-item ' +
+                  'dao-list-item' +
                   `${
                     item.isMyDao && listSwitch !== ListSwitchEnum.My_List
-                      ? 'dao-list-item-my'
+                      ? ' dao-list-item-my'
                       : ''
                   }`
                 }
@@ -167,7 +158,7 @@ export default () => {
       <div className="list-pagination">
         <Pagination
           total={total}
-          pageSize={8}
+          pageSize={PAGE_SIZE}
           onChange={handleChangePage}
           current={page}
         />

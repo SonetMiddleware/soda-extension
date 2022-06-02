@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import styles from './style.less';
 import { BrowserRouter as Router, Switch, useHistory } from 'react-router-dom';
+import init from '@soda/soda-core';
 import Welcome from './welcome';
 // import Create from './seed/create';
 // import Backup from './seed/backup';
@@ -13,26 +14,26 @@ import RouteWithSubRoutes, {
 } from '../components/RouteWithSubRoutes';
 import RouterTransition from '../components/RouterTransition';
 import '@/theme/index.less';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 // import { setLocale } from 'umi';
 import type { RouteProps } from 'react-router-dom';
-import { getLocal, StorageKeys } from '../../utils';
+import { getLocal, StorageKeys } from '@soda/soda-core-ui';
 
-declare module '@material-ui/core/styles/createMuiTheme' {
-  interface Theme {
-    status: {
-      danger: string;
-    };
-  }
+// declare module '@material-ui/core/styles/createMuiTheme' {
+//   interface Theme {
+//     status: {
+//       danger: string;
+//     };
+//   }
 
-  // allow configuration using `createMuiTheme`
-  interface ThemeOptions {
-    status?: {
-      danger?: string;
-    };
-  }
-}
-const theme = createMuiTheme({
+//   // allow configuration using `createMuiTheme`
+//   interface ThemeOptions {
+//     status?: {
+//       danger?: string;
+//     };
+//   }
+// }
+const theme = createTheme({
   palette: {
     primary: {
       main: '#29b6f6',
@@ -42,6 +43,8 @@ const theme = createMuiTheme({
     },
   },
 });
+
+init();
 
 // setLocale('en-US'); // TODO
 

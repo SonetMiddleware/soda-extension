@@ -10,21 +10,21 @@ export default () => {
           src={chrome.extension.getURL('images/facebook.png')}
           alt=""
           onClick={() => {
-            window.open('https://www.facebook.com/', '_blank');
+            window.open('https://www.facebook.com/', '__facebook__');
           }}
         />
         <img
           src={chrome.extension.getURL('images/twitter.png')}
           alt=""
           onClick={() => {
-            window.open('https://twitter.com/home', '_blank');
+            window.open('https://twitter.com/home', '__twitter__');
           }}
         />
         <img
           src={chrome.extension.getURL('images/plus.png')}
           alt=""
           onClick={() => {
-            message.info('More integrations coming soon.');
+            message.info('More integrations coming soon...');
           }}
         />
       </div>

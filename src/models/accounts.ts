@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createModel } from 'hox';
-import { StorageKeys, getLocal, saveLocal } from '@/utils';
+import { StorageKeys, getLocal, saveLocal } from '@soda/soda-core-ui';
 
 export interface IAccount {
   id: string; // uuid
@@ -49,13 +49,12 @@ function createAccountsStore() {
     (async () => {
       try {
         const res = await getLocal(StorageKeys.ACCOUNTS);
-        console.log(res);
         if (res) {
           const _accounts = JSON.parse(res);
           setAccounts(_accounts);
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     })();
   }, []);

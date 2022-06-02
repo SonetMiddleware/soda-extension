@@ -4,63 +4,49 @@ import { useDaoModel } from '@/models';
 import { Button, message, Modal, Select, Form, Input, DatePicker } from 'antd';
 import CommonButton from '@/pages/components/Button';
 import { useHistory } from 'umi';
-import { IDaoItem } from '@soda/soda-core';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
-import { MessageTypes, sendMessage } from '@soda/soda-core';
+import { DaoItem, registerDao } from '@soda/soda-core';
+
 export default () => {
   const { collectionForDaoCreation, setCurrentDao } = useDaoModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const history = useHistory();
-  const createDao = async () => {
+  const handleProceedCreate = async () => {
+    await handleCreate();
+    const values = form.getFieldsValue();
+    const dao = {
+      name: values.name,
+      id: collectionForDaoCreation?.collection.id,
+      image: collectionForDaoCreation?.collection.image,
+    } as DaoItem;
+    setCurrentDao(dao);
+    history.push('/daoNewProposal');
+  };
+  const handleCreate = async () => {
     try {
       const values = await form.validateFields();
       console.log('create dao: ', values);
       setSubmitting(true);
-      const req = {
-        type: MessageTypes.Register_DAO,
-        request: {
-          collectionId: collectionForDaoCreation?.id,
-          name: values.name,
-          facebook: values.facebook || '',
-          twitter: values.twitter,
-        },
-      };
       message.info('Creating your DAO...');
-      const resp: any = await sendMessage(req);
-      if (resp && resp.result && resp.result.error) {
+      const res = await registerDao({
+        collectionId: collectionForDaoCreation?.collection.id,
+        name: values.name,
+        facebook: values.facebook,
+        twitter: values.twitter,
+      });
+      if (res && res.error) {
         message.warn('Create DAO failed.');
         return;
       }
-      console.log('resp: ', resp);
+      console.log('res: ', res);
       message.success('DAO is created successfully!');
       setSubmitting(false);
       return true;
     } catch (e) {
       setSubmitting(false);
-      console.log(e);
-      return false;
-    }
-  };
-  const handleProceedCreate = async () => {
-    const res = await createDao();
-    if (!res) {
-      return;
-    }
-    const values = form.getFieldsValue();
-    const dao = {
-      name: values.name,
-      id: collectionForDaoCreation?.id,
-      img: collectionForDaoCreation?.img,
-    } as IDaoItem;
-    setCurrentDao(dao);
-    history.push('/daoNewProposal');
-  };
-  const handleCreate = async () => {
-    const res = await createDao();
-    if (!res) {
-      return;
+      console.error(e);
     }
     history.push('/dao');
   };
@@ -74,8 +60,11 @@ export default () => {
       <div className="content">
         <div className="left-content">
           <div className="banner">
-            <img src={collectionForDaoCreation?.img} alt="banner" />
-            <p>{collectionForDaoCreation?.name}</p>
+            <img
+              src={collectionForDaoCreation?.collection.image}
+              alt="banner"
+            />
+            <p>{collectionForDaoCreation?.collection.name}</p>
           </div>
           <p className="tip">
             This image should represent the logo and branding for your DAO.

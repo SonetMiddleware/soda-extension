@@ -2,108 +2,89 @@ import React, { useEffect, useState, useMemo } from 'react';
 
 import './index.less';
 
-import type { IBindResultData } from '@soda/soda-core';
 import {
-  getUserAccount,
-  MessageTypes,
-  sendMessage,
-  getTwitterBindResult,
-  PLATFORM,
-  unbindAddr,
+  BindInfo,
+  getAddress,
+  getBindResult,
+  sign,
+  unbind,
 } from '@soda/soda-core';
-import { message, Modal } from 'antd';
-import ReferalCode from '../ReferalCode';
-const PlatformUrls = [
-  {
-    platform: 'Facebook',
-    link: 'https://www.facebook.com/',
-  },
-  {
-    platform: 'Twitter',
-    link: 'https://twitter.com/home',
-  },
-];
+import { Modal } from 'antd';
+import ReferralCode from '../ReferralCode';
+import { APP_NAME as TWITTER_APP_NAME } from '@soda/twitter-kit';
+import {
+  getApplicationNames,
+  getHostUrl,
+  getIcon,
+  getUserPage,
+} from '@/utils/app';
 
 export default () => {
-  // const t = useIntl();
-  // const history = useHistory();
-  // const [nickname, setNickname] = useState('');
-  const [bindResult, setBindResult] = useState<IBindResultData[]>([]);
-  const [account, setAccount] = useState('');
-  const [twitterId, setTwitterId] = useState('');
-
-  // useEffect(() => {
-  //     (async () => {
-  //         const nickname = await getLocal(StorageKeys.TWITTER_NICKNAME)
-  //         setNickname(nickname)
-  //     })()
-  // }, [])
+  const [bindResult, setBindResult] = useState<BindInfo[]>([]);
+  const [address, setAddress] = useState('');
+  const [appid, setAppId] = useState('');
+  const [appHosts, setAppHosts] = useState([]);
 
   const fetchBindedResult = async () => {
-    const addr = await getUserAccount();
-    setAccount(addr);
-    const res = await getTwitterBindResult({ addr });
-    console.log('bindResult: ', res);
+    const address = await getAddress();
+    setAddress(address);
+    const res = await getBindResult({ address });
     setBindResult(res);
-    const twitterItem = res.find((item) => item.platform === PLATFORM.Twitter);
-    if (twitterItem) {
-      setTwitterId(twitterItem.tid);
+    const appItem = res.find((item) => item.application === TWITTER_APP_NAME);
+    if (appItem) {
+      setAppId(appItem.appid);
     }
   };
 
-  const handleUnbind = async (item: IBindResultData) => {
-    // sign before unbind
-    const str = item.platform + item.tid;
-    const msg = {
-      type: MessageTypes.Sing_Message,
-      request: {
-        message: str,
-        account: item.addr,
-      },
-    };
-    const res: any = await sendMessage(msg);
-    console.log('sign res: ', res);
-    const params = {
-      addr: item.addr,
-      tid: item.tid,
-      platform: item.platform,
-      sig: res.result,
-    };
-    await unbindAddr(params); //TODO should return content id
-    // message.success('Unbind success');
-    fetchBindedResult();
-    const url =
-      item.platform === PLATFORM.Twitter
-        ? 'https://twitter.com/' + item.tid
-        : 'https://www.facebook.com/';
-    Modal.success({
-      title: 'Unbind Successful',
-      content: "Don't forget to delete your binding tweet/post please.",
-      okText: 'OK',
-      onOk: () => {
-        window.open(url, '_blank');
-      },
+  const handleUnbind = async (item: BindInfo) => {
+    const res = await sign({
+      message: item.application + item.appid,
+      address: item.address,
     });
+    const result = await unbind({
+      address,
+      appid: item.appid,
+      application: item.application,
+      sig: res.result,
+    }); //TODO should return content id
+    fetchBindedResult();
+    if (result) {
+      const url = getUserPage(item.application, item.appid);
+      Modal.success({
+        title: 'Unbind successful.',
+        content: "Don't forget to delete your binding tweet/post please.",
+        okText: 'OK',
+        onOk: () => {
+          window.open(url, '_blank');
+        },
+      });
+    }
   };
 
   useEffect(() => {
     fetchBindedResult();
+    const ns = getApplicationNames();
+    const hosts = [];
+    for (const n of ns) {
+      const h = getHostUrl(n);
+      hosts.push({
+        application: n,
+        link: h,
+      });
+    }
+    setAppHosts(hosts);
   }, []);
 
   const bindResultRender = useMemo(() => {
     if (bindResult.length === 0) {
-      return PlatformUrls.map((item: any) => (
-        <div className="account-list-item">
+      return appHosts.map((item: any) => (
+        <div key={item.application} className="account-list-item">
           <div className="header">
             <img
-              src={
-                item.platform === 'Facebook'
-                  ? chrome.extension.getURL('images/facebook.png')
-                  : chrome.extension.getURL('images/twitter.png')
-              }
+              src={chrome.extension.getURL(getIcon(item.application))}
               alt=""
             />
-            <p>{item.platform}</p>
+            <p>{item.application}</p>
           </div>
           <div className="footer">
             <a href={item.link} target="_blank" rel="noreferrer">
@@ -117,27 +98,18 @@ export default () => {
         </div>
       ));
     }
-    const eles = bindResult.map((item) => {
-      let link = '';
-      if (item.platform === PLATFORM.Twitter) {
-        link = 'https://twitter.com/home';
-      } else if (item.platform === PLATFORM.Facebook) {
-        link = 'https://www.facebook.com/';
-      }
+    const eles = bindResult.map((item: any) => {
+      const link = getHostUrl(item.application);
       return (
-        <div className="account-list-item">
+        <div key={item.application} className="account-list-item">
           <div className="bind-header">
             <img
-              src={
-                item.platform === 'Facebook'
-                  ? chrome.extension.getURL('images/facebook.png')
-                  : chrome.extension.getURL('images/twitter.png')
-              }
+              src={chrome.extension.getURL(getIcon(item.application))}
               alt=""
             />
-            <p>{item.platform}</p>
+            <p>{item.application}</p>
           </div>
-          <p className="user-id">{item.tid}</p>
+          <p className="user-id">{item.appid}</p>
           <div className="bind-footer">
             <div>
               <p
@@ -163,7 +135,7 @@ export default () => {
   return (
     <div className="account-home-container">
       <h2 className="page-title">Account</h2>
-      <ReferalCode account={account} tid={twitterId} />
+      <ReferralCode address={address} appid={appid} />
       <div className="accounts-list">{bindResultRender}</div>
       {/* <div>
                 <Button onClick={() => { chrome.runtime.openOptionsPage() }}>Manage</Button>

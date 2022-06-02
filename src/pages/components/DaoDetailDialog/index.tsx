@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
+import { Proposal, formatDate } from '@soda/soda-core';
 import { Button, Modal, Radio, Space, message } from 'antd';
-import { formatDate } from '@/utils';
 import IconClose from '@/theme/images/icon-close.png';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFacebook from '@/theme/images/icon-facebook-gray.svg';
@@ -41,29 +41,29 @@ export default (props: IProps) => {
         />
         <div className={styles['content']}>
           <div className={styles['left']}>
-            <img src={currentDao?.img} alt="" />
+            <img src={currentDao?.image} alt="" />
           </div>
           <div className={styles['right']}>
             <p className={styles['title']}>{currentDao?.name}</p>
             <p className={styles['info-item']}>
               <span className={styles['label']}>Create date: </span>
               <span className={styles['label']}>
-                {formatDate(currentDao?.start_date)}
+                {formatDate(currentDao?.startDate)}
               </span>
             </p>
             <p className={styles['info-item']}>
               <span className={styles['label']}>Total member: </span>
               <span className={styles['label']}>
-                {formatDate(currentDao?.total_member)}
+                {formatDate(currentDao?.totalMember)}
               </span>
             </p>
             <p className={styles['info-twitter']}>
               <img src={IconTwitter} alt="" />
-              <span>{currentDao?.twitter}</span>
+              <span>{currentDao?.accounts.twitter}</span>
             </p>
             <p className={styles['info-twitter']}>
               <img src={IconFacebook} alt="" />
-              <span>{currentDao?.facebook}</span>
+              <span>{currentDao?.accounts.facebook}</span>
             </p>
           </div>
         </div>

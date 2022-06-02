@@ -17,7 +17,7 @@ export default () => {
         For more detail, please view our
         <a
           href="https://docs.sonet.one/soda-extension/soda-extension"
-          target="_blank"
+          target="__sonet__"
         >
           {' '}
           wiki page.

@@ -2,24 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import './index.less';
 import { Input } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
-import { formatDate } from '@/utils';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
 import CommonButton from '@/pages/components/Button';
-import type { IProposalItem } from '@soda/soda-core';
-import {
-  getProposalList,
-  getCollectionWithCollectionId,
-} from '@soda/soda-core';
 import ProposalItem from '@/pages/components/ProposalItem';
-import ProposalResults from '@/pages/components/ProposalResults';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
 import { useHistory, useLocation } from 'umi';
 import {
-  isMainNet,
-  MessageTypes,
-  sendMessage,
-  IGetDaoListParams,
+  formatDate,
+  getProposalList,
+  getCollectionDaoByCollectionId,
+  Proposal,
+  getChainId,
+  getBalance,
   getDaoList,
 } from '@soda/soda-core';
 
@@ -28,13 +23,13 @@ export default () => {
   const history = useHistory();
   const location = useLocation();
   const [filterText, setFilterText] = useState('');
-  const [list, setList] = useState<IProposalItem[]>([]);
-  const [filterList, setFilterList] = useState<IProposalItem[]>([]);
+  const [list, setList] = useState<Proposal[]>([]);
+  const [filterList, setFilterList] = useState<Proposal[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [inDao, setInDao] = useState(false);
-  const { account } = useWalletModel();
+  const { address } = useWalletModel();
 
-  const [selectedProposal, setSelectedProposal] = useState<IProposalItem>();
+  const [selectedProposal, setSelectedProposal] = useState<Proposal>();
   const fetchProposalList = async (daoId: string) => {
     const listResp = await getProposalList({ dao: daoId });
     const list = listResp.data;
@@ -43,19 +38,14 @@ export default () => {
   };
 
   const fetchDaoDetail = async (daoId: string) => {
-    const collection = await getCollectionWithCollectionId(daoId);
-    if (collection) {
-      if (!collection.dao) {
-        history.push('/dao');
-      } else {
-        const dao = {
-          ...collection.dao,
-          id: collection.id,
-          img: collection.img,
-        };
-        setCurrentDao(dao);
-        return collection;
-      }
+    const collectionId = daoId;
+    const collectionDao = await getCollectionDaoByCollectionId({
+      id: collectionId,
+    });
+    if (collectionDao) {
+      const dao = collectionDao.dao;
+      setCurrentDao(dao);
+      return collectionDao;
     }
   };
 
@@ -78,10 +68,7 @@ export default () => {
   };
 
   const fetchUserInDao = async () => {
-    const params = {
-      addr: account,
-    } as IGetDaoListParams;
-    const res = await getDaoList(params);
+    const res = await getDaoList({ address });
     const myDaos = res.data;
     for (const item of myDaos) {
       if (item.id === currentDao?.id) {
@@ -89,35 +76,32 @@ export default () => {
         return;
       }
     }
-    // const msg = {
-    //   type: MessageTypes.InvokeERC721Contract,
-    //   request: {
-    //     contract: currentDao?.id,
-    //     method: 'balanceOf',
-    //     readOnly: true,
-    //     args: [account],
-    //   },
-    // };
-    // const balanceRes: any = await sendMessage(msg);
-    // console.log('GetNFTBalance: ', balanceRes);
-    // const balance = balanceRes.result;
-    // if (Number(balance) > 0) {
-    //   setInDao(true);
-    // }
+    //     const chainId = await getChainId();
+    //     // get user nft balance
+    //     const balance = await getBalance({
+    //       cache: {
+    //         chainId,
+    //         contract: currentDao?.id,
+    //       },
+    //       address: address,
+    //     });
+    //     if (Number(balance) > 0) {
+    //       setInDao(true);
+    //     }
   };
 
   useEffect(() => {
-    if (currentDao && account) {
+    if (currentDao && address) {
       fetchUserInDao();
     }
-  }, [currentDao, account]);
+  }, [currentDao, address]);
 
   useEffect(() => {
     if (currentDao) {
       fetchProposalList(currentDao.id);
     } else {
       console.log(location);
-      const { dao: daoId } = location.query;
+      const { dao: daoId } = (location as any).query;
       fetchDaoDetail(daoId);
       fetchProposalList(daoId);
     }
@@ -125,35 +109,33 @@ export default () => {
   return (
     <div className="dao-detail-container">
       <div className="dao-detail-header">
-        <img src={currentDao?.img} alt="" />
+        <img src={currentDao?.image} alt="" />
         <div className="dao-detail-info">
           <p className="dao-name">{currentDao?.name}</p>
           <p className="dao-info-item">
             <span className="label">Create date</span>
-            <span className="value">{formatDate(currentDao?.start_date)}</span>
+            <span className="value">{formatDate(currentDao?.startDate)}</span>
           </p>
           {/* <p className="dao-info-item">
             <span className="label">Total members</span>
-            <span className="value">{currentDao?.total_member}</span>
+            <span className="value">{currentDao?.totalMember}</span>
           </p> */}
-
           <p className="dao-info-twitter">
             <img src={IconTwitter} alt="" />
             <a
               href={`https://twitter.com/${currentDao?.twitter}`}
-              target="_blank"
+              target="__twitter__"
               rel="noreferrer"
             >
               {currentDao?.twitter}
             </a>
           </p>
-
           {currentDao?.facebook && (
             <p className="dao-info-twitter">
               <img src={IconFB} alt="" />
               <a
-                href={`https://facebook.com/${currentDao?.facebook}`}
-                target="_blank"
+                href={`https://www.facebook.com/${currentDao?.facebook}`}
+                target="__facebook__"
                 rel="noreferrer"
               >
                 {currentDao?.facebook}
