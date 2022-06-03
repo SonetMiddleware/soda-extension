@@ -15,7 +15,7 @@ async function messageHandler(requestMsg: any) {
     );
   } catch (e) {
     console.error(e);
-    response.error = e;
+    response.error = (e as any).message || e;
   }
   return JSON.stringify(response);
 }

@@ -147,7 +147,7 @@ export default () => {
                   handleDaoClick(item);
                 }}
               >
-                <img src={item.img} alt="" />
+                <img src={item.image} alt="" />
                 <Tooltip title={item.name}>
                   <p>{item.name}</p>
                 </Tooltip>
