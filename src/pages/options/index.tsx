@@ -80,7 +80,7 @@ const routes: IRouteProps[] = [
     component: Home,
   },
 ];
-const DEFAULT_CHAINID = [80001, 4, 1];
+const DEFAULT_CHAINID = [80001, 4, 1, 137];
 const App = (props: any) => {
   const { hash } = props.location;
   const { setAccount, setIsCurrentMainNet } = useWalletModel();
@@ -91,7 +91,7 @@ const App = (props: any) => {
       const chainId = await getChainId();
       if (!DEFAULT_CHAINID.includes(Number(chainId))) {
         message.warning(
-          'Please switch to proper Metamask network. Valid Soda networks: matic-test, Rinkeby, Ethereum.',
+          'Please switch to proper Metamask network. Valid Soda networks: matic-test, Polygon, Rinkeby, Ethereum.',
         );
       }
       const isCurrentMainnet = await isMainNet();

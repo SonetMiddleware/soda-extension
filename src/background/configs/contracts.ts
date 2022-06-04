@@ -22,6 +22,10 @@ const RinkebyContracts = {
   PlatwinMEME2WithoutRPC: '0x12DafDC77B0c754481395783Fa2e59024e92C2eF',
   DAORegistry: '0x6CEc4160f0Bf0Be55b9AB4Ba48fe019019Df9C48',
 };
+
+const PolygonMainnetContracts = {
+  DAORegistry: '0x6CEc4160f0Bf0Be55b9AB4Ba48fe019019Df9C48',
+};
 type ContractConfigs = {
   [key: string]: {
     [key: number]: string;
@@ -76,7 +80,7 @@ const configs: ContractConfigs = {
   },
   DaoRegistery: {
     80001: TestnetContracts.DAORegistry,
-    137: '',
+    137: PolygonMainnetContracts.DAORegistry,
     4: RinkebyContracts.DAORegistry,
   },
 };

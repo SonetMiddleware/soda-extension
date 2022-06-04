@@ -16,6 +16,7 @@ import CommonButton from '@/pages/components/Button';
 import ProposalFormItems from '@/pages/components/ProposalFormItems';
 import {
   createProposal,
+  getChainId,
   getCollectionWithCollectionId,
   SUCCESS_CODE,
 } from '@soda/soda-core';
@@ -78,13 +79,19 @@ export default () => {
     const startTime = Math.floor(startTimeMilliseconds / 1000);
     const endTime = Math.floor(endTimeMilliseconds / 1000);
     let url2 = '';
-    if (isCurrentMainnet) {
+    const chainId = await getChainId();
+    if (Number(chainId) === 1) {
+      url2 = `https://api.etherscan.io/api?module=block&action=getblockcountdown&blockno=${
+        nowBlock + 100
+      }&apikey=XQC3E447KF4EHSXC1IMC2M6IN4B947JA4I`;
+    } else if (Number(chainId) === 137) {
+      url2 = `https://api.polygonscan.com/api?module=block&action=getblockcountdown&blockno=${
+        nowBlock + 100
+      }&apikey=588TW5DBXGV5DXNR1S4YXK1RV6F88SWYPS`;
+    } else if (Number(chainId) === 4) {
       url2 = `https://api-rinkeby.etherscan.io/api?module=block&action=getblockcountdown&blockno=${
         nowBlock + 100
       }`;
-      // url2 = `https://api-testnet.polygonscan.com/api?module=block&action=getblockcountdown&blockno=${
-      //   nowBlock + 200
-      // }`;
     } else {
       url2 = `https://api-testnet.polygonscan.com/api?module=block&action=getblockcountdown&blockno=${
         nowBlock + 100

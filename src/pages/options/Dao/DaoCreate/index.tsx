@@ -31,6 +31,7 @@ export default () => {
       const resp: any = await sendMessage(req);
       if (resp && resp.result && resp.result.error) {
         message.warn('Create DAO failed.');
+        setSubmitting(false);
         return;
       }
       console.log('resp: ', resp);

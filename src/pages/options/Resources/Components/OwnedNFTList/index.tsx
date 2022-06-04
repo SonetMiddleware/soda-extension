@@ -144,7 +144,11 @@ export default (props: IProps) => {
                     )}
                   </div>
                 )}
-                <CollectionNFTList account={account} collection_id={item.id} />
+                <CollectionNFTList
+                  account={account}
+                  collection_id={item.id}
+                  collection={item}
+                />
               </div>
             ))}
         </div>

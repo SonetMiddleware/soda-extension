@@ -28,7 +28,7 @@ interface IProps {
 }
 
 export default (props: IProps) => {
-  const { history } = useHistory();
+  const history = useHistory();
   const { setCurrentDao } = useDaoModel();
   const { show, onClose, nft, collection } = props;
   const [orderId, setOrderId] = useState('');
@@ -79,6 +79,10 @@ export default (props: IProps) => {
     } else if (chainId === 1) {
       window.open(
         `https://opensea.io/assets/ethereum/${nft?.contract}/${nft?.token_id}`,
+      );
+    } else if (chainId === 137) {
+      window.open(
+        `https://opensea.io/assets/matic/${nft?.contract}/${nft?.token_id}`,
       );
     } else if (orderId) {
       window.open(`https://nash.market/detail/${orderId}`, '_blank');

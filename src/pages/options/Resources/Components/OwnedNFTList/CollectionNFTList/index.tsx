@@ -25,6 +25,7 @@ export default (props: IProps) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchNFTList = async () => {
+    debugger;
     setLoading(true);
     const params = { addr: account, collection_id, gap: 10, page };
     const res = await getCollectionNFTList(params);
