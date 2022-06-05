@@ -29,7 +29,6 @@ import {
 
 import moment from 'moment';
 import { useHistory, useLocation } from 'umi';
-import { delay } from '@/utils';
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 export default () => {
@@ -62,7 +61,7 @@ export default () => {
       return;
     }
     const chainId = await getChainId();
-    const bs = estimateBlockByTime(chainId, [startTimeMilliseconds]);
+    const bs = await estimateBlockByTime(chainId, [startTimeMilliseconds]);
     const startBlock = bs[0];
     setSnapShotBlock(startBlock);
   };

@@ -38,6 +38,7 @@ export default () => {
       });
       if (res && res.error) {
         message.warn('Create DAO failed.');
+        setSubmitting(false);
         return;
       }
       console.log('res: ', res);
