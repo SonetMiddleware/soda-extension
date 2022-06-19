@@ -16,7 +16,7 @@ export default () => {
           href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=chrome-ntp-icon"
           rel="noreferrer"
         >
-          Metamask
+          Metamask,
         </a>{' '}
         and set the network to Polygon Testnet (, Ethereum Rinkeby Testnet, or
         Ethereum Mainnet). Please refer to the{' '}
@@ -26,8 +26,8 @@ export default () => {
           rel="noreferrer"
         >
           guide
-        </a>
-        .
+        </a>{' '}
+        on how to switch between networks.
       </p>
     </div>
   );

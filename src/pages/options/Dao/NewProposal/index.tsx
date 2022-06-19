@@ -21,6 +21,7 @@ import {
   getCollectionDaoByCollectionId,
   sha3,
   sign,
+  SUCCESS_CODE,
 } from '@soda/soda-core';
 import {
   ExclamationCircleOutlined,
@@ -107,9 +108,24 @@ export default () => {
         voterType: values.voter_type,
         sig: res.result,
       });
-      if (result.error) {
-        // FIXME: handle duplicate entry
-        throw new Error(result.error);
+
+      if (result && result.data && result.data.code === SUCCESS_CODE) {
+        message.success('Your proposal is created successfully.');
+        // history.goBack();
+        history.push('/daoDetail');
+        setSubmitting(false);
+      } else {
+        if (
+          result &&
+          result.data &&
+          result.data.error.includes('Duplicate entry')
+        ) {
+          message.error("Proposal's title or description is duplicated.");
+          setSubmitting(false);
+          return;
+        }
+        message.error('Create proposal failed.');
+        setSubmitting(false);
       }
       message.success('Your proposal is created successfully.');
       history.push('/daoDetail');
@@ -184,8 +200,8 @@ export default () => {
               name="description"
               rules={[
                 {
-                  required: false,
-                  message: 'Please input title.',
+                  required: true,
+                  message: 'Please input description.',
                 },
                 {
                   max: 10240,
@@ -294,7 +310,7 @@ export default () => {
       </Form>
       <div className="proposal-footer-btns">
         <CommonButton
-          type="primary"
+          type="secondary"
           className="btn-create"
           onClick={handleCreate}
           loading={submitting}

@@ -51,20 +51,22 @@ export default (props: IProps) => {
                 {formatDate(currentDao?.startDate)}
               </span>
             </p>
-            <p className={styles['info-item']}>
+            {/* <p className={styles['info-item']}>
               <span className={styles['label']}>Total member: </span>
               <span className={styles['label']}>
-                {formatDate(currentDao?.totalMember)}
+                {currentDao?.total_member}
               </span>
-            </p>
+            </p> */}
             <p className={styles['info-twitter']}>
               <img src={IconTwitter} alt="" />
               <span>{currentDao?.accounts.twitter}</span>
             </p>
-            <p className={styles['info-twitter']}>
-              <img src={IconFacebook} alt="" />
-              <span>{currentDao?.accounts.facebook}</span>
-            </p>
+            {currentDao?.facebook && (
+              <p className={styles['info-twitter']}>
+                <img src={IconFacebook} alt="" />
+                <span>{currentDao?.facebook}</span>
+              </p>
+            )}
           </div>
         </div>
         <div className={styles['footer-btns']}>

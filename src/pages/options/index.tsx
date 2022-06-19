@@ -22,7 +22,16 @@ import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
 import { getAppConfig } from '@soda/soda-package-index';
-import { getAddress, getChainId } from '@soda/soda-core';
+
+import {
+  getAddress,
+  getChainId,
+  MessageTypes,
+  sendMessage,
+  MAINNET_CHAIN_ID,
+  isMainNet,
+  decodeMetaData,
+} from '@soda/soda-core';
 
 import '@/theme/index.less';
 const routes: IRouteProps[] = [
@@ -56,6 +65,10 @@ const routes: IRouteProps[] = [
   },
   {
     path: '/daoDetail',
+    component: DaoDetail,
+  },
+  {
+    path: '/daoDetailWithId',
     component: DaoDetail,
   },
   {

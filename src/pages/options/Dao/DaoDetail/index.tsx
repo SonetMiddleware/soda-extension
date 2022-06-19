@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './index.less';
-import { Input } from 'antd';
+import { Input, Button } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
@@ -97,14 +97,18 @@ export default () => {
   }, [currentDao, address]);
 
   useEffect(() => {
-    if (currentDao) {
+    if (!location.pathname.includes('daoDetailWithId') && currentDao) {
       fetchProposalList(currentDao.id);
     } else {
-      const { dao: daoId } = (location as any).query;
-      fetchDaoDetail(daoId);
-      fetchProposalList(daoId);
+      console.log(location);
+      const { dao: daoId } = location.query;
+      if (daoId) {
+        fetchDaoDetail(daoId);
+        fetchProposalList(daoId);
+      }
     }
   }, [location.pathname]);
+
   return (
     <div className="dao-detail-container">
       <div className="dao-detail-header">
@@ -142,6 +146,12 @@ export default () => {
             </p>
           )}
         </div>
+        <Button
+          className="dao-detail-back"
+          onClick={() => history.push('/dao')}
+        >
+          Back
+        </Button>
       </div>
       <div className="dao-detail-list-header">
         <Input
@@ -152,7 +162,7 @@ export default () => {
           placeholder="Filter"
         />
         <CommonButton
-          type="primary"
+          type="secondary"
           className="btn-new-proposal"
           onClick={() => history.push('/daoNewProposal')}
           disabled={!inDao}

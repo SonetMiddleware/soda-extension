@@ -23,6 +23,7 @@ export default (props?: IProps) => {
     onChange?.(_values);
     setInputVal('');
   };
+
   return (
     <div className="proposal-form-items">
       <ul className="items-list">
@@ -44,7 +45,8 @@ export default (props?: IProps) => {
           onChange={(e) => {
             setInputVal(e.target.value);
           }}
-        ></Input>
+          onPressEnter={(e) => handleSave()}
+        />
         <Button
           type="primary"
           shape="circle"

@@ -95,9 +95,9 @@ export default (props: IProps) => {
     <div className="owned-list-container">
       <div className="btn-container">
         <CommonButton
-          type="primary"
+          type="secondary"
           onClick={handleCreateDao}
-          className="btn-market"
+          className="btn-market btn-create-dao"
         >
           Create DAO
         </CommonButton>

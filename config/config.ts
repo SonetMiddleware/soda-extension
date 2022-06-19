@@ -21,14 +21,10 @@ export default defineConfig({
     contentScripts: [
       // {
       //   matches: ['http://*/*', 'https://*/*'],
-      //   entries: [
-      //     '@/contentScripts/index.ts',
-      //     '@/injectedScripts',
-      //     // '@/contentScripts/common',
-      //   ],
+      //   entries: ['@/contentScripts/index.ts'],
       // },
       {
-        matches: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+        matches: ['https://twitter.com/*','https://mobile.twitter.com/*'],
         entries: [
           '@/contentScripts/index.ts',
           '@/injectedScripts',

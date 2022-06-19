@@ -143,7 +143,7 @@ export default () => {
           Create & proceed to your first proposal
         </Button>
         <CommonButton
-          type="primary"
+          type="secondary"
           className="btn-create"
           onClick={handleCreate}
           loading={submitting}
