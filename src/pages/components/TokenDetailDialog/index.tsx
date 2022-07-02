@@ -31,6 +31,7 @@ export default (props: IProps) => {
       visible={show}
       onCancel={onClose}
       centered
+      width={'auto'}
     >
       <div className={styles.container}>
         <div className={styles.toolbar}>

@@ -13,18 +13,8 @@ export default () => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const history = useHistory();
-  const handleProceedCreate = async () => {
-    await handleCreate();
-    const values = form.getFieldsValue();
-    const dao = {
-      name: values.name,
-      id: collectionForDaoCreation?.collection.id,
-      image: collectionForDaoCreation?.collection.image,
-    } as DaoItem;
-    setCurrentDao(dao);
-    history.push('/daoNewProposal');
-  };
-  const handleCreate = async () => {
+
+  const createDao = async () => {
     try {
       const values = await form.validateFields();
       console.debug('[extension] create dao: ', values);
@@ -48,6 +38,28 @@ export default () => {
     } catch (e) {
       setSubmitting(false);
       console.error(e);
+      message.warn('Create DAO failed.');
+      return false;
+    }
+  };
+
+  const handleProceedCreate = async () => {
+    const res = await createDao();
+    if (!res) {
+      return;
+    }
+    const values = form.getFieldsValue();
+    const dao = {
+      name: values.name,
+      id: collectionForDaoCreation?.collection.id,
+      image: collectionForDaoCreation?.collection.image,
+    } as DaoItem;
+    history.push('/daoNewProposal');
+  };
+  const handleCreate = async () => {
+    const res = await createDao();
+    if (!res) {
+      return;
     }
     history.push('/dao');
   };

@@ -63,8 +63,11 @@ export default () => {
     }
     const chainId = await getChainId();
     const bs = await estimateBlockByTime(chainId, [startTimeMilliseconds]);
-    const startBlock = bs[0];
-    setSnapShotBlock(startBlock);
+    console.log('[extension-options]: bs ', bs);
+    if (bs && bs[0]) {
+      const startBlock = bs[0];
+      setSnapShotBlock(startBlock);
+    }
   };
 
   const handleCreate = async () => {
@@ -108,18 +111,13 @@ export default () => {
         voterType: values.voter_type,
         sig: res.result,
       });
-
-      if (result && result.data && result.data.code === SUCCESS_CODE) {
+      if (result && result.code === SUCCESS_CODE) {
         message.success('Your proposal is created successfully.');
         // history.goBack();
         history.push('/daoDetail');
         setSubmitting(false);
       } else {
-        if (
-          result &&
-          result.data &&
-          result.data.error.includes('Duplicate entry')
-        ) {
+        if (result && result.error.includes('Duplicate entry')) {
           message.error("Proposal's title or description is duplicated.");
           setSubmitting(false);
           return;
@@ -127,8 +125,6 @@ export default () => {
         message.error('Create proposal failed.');
         setSubmitting(false);
       }
-      message.success('Your proposal is created successfully.');
-      history.push('/daoDetail');
       setSubmitting(false);
     } catch (e) {
       console.error('[extension-proposal] newProposal: ', e);

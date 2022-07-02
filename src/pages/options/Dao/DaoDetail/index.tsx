@@ -126,22 +126,22 @@ export default () => {
           <p className="dao-info-twitter">
             <img src={IconTwitter} alt="" />
             <a
-              href={`https://twitter.com/${currentDao?.twitter}`}
+              href={`https://twitter.com/${currentDao?.accounts.twitter}`}
               target="__twitter__"
               rel="noreferrer"
             >
-              {currentDao?.twitter}
+              {currentDao?.accounts.twitter}
             </a>
           </p>
-          {currentDao?.facebook && (
+          {currentDao?.accounts.facebook && (
             <p className="dao-info-twitter">
               <img src={IconFB} alt="" />
               <a
-                href={`https://www.facebook.com/${currentDao?.facebook}`}
+                href={`https://www.facebook.com/${currentDao?.accounts.facebook}`}
                 target="__facebook__"
                 rel="noreferrer"
               >
-                {currentDao?.facebook}
+                {currentDao?.accounts.facebook}
               </a>
             </p>
           )}

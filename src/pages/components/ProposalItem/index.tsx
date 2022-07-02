@@ -26,8 +26,7 @@ export default (props: IProps) => {
         <div className={styles['proposal-item-footer']}>
           <ProposalItemStatus status={item.status} />
           <p className="start-date-time">
-            #{item.snapshotBlock} (app. {formatDate(item.startTime)}) ~{' '}
-            {formatDate(item.endTime)}
+            Duration: {formatDate(item.startTime)} - {formatDate(item.endTime)}
           </p>
         </div>
       </div>
