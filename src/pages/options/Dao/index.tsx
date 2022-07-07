@@ -20,7 +20,7 @@ export default () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [listSwitch, setListSwitch] = useState<ListSwitchEnum>(
-    ListSwitchEnum.All_List,
+    ListSwitchEnum.My_List,
   );
   const [allMyDaos, setAllMyDaos] = useState<DaoItem[]>([]);
   const [allMyDaosFetched, setAllMyDaosFetched] = useState(false);
@@ -72,6 +72,8 @@ export default () => {
             item.isMyDao = true;
           }
         }
+      } else {
+        list.forEach((item) => (item.isMyDao = true));
       }
       setTotal(daosResp.total);
       setDaos(list);
@@ -85,12 +87,12 @@ export default () => {
     fetchDaoList(newPage);
   };
 
-  useEffect(() => {
-    (async () => {
-      const res = await getDaoList({ address });
-      setAllMyDaos(res.data);
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const res = await getDaoList({ address });
+  //     setAllMyDaos(res.data);
+  //   })();
+  // }, []);
   useEffect(() => {
     fetchDaoList(1);
   }, [listSwitch]);
@@ -111,20 +113,20 @@ export default () => {
         <div className="list-switch">
           <span
             className={
-              listSwitch === ListSwitchEnum.All_List ? 'switch-active' : ''
-            }
-            onClick={() => handleListSwitch(ListSwitchEnum.All_List)}
-          >
-            DAO list
-          </span>
-          <i>/</i>
-          <span
-            className={
               listSwitch === ListSwitchEnum.My_List ? 'switch-active' : ''
             }
             onClick={() => handleListSwitch(ListSwitchEnum.My_List)}
           >
             View my DAO
+          </span>
+          <i>/</i>
+          <span
+            className={
+              listSwitch === ListSwitchEnum.All_List ? 'switch-active' : ''
+            }
+            onClick={() => handleListSwitch(ListSwitchEnum.All_List)}
+          >
+            DAO list
           </span>
         </div>
       </div>

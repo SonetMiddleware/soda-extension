@@ -111,6 +111,7 @@ export default () => {
         voterType: values.voter_type,
         sig: res.result,
       });
+      console.log('[extension] ', result);
       if (result && result.code === SUCCESS_CODE) {
         message.success('Your proposal is created successfully.');
         // history.goBack();
@@ -226,6 +227,7 @@ export default () => {
             ]}
           >
             <RangePicker
+              dropdownClassName="custom-range-picker"
               disabledDate={disabledDate}
               showTime={{
                 defaultValue: [
