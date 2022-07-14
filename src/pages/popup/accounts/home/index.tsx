@@ -18,10 +18,11 @@ import {
   getIcon,
   getUserPage,
 } from '@/utils/app';
+import { useWalletModel } from '@/models';
 
 export default () => {
   const [bindResult, setBindResult] = useState<BindInfo[]>([]);
-  const [address, setAddress] = useState('');
+  const { address, setAddress } = useWalletModel();
   const [appid, setAppId] = useState('');
   const [appHosts, setAppHosts] = useState([]);
 

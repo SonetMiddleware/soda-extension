@@ -95,6 +95,7 @@ const App = (props: any) => {
           'Please switch to proper Metamask network. Valid Soda network: Polygon Mumbai testnet, Polygon mainnet, Rinkeby testnet, Ethereum mainnet',
         );
       }
+      setChainId(chainId);
       const address = await getAddress();
       setAddress(address);
     })();

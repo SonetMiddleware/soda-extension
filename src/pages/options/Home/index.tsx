@@ -16,13 +16,13 @@ export default () => {
           href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=chrome-ntp-icon"
           rel="noreferrer"
         >
-          Metamask,
+          Metamask
         </a>{' '}
-        and set the network to Polygon Testnet (, Ethereum Rinkeby Testnet, or
-        Ethereum Mainnet). Please refer to the{' '}
+        . We support the Ethereum and Polygon networks, both on mainnet and
+        testnet. Please refer to this{' '}
         <a
           target="_blank"
-          href="https://soda-extension.medium.com/how-to-connect-polygon-testnet-to-metamask-wallet-f90cf5daab7b"
+          href="https://soda-extension.medium.com/guide-to-switching-networks-on-metamask-wallet-11dec806a4c3"
           rel="noreferrer"
         >
           guide

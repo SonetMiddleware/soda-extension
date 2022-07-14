@@ -13,8 +13,6 @@ import {
   getProposalList,
   getCollectionDaoByCollectionId,
   Proposal,
-  getChainId,
-  getBalance,
   getDaoList,
 } from '@soda/soda-core';
 
@@ -76,18 +74,6 @@ export default () => {
         return;
       }
     }
-    //     const chainId = await getChainId();
-    //     // get user nft balance
-    //     const balance = await getBalance({
-    //       cache: {
-    //         chainId,
-    //         contract: currentDao?.id,
-    //       },
-    //       address: address,
-    //     });
-    //     if (Number(balance) > 0) {
-    //       setInDao(true);
-    //     }
   };
 
   useEffect(() => {

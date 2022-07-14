@@ -86,7 +86,7 @@ export default (props: IProps) => {
       if (show && address && currentDao && detail) {
         const res = await getUserVoteInfo({
           proposalId: detail.id,
-          collectionId: currentDao.id,
+          daoId: currentDao.id,
           address,
         });
         if (res) {
