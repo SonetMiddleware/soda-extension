@@ -24,7 +24,7 @@ export default defineConfig({
       //   entries: ['@/contentScripts/index.ts'],
       // },
       {
-        matches: ['https://twitter.com/*','https://mobile.twitter.com/*'],
+        matches: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
         entries: [
           '@/contentScripts/index.ts',
           '@/injectedScripts',
@@ -47,8 +47,14 @@ export default defineConfig({
       128: 'logo/sodalogo@128.png',
     },
     permissions: ['storage', 'tabs'],
+    // permissions: ['storage', 'tabs', 'webNavigation', 'https://*/'], // for inject event.umd.js at init
     extends: {
-      web_accessible_resources: ['injected.js', 'images/*.png', 'fonts/*.*'],
+      web_accessible_resources: [
+        'event.umd.js',
+        'injected.js',
+        'images/*.png',
+        'fonts/*.*',
+      ],
     },
   },
   extraBabelPlugins: [

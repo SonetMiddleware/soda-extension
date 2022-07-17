@@ -48,3 +48,43 @@ coreBgInit();
 coreUIBgInit();
 
 console.debug('[background-init] message registered.');
+
+async function getInjectedScript() {
+  try {
+    return `{
+      const script = document.createElement('script')
+      script.src = chrome.extension.getURL('event.umd.js');
+        // .then((x) => x.text())
+        // .then(JSON.stringify)}
+      document.documentElement.appendChild(script)
+  }`;
+  } catch (e) {
+    console.error(e);
+    return `console.log('Injected script failed to load.')`;
+  }
+}
+
+// browser.webNavigation.onCommitted.addListener(async (arg) => {
+//   const injectedScript = getInjectedScript();
+//   console.log('[background] >>> injected');
+//   if (arg.url === 'about:blank') return;
+//   if (!arg.url.startsWith('http')) return;
+//   browser.tabs
+//     .executeScript(arg.tabId, {
+//       runAt: 'document_start',
+//       frameId: arg.frameId,
+//       // Refresh the injected script every time in the development mode.
+//       code:
+//         process.env.NODE_ENV === 'development'
+//           ? await getInjectedScript()
+//           : await injectedScript,
+//     })
+//     .catch((e) => {
+//       console.log('inject error: ',e);
+//     });
+//   browser.tabs.executeScript(arg.tabId, {
+//     runAt: 'document_start',
+//     frameId: arg.frameId,
+//     file: 'injected.js',
+//   });
+// });

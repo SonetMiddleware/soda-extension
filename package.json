@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.4",
+    "@ant-design/plots": "^1.1.1",
     "@ant-design/pro-layout": "^6.11.1",
     "@dimensiondev/holoflows-kit": "^0.8.0-20210429202414-74fb9a1",
     "@dimensiondev/metamask-extension-provider": "^3.0.6-20210519045409-1835d4d",

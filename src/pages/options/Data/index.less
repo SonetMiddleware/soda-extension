@@ -1,44 +1,7 @@
-.container {
-  padding: 15px;
-  .img-big {
-    height: 400px;
-    margin: 0 auto;
-    display: block;
-  }
-  .toolbar {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 5px;
-    .toolbar-icon {
-      margin-right: 3px;
-    }
-  }
-}
-.toolbar-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: #ffffff;
-  border-radius: 50%;
-  cursor: pointer;
-
-  img {
-    width: 16px;
-    height: 16px;
-  }
-
-  &:hover {
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.15);
-  }
-}
 .nft-data-container {
   display: flex;
   .nft-content {
-    flex: 2;
+    flex-basis: 2.3;
     background: #f8f8f8;
     padding: 20px 48px;
     position: relative;
@@ -51,8 +14,7 @@
     }
     .img-big {
       width: 100%;
-      max-height: 600px;
-      // height: calc(100% - 90px);
+      height: calc(100% - 90px);
       margin-bottom: 30px;
     }
     .web2-datas {
@@ -77,7 +39,7 @@
     }
   }
   .nft-apps {
-    flex: 1;
+    flex-basis: 1;
     padding: 24px 40px 30px 16px;
   }
 }
