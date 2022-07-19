@@ -67,12 +67,12 @@ export default (props: IProps) => {
     },
     smooth: true,
     color: '#B04CFF',
-    height: 300,
+    height: 200,
   };
 
   return (
     <div className={styles.container}>
-      <Tabs defaultActiveKey={TabList[0].key} onChange={onTabChange}>
+      <Tabs defaultActiveKey={TabList[0].key} onChange={onTabChange} className={styles['custom-tabs']}>
         {TabList.map((item) => (
           <TabPane tab={item.tab} key={item.key} />
         ))}

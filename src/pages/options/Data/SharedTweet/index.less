@@ -4,7 +4,7 @@
   border-radius: 8px;
   width: 100%;
   padding: 20px;
-  margin-bottom: 20px;
+  //   margin-bottom: 20px;
 
   .title {
     font-family: 'Poppins';
@@ -18,9 +18,12 @@
 
   .tweets-list {
     list-style: none;
+    max-height: 300px;
+    overflow: auto;
     .list-item {
       display: flex;
       align-items: center;
+      margin-bottom: 12px;
       > img {
         width: 29px;
         height: 29px;
@@ -59,11 +62,17 @@
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          width: 200px;
         }
         > button {
           font-size: 12px;
         }
       }
+    }
+  }
+  .custom-tabs {
+    .ant-tabs {
+      padding: 0 !important;
     }
   }
 }
