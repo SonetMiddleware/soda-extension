@@ -4,6 +4,7 @@ import { Input, Button } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
+import IconDiscord from '@/theme/images/icon-discord-gray.svg';
 import CommonButton from '@/pages/components/Button';
 import ProposalItem from '@/pages/components/ProposalItem';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
@@ -14,12 +15,15 @@ import {
   getCollectionDaoByCollectionId,
   Proposal,
   getDaoList,
+  getChainId,
 } from '@soda/soda-core';
+import { DISCORD } from '@/constant/sns';
 
 export default () => {
   const { setCurrentDao, currentDao } = useDaoModel();
   const history = useHistory();
   const location = useLocation();
+  const [chainId, setChainId] = useState(1);
   const [filterText, setFilterText] = useState('');
   const [list, setList] = useState<Proposal[]>([]);
   const [filterList, setFilterList] = useState<Proposal[]>([]);
@@ -75,7 +79,12 @@ export default () => {
       }
     }
   };
-
+  useEffect(() => {
+    (async () => {
+      const chainId = await getChainId();
+      setChainId(chainId);
+    })();
+  }, []);
   useEffect(() => {
     if (currentDao && address) {
       fetchUserInDao();
@@ -128,6 +137,20 @@ export default () => {
                 rel="noreferrer"
               >
                 {currentDao?.accounts.facebook}
+              </a>
+            </p>
+          )}
+          {DISCORD[chainId] && DISCORD[chainId][currentDao?.id] && (
+            <p className="dao-info-twitter">
+              <img src={IconDiscord} alt="" />
+              <a
+                href={`https://discord.com/channels/${
+                  DISCORD[chainId][currentDao?.id]
+                }`}
+                target="__discord__"
+                rel="noreferrer"
+              >
+                tanaka-dao
               </a>
             </p>
           )}

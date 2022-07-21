@@ -1,13 +1,15 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
-import { Proposal, formatDate } from '@soda/soda-core';
+import { Proposal, formatDate, getChainId } from '@soda/soda-core';
 import { Button, Modal, Radio, Space, message } from 'antd';
 import IconClose from '@/theme/images/icon-close.png';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFacebook from '@/theme/images/icon-facebook-gray.svg';
+import IconDiscord from '@/theme/images/icon-discord-gray.svg';
 import { useDaoModel, useWalletModel } from '@/models';
 import CommonButton from '@/pages/components/Button';
 import { useHistory } from 'umi';
+import { DISCORD } from '@/constant/sns';
 interface IProps {
   show: boolean;
   onClose: (updatedProposalId?: string) => void;
@@ -15,8 +17,16 @@ interface IProps {
 
 export default (props: IProps) => {
   const { show, onClose } = props;
+  const [chainId, setChainId] = useState(1);
   const { currentDao } = useDaoModel();
   const history = useHistory();
+
+  useEffect(() => {
+    (async () => {
+      const chainId = await getChainId();
+      setChainId(chainId);
+    })();
+  }, []);
 
   const handleCreate = () => {
     history.push('/daoNewProposal');
@@ -59,12 +69,38 @@ export default (props: IProps) => {
             </p> */}
             <p className={styles['info-twitter']}>
               <img src={IconTwitter} alt="" />
-              <span>{currentDao?.accounts.twitter}</span>
+              <a
+                href={`https://twitter.com/${currentDao?.accounts.twitter}`}
+                target="__twitter__"
+                rel="noreferrer"
+              >
+                {currentDao?.accounts.twitter}
+              </a>
             </p>
-            {currentDao?.facebook && (
+            {currentDao?.accounts.facebook && (
               <p className={styles['info-twitter']}>
                 <img src={IconFacebook} alt="" />
-                <span>{currentDao?.facebook}</span>
+                <a
+                  href={`https://www.facebook.com/${currentDao?.accounts.facebook}`}
+                  target="__facebook__"
+                  rel="noreferrer"
+                >
+                  {currentDao?.accounts.facebook}
+                </a>
+              </p>
+            )}
+            {DISCORD[chainId] && DISCORD[chainId][currentDao?.id] && (
+              <p className={styles['info-twitter']}>
+                <img src={IconDiscord} alt="" />
+                <a
+                  href={`https://discord.com/channels/${
+                    DISCORD[chainId][currentDao?.id]
+                  }`}
+                  target="__discord__"
+                  rel="noreferrer"
+                >
+                  tanaka-dao
+                </a>
               </p>
             )}
           </div>
