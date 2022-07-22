@@ -1,3 +1,8 @@
-import main from '@soda/facebook-kit'
+// const hook = document.createElement('script');
+// hook.src = chrome.extension.getURL('inject-hook.umd.min.js');
+// console.log('[facebook-hook] starts');
+// (document.head || document.documentElement).appendChild(hook);
+
+import main from '@soda/facebook-kit';
 
 main();

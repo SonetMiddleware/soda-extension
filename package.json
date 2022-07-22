@@ -14,8 +14,8 @@
     "url": "https://github.com/platwin/soda-extension/issues"
   },
   "scripts": {
-    "start": "umi dev && ./cp.sh",
-    "build": "umi build && ./cp.sh",
+    "start": "umi dev",
+    "build": "umi build",
     "zip": "yarn build && yarn zip:only",
     "zip:only": "ts-node ./scripts/zip",
     "---------  ": "",
@@ -57,6 +57,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@soda/facebook-kit": "workspace:^0.0.1",
+    "@soda/soda-event-util": "workspace:^0.0.1",
     "@soda/soda-core": "workspace:^0.0.1",
     "@soda/soda-core-ui": "workspace:^0.0.1",
     "@soda/soda-package-index": "workspace:^0.0.1",

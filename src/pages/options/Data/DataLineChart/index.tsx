@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import styles from './index.less';
 import { Line } from '@ant-design/plots';
 import { Tabs } from 'antd';
-import type { IGetTwitterDailyDataResp } from '@soda/soda-core';
 import { getTwitterDailyData, formatDate } from '@soda/soda-core';
 const { TabPane } = Tabs;
 import { NFT } from '@soda/soda-core';
@@ -12,10 +11,10 @@ interface IProps {
 }
 export default (props: IProps) => {
   const TabList = [
-    { key: 'reply_count', tab: 'Reply' },
-    { key: 'retweet_count', tab: 'Retweet' },
-    { key: 'like_count', tab: 'Like' },
-    { key: 'quote_count', tab: 'Quote' },
+    { key: 'replyCount', tab: 'Reply' },
+    { key: 'retweetCount', tab: 'Retweet' },
+    { key: 'likeCount', tab: 'Like' },
+    { key: 'quoteCount', tab: 'Quote' },
   ];
   const { token } = props;
   const [data, setData] = useState<any[]>();
@@ -29,7 +28,7 @@ export default (props: IProps) => {
     const res = await getTwitterDailyData({
       chainId: token.chainId,
       contract: token.contract,
-      token_id: Number(token.tokenId!),
+      tokenId: Number(token.tokenId!),
       start: start,
     });
     setData(res.data);
@@ -43,7 +42,7 @@ export default (props: IProps) => {
     if (data && type) {
       const list = data.map((item: any) => {
         return {
-          date: formatDate(item.snapshot_time),
+          date: formatDate(item.snapshotTime),
           amount: item[type],
         };
       });
@@ -72,7 +71,11 @@ export default (props: IProps) => {
 
   return (
     <div className={styles.container}>
-      <Tabs defaultActiveKey={TabList[0].key} onChange={onTabChange} className={styles['custom-tabs']}>
+      <Tabs
+        defaultActiveKey={TabList[0].key}
+        onChange={onTabChange}
+        className={styles['custom-tabs']}
+      >
         {TabList.map((item) => (
           <TabPane tab={item.tab} key={item.key} />
         ))}

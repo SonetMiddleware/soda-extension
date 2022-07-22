@@ -47,6 +47,9 @@ import { bgInit as coreUIBgInit } from '@soda/soda-core-ui';
 coreBgInit();
 coreUIBgInit();
 
+// import InjectScriptHook from './injectHook';
+// InjectScriptHook();
+
 console.debug('[background-init] message registered.');
 
 async function getInjectedScript() {

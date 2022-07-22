@@ -26,7 +26,7 @@ export default (props: Props) => {
     const data = await getNFTRelatedTwitterData({
       chainId: token.chainId,
       contract: token.contract,
-      token_id: Number(token.tokenId!),
+      tokenId: Number(token.tokenId!),
     });
     setData(data);
   };
@@ -58,19 +58,19 @@ export default (props: Props) => {
         <div className={styles['web2-datas']}>
           <div className={styles['web3-data-item']}>
             <img src={IconComment} alt="" />
-            <span>{data?.reply_count || 0}</span>
+            <span>{data?.replyCount || 0}</span>
           </div>
           <div className={styles['web3-data-item']}>
             <img src={IconRetweet} alt="" />
-            <span>{data?.retweet_count || 0}</span>
+            <span>{data?.retweetCount || 0}</span>
           </div>
           <div className={styles['web3-data-item']}>
             <img src={IconFav} alt="" />
-            <span>{data?.like_count || 0}</span>
+            <span>{data?.likeCount || 0}</span>
           </div>
           <div className={styles['web3-data-item']}>
             <img src={IconTransfer} alt="" />
-            <span>{data?.quote_count || 0}</span>
+            <span>{data?.quoteCount || 0}</span>
           </div>
         </div>
       </div>

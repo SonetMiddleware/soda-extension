@@ -2,25 +2,32 @@ import React, { useState, useEffect } from 'react';
 import styles from './index.less';
 import { Button } from 'antd';
 import type { NFT } from '@soda/soda-core';
-import { getNFTRelatedTweet, IGetNFTRelatedTweetData } from '@soda/soda-core';
+import { getNFTRelatedTweet, TwitterInfo } from '@soda/soda-core';
 interface IProps {
   token: NFT;
 }
 export default (props: IProps) => {
   const { token } = props;
 
-  const [list, setList] = useState<IGetNFTRelatedTweetData[]>([]);
+  const [list, setList] = useState<
+    {
+      chain_name: string;
+      contract: string;
+      token_id: string;
+      info: TwitterInfo;
+    }[]
+  >([]);
   const fetchTweets = async () => {
     const list = await getNFTRelatedTweet({
       chainId: token.chainId,
       contract: token.contract,
-      token_id: Number(token.tokenId!),
+      tokenId: Number(token.tokenId!),
     });
     setList(list);
   };
-  const handleView = (item: IGetNFTRelatedTweetData) => {
+  const handleView = (info: TwitterInfo) => {
     window.open(
-      `https://twitter.com/${item.user_id?.substring(1)}/status/${item.tid}`,
+      `https://twitter.com/${info.userId?.substring(1)}/status/${info.tid}`,
       '_blank',
     );
   };
@@ -35,14 +42,14 @@ export default (props: IProps) => {
       <ul className={styles['tweets-list']}>
         {list.map((item) => (
           <div className={styles['list-item']} key={item.id}>
-            <img src={item.user_img} alt="" />
+            <img src={item.info.userImg} alt="" />
             <div className={styles['user-info']}>
-              <p>{item.user_name}</p>
-              <p>{item.user_id}</p>
+              <p>{item.info.username}</p>
+              <p>{item.info.userId}</p>
             </div>
             <div className={styles['tweet-content']}>
-              <p>{item.t_content}</p>
-              <Button type="link" onClick={() => handleView(item)}>
+              <p>{item.info.content}</p>
+              <Button type="link" onClick={() => handleView(item.info)}>
                 View
               </Button>
             </div>

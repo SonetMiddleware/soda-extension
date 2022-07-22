@@ -3,10 +3,7 @@ import styles from './index.less';
 import { useWalletModel } from '@/models';
 import { Modal } from 'antd';
 import { NFT } from '@soda/soda-core';
-import {
-  getNFTRelatedTwitterData,
-  IGetNFTRelatedTwitterResp,
-} from '@soda/soda-core';
+import { getNFTRelatedTwitterData } from '@soda/soda-core';
 import { InlineTokenToolbar, MediaCacheDisplay } from '@soda/soda-core-ui';
 import IconComment from '@/theme/images/icon-comment.svg';
 import IconRetweet from '@/theme/images/icon-retweet.svg';
@@ -25,12 +22,17 @@ export default (props: IProps) => {
   const { show, onClose, token } = props;
   const { address, chainId } = useWalletModel();
 
-  const [data, setData] = useState<IGetNFTRelatedTwitterResp>();
+  const [data, setData] = useState<{
+    retweetCount: number;
+    replyCount: number;
+    likeCount: number;
+    quoteCount: number;
+  }>();
   const fetchData = async () => {
     const data = await getNFTRelatedTwitterData({
       chainId: token!.chainId,
       contract: token!.contract,
-      token_id: Number(token!.tokenId!),
+      tokenId: Number(token!.tokenId!),
     });
     setData(data);
   };
@@ -70,19 +72,19 @@ export default (props: IProps) => {
           <div className={styles['web2-datas']}>
             <div className={styles['web3-data-item']}>
               <img src={IconComment} alt="" />
-              <span>{data?.reply_count || 0}</span>
+              <span>{data?.replyCount || 0}</span>
             </div>
             <div className={styles['web3-data-item']}>
               <img src={IconRetweet} alt="" />
-              <span>{data?.retweet_count || 0}</span>
+              <span>{data?.retweetCount || 0}</span>
             </div>
             <div className={styles['web3-data-item']}>
               <img src={IconFav} alt="" />
-              <span>{data?.like_count || 0}</span>
+              <span>{data?.likeCount || 0}</span>
             </div>
             <div className={styles['web3-data-item']}>
               <img src={IconTransfer} alt="" />
-              <span>{data?.quote_count || 0}</span>
+              <span>{data?.quoteCount || 0}</span>
             </div>
           </div>
         </div>
