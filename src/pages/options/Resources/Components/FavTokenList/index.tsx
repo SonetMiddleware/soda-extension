@@ -25,6 +25,9 @@ export default (props: IProps) => {
   const [submitting, setSubmitting] = useState(false);
   const [showTokenDetail, setShowTokenDetail] = useState(false);
   const [selectedToken, setSelectedToken] = useState<NFT>();
+  const [hasPrev, setHasPrev] = useState(true);
+  const [hasNext, setHasNext] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState();
 
   const fetchFavList = async (currentPage: number) => {
     if (address) {
@@ -52,6 +55,7 @@ export default (props: IProps) => {
       setFavNFTs([]);
       setFavNFTs([..._nfts]);
       setPage(currentPage);
+      return _nfts;
     }
   };
 
@@ -65,9 +69,43 @@ export default (props: IProps) => {
     fetchFavList(page);
   };
 
-  const handleSelect = (item: NFT) => {
+  const handleSelect = (item: NFT, index: number) => {
     setSelectedToken(item);
     setShowTokenDetail(true);
+    setSelectedIndex(index);
+    if (index + (page - 1) * PAGE_SIZE >= total - 1) {
+      setHasNext(false);
+    } else {
+      setHasNext(true);
+    }
+    if (index + (page - 1) * PAGE_SIZE <= 0) {
+      setHasPrev(false);
+    } else {
+      setHasPrev(true);
+    }
+  };
+
+  const handlePrev = async () => {
+    const _index = selectedIndex - 1;
+    if (_index < 0) {
+      const list = await fetchFavList(page - 1);
+      if (list) {
+        handleSelect(list[list?.length - 1], list?.length - 1);
+      }
+    } else {
+      handleSelect(favNFTs[selectedIndex - 1], selectedIndex - 1);
+    }
+  };
+  const handleNext = async () => {
+    const _index = selectedIndex + 1;
+    if (_index > PAGE_SIZE - 1) {
+      const list = await fetchFavList(page + 1);
+      if (list) {
+        handleSelect(list[0], 0);
+      }
+    } else {
+      handleSelect(favNFTs[selectedIndex + 1], selectedIndex + 1);
+    }
   };
 
   useEffect(() => {
@@ -101,7 +139,7 @@ export default (props: IProps) => {
               <div
                 className="item-detail"
                 onClick={() => {
-                  handleSelect(item);
+                  handleSelect(item, index);
                 }}
               >
                 <MediaCacheDisplay className="img-item" token={item} />
@@ -135,6 +173,7 @@ export default (props: IProps) => {
             pageSize={PAGE_SIZE}
             onChange={handleChangePage}
             current={page}
+            showSizeChanger={false}
           />
         </div>
         <div className="list-footer">
@@ -156,6 +195,11 @@ export default (props: IProps) => {
           setShowTokenDetail(false);
         }}
         token={selectedToken}
+        onPrev={handlePrev}
+        onNext={handleNext}
+        hasNext={hasNext}
+        hasPrev={hasPrev}
+        loading={loading}
       />
     </div>
   );

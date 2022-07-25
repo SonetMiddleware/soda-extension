@@ -26,7 +26,7 @@ export default (props: Props) => {
     const data = await getNFTRelatedTwitterData({
       chainId: token.chainId,
       contract: token.contract,
-      tokenId: Number(token.tokenId!),
+      token_id: Number(token.tokenId!),
     });
     setData(data);
   };

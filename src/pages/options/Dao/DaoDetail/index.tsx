@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './index.less';
-import { Input, Button } from 'antd';
+import { Input, Button, Pagination } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
@@ -17,6 +17,7 @@ import {
 } from '@soda/soda-core';
 
 export default () => {
+  const PAGE_SIZE = 10;
   const { setCurrentDao, currentDao } = useDaoModel();
   const history = useHistory();
   const location = useLocation();
@@ -26,11 +27,18 @@ export default () => {
   const [showModal, setShowModal] = useState(false);
   const [inDao, setInDao] = useState(false);
   const { address } = useWalletModel();
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const [selectedProposal, setSelectedProposal] = useState<Proposal>();
   const fetchProposalList = async (daoId: string) => {
-    const listResp = await getProposalList({ dao: daoId });
+    const listResp = await getProposalList({
+      dao: daoId,
+      page,
+      gap: PAGE_SIZE,
+    });
     const list = listResp.data;
+    setTotal(listResp.total);
     setList(list);
     setFilterList(list);
   };
@@ -93,7 +101,11 @@ export default () => {
         fetchProposalList(daoId);
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, page]);
+
+  const handleChangePage = (page: number) => {
+    setPage(page);
+  };
 
   return (
     <div className="dao-detail-container">
@@ -168,6 +180,15 @@ export default () => {
               }}
             />
           ))}
+        </div>
+        <div className="list-pagination">
+          <Pagination
+            total={total}
+            pageSize={PAGE_SIZE}
+            onChange={handleChangePage}
+            current={page}
+            showSizeChanger={false}
+          />
         </div>
       </div>
       {selectedProposal && (
