@@ -1,5 +1,5 @@
 {
-  "name": "@soda/extension",
+  "name": "soda-extension",
   "version": "0.3.6",
   "description": "A personal asset portal for the Web. Build a socially forward metaverse where assets derive value from communal activity.",
   "private": true,

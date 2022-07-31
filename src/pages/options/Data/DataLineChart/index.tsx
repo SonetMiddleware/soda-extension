@@ -62,7 +62,7 @@ export default (props: IProps) => {
     yField: 'amount',
     xAxis: {
       // type: 'timeCat',
-      tickCount: 5,
+      tickCount: 30,
     },
     smooth: true,
     color: '#B04CFF',
