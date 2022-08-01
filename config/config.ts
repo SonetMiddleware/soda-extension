@@ -9,7 +9,7 @@ export default defineConfig({
   },
   locale: { default: 'en-US' },
   extensions: {
-    name: 'Soda',
+    name: 'Soda-hook',
     description:
       'A personal asset portal for the Web. Build a socially forward metaverse where assets derive value from communal activity.',
     optionsUI: {
@@ -24,7 +24,7 @@ export default defineConfig({
       //   entries: ['@/contentScripts/index.ts'],
       // },
       {
-        matches: ['https://twitter.com/*','https://mobile.twitter.com/*'],
+        matches: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
         entries: [
           '@/contentScripts/index.ts',
           '@/injectedScripts',
@@ -46,9 +46,21 @@ export default defineConfig({
       48: 'logo/sodalogo@48.png',
       128: 'logo/sodalogo@128.png',
     },
-    permissions: ['storage', 'tabs'],
+    permissions: [
+      'storage',
+      'tabs',
+      // 'webNavigation',
+      // 'downloads',
+      '<all_urls>',
+    ],
+    // optional_permissions: ['<all_urls>', 'notifications', 'clipboardRead'],
     extends: {
-      web_accessible_resources: ['injected.js', 'images/*.png', 'fonts/*.*'],
+      web_accessible_resources: [
+        'injected.js',
+        'inject-hook.umd.min.js',
+        'images/*.png',
+        'fonts/*.*',
+      ],
     },
   },
   extraBabelPlugins: [
@@ -91,5 +103,15 @@ export default defineConfig({
       },
       'antd',
     ],
+  ],
+  copy: [
+    {
+      from: './src/injectedScripts/injected.js',
+      to: './',
+    },
+    {
+      from: '../soda-event-util/dist/inject-hook.umd.min.js',
+      to: './',
+    },
   ],
 });

@@ -1,0 +1,80 @@
+.container {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  width: 100%;
+  padding: 20px;
+  //   margin-bottom: 20px;
+
+  .title {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 21px;
+    color: #22304a;
+    margin-bottom: 10px;
+  }
+
+  .tweets-list {
+    list-style: none;
+    // max-height: 300px;
+    max-height: 400px;
+    overflow: auto;
+    .list-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      > img {
+        width: 29px;
+        height: 29px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+      .user-info {
+        font-family: 'Poppins';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 8px;
+        line-height: 16px;
+        color: #081735;
+        > p:last-child {
+          margin-top: 3px;
+          font-size: 6px;
+          line-height: 12px;
+          color: #8f95b2;
+        }
+      }
+      .tweet-content {
+        background: #e6e8f0;
+        border-radius: 5.84703px;
+        padding: 8px;
+        font-family: 'Poppins';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 6px;
+        line-height: 12px;
+        color: #8f95b2;
+        display: flex;
+        align-items: center;
+        margin-left: 10px;
+        flex: 1;
+        > p {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 200px;
+        }
+        > button {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  .custom-tabs {
+    .ant-tabs {
+      padding: 0 !important;
+    }
+  }
+}

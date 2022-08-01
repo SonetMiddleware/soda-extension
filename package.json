@@ -14,8 +14,8 @@
     "url": "https://github.com/platwin/soda-extension/issues"
   },
   "scripts": {
-    "start": "umi dev && ./cp.sh",
-    "build": "umi build && ./cp.sh",
+    "start": "umi dev",
+    "build": "umi build",
     "zip": "yarn build && yarn zip:only",
     "zip:only": "ts-node ./scripts/zip",
     "---------  ": "",
@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.4",
+    "@ant-design/plots": "^1.1.1",
     "@ant-design/pro-layout": "^6.11.1",
     "@dimensiondev/holoflows-kit": "^0.8.0-20210429202414-74fb9a1",
     "@dimensiondev/metamask-extension-provider": "^3.0.6-20210519045409-1835d4d",
@@ -56,6 +57,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@soda/facebook-kit": "workspace:^0.0.1",
+    "@soda/soda-event-util": "workspace:^0.0.1",
     "@soda/soda-core": "workspace:^0.0.1",
     "@soda/soda-core-ui": "workspace:^0.0.1",
     "@soda/soda-package-index": "workspace:^0.0.1",

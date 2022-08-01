@@ -163,6 +163,7 @@ export default () => {
           pageSize={PAGE_SIZE}
           onChange={handleChangePage}
           current={page}
+          showSizeChanger={false}
         />
       </div>
     </div>

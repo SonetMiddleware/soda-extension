@@ -18,9 +18,12 @@ export default (props: IProps) => {
   const [loading, setLoading] = useState(false);
   const [showTokenDetail, setShowTokenDetail] = useState(false);
   const [selectedToken, setSelectedToken] = useState<NFT>();
+  const [hasPrev, setHasPrev] = useState(true);
+  const [hasNext, setHasNext] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchTokenList = async () => {
+  const fetchTokenList = async (page: number) => {
     setLoading(true);
     const params = {
       address,
@@ -29,26 +32,64 @@ export default (props: IProps) => {
       limit: PAGE_SIZE,
     };
     const res = await getCollectionTokenList(params);
+    setLoading(false);
     if (res) {
       setTotal(res.total);
       const collectionTokenItems = res.data;
       setTokens([...collectionTokenItems]);
+      return collectionTokenItems;
     }
-    setLoading(false);
+    return [];
   };
 
   const handleChangePage = (page: number) => {
     setPage(page);
   };
 
-  const handleSelect = (item: NFT) => {
+  const handleSelect = (item: NFT, index: number) => {
     setSelectedToken(item);
+    setSelectedIndex(index);
     setShowTokenDetail(true);
+    if (index + (page - 1) * PAGE_SIZE >= total - 1) {
+      setHasNext(false);
+    } else {
+      setHasNext(true);
+    }
+    if (index + (page - 1) * PAGE_SIZE <= 0) {
+      setHasPrev(false);
+    } else {
+      setHasPrev(true);
+    }
+  };
+
+  const handlePrev = async () => {
+    const _index = selectedIndex - 1;
+    if (_index < 0) {
+      setPage(page - 1);
+      const list = await fetchTokenList(page - 1);
+      if (list) {
+        handleSelect(list[list?.length - 1], list?.length - 1);
+      }
+    } else {
+      handleSelect(tokens[selectedIndex - 1], selectedIndex - 1);
+    }
+  };
+  const handleNext = async () => {
+    const _index = selectedIndex + 1;
+    if (_index > PAGE_SIZE - 1) {
+      setPage(page + 1);
+      const list = await fetchTokenList(page + 1);
+      if (list) {
+        handleSelect(list[0], 0);
+      }
+    } else {
+      handleSelect(tokens[selectedIndex + 1], selectedIndex + 1);
+    }
   };
 
   useEffect(() => {
     if (address && collectionId) {
-      fetchTokenList();
+      fetchTokenList(page);
     }
   }, [collectionId, address, page]);
   return (
@@ -60,7 +101,7 @@ export default (props: IProps) => {
               <div
                 className="item-detail"
                 onClick={() => {
-                  handleSelect(item);
+                  handleSelect(item, index);
                 }}
               >
                 <MediaCacheDisplay className="img-item" token={item} />
@@ -76,6 +117,7 @@ export default (props: IProps) => {
             pageSize={PAGE_SIZE}
             onChange={handleChangePage}
             current={page}
+            showSizeChanger={false}
           />
         </div>
         <TokenDetailDialog
@@ -84,6 +126,11 @@ export default (props: IProps) => {
             setShowTokenDetail(false);
           }}
           token={selectedToken}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          hasNext={hasNext}
+          hasPrev={hasPrev}
+          loading={loading}
         />
       </Spin>
     </div>
