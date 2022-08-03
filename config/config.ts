@@ -9,7 +9,7 @@ export default defineConfig({
   },
   locale: { default: 'en-US' },
   extensions: {
-    name: 'Soda-hook',
+    name: 'Soda',
     description:
       'A personal asset portal for the Web. Build a socially forward metaverse where assets derive value from communal activity.',
     optionsUI: {
