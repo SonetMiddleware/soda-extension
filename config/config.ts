@@ -9,7 +9,7 @@ export default defineConfig({
   },
   locale: { default: 'en-US' },
   extensions: {
-    name: 'Soda-hook',
+    name: 'Soda',
     description:
       'A personal asset portal for the Web. Build a socially forward metaverse where assets derive value from communal activity.',
     optionsUI: {
@@ -46,13 +46,7 @@ export default defineConfig({
       48: 'logo/sodalogo@48.png',
       128: 'logo/sodalogo@128.png',
     },
-    permissions: [
-      'storage',
-      'tabs',
-      // 'webNavigation',
-      // 'downloads',
-      '<all_urls>',
-    ],
+    permissions: ['storage', 'tabs'],
     // optional_permissions: ['<all_urls>', 'notifications', 'clipboardRead'],
     extends: {
       web_accessible_resources: [
