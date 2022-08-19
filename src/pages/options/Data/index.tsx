@@ -49,11 +49,12 @@ export default (props: Props) => {
             cancelDao={true}
           />
         </div>
-        <MediaCacheDisplay
+        <MediaDisplay
           token={token}
           flex={true}
           alt=""
           className={styles['img-big']}
+          extraTypes={['m3d']}
         />
         <div className={styles['web2-datas']}>
           <div className={styles['web3-data-item']}>

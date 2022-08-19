@@ -4,7 +4,7 @@ import { useWalletModel } from '@/models';
 import { Modal, Spin } from 'antd';
 import { NFT } from '@soda/soda-core';
 import { getNFTRelatedTwitterData } from '@soda/soda-core';
-import { InlineTokenToolbar, MediaCacheDisplay } from '@soda/soda-core-ui';
+import { InlineTokenToolbar, MediaDisplay } from '@soda/soda-core-ui';
 import IconComment from '@/theme/images/icon-comment.svg';
 import IconRetweet from '@/theme/images/icon-retweet.svg';
 import IconFav from '@/theme/images/icon-fav.svg';
@@ -88,13 +88,14 @@ export default (props: IProps) => {
               }}
               style={{ cursor: hasNext ? 'pointer' : 'not-allowed' }}
             />
-            <MediaCacheDisplay
+            <MediaDisplay
               token={token!}
               flex={true}
               alt=""
               className={styles['img-big']}
               align={'center'}
               iconSize={30}
+              extraTypes={['m3d']}
             />
             <div className={styles['web2-datas']}>
               <div className={styles['web3-data-item']}>

@@ -47,7 +47,6 @@ export default defineConfig({
       128: 'logo/sodalogo@128.png',
     },
     permissions: ['storage', 'tabs'],
-    // optional_permissions: ['<all_urls>', 'notifications', 'clipboardRead'],
     extends: {
       web_accessible_resources: [
         'injected.js',
