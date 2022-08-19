@@ -94,12 +94,12 @@ export default (props: IProps) => {
                 <img src={IconDiscord} alt="" />
                 <a
                   href={`https://discord.com/channels/${
-                    DISCORD[chainId][currentDao?.id]
+                    DISCORD[chainId][currentDao?.id].cid
                   }`}
                   target="__discord__"
                   rel="noreferrer"
                 >
-                  tanaka-dao
+                  DISCORD[chainId][currentDao?.id].name
                 </a>
               </p>
             )}
