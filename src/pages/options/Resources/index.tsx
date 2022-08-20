@@ -92,37 +92,7 @@ export default () => {
             <TabPane tab="My Favorite" key="1" className="fav-list">
               <FavTokenList address={address} refresh={activeKey === '1'} />
             </TabPane>
-            {isMintable && (
-              <TabPane tab="Mint" key="2">
-                <div className="mint-container">
-                  <img
-                    src={chrome.extension.getURL('images/upload.png')}
-                    alt=""
-                  />
-                  <p>Select local images to mint NFT</p>
-                  <Upload
-                    capture=""
-                    accept=".jpg,.jpeg,.png"
-                    onRemove={onRemove}
-                    fileList={localImg}
-                    beforeUpload={beforeUpload}
-                  >
-                    <CommonButton type="primary" className="btn-upload">
-                      Select local image
-                    </CommonButton>
-                  </Upload>
-                  <CommonButton
-                    type="secondary"
-                    onClick={handleFinish}
-                    className="btn-finish"
-                    loading={loading}
-                  >
-                    Finish
-                  </CommonButton>
-                  {/* <img id="preview" src={previewLocalImg} alt="" className="preview-local" /> */}
-                </div>
-              </TabPane>
-            )}
+
             <TabPane tab="NFT Portfolio" key="3" className="fav-list">
               <OwnedTokenList address={address} refresh={activeKey === '3'} />
             </TabPane>

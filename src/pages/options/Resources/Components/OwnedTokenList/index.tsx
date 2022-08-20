@@ -94,13 +94,13 @@ export default (props: IProps) => {
   return (
     <div className="owned-list-container">
       <div className="btn-container">
-        <CommonButton
+        {/* <CommonButton
           type="secondary"
           onClick={handleCreateDao}
           className="btn-market btn-create-dao"
         >
           Create DAO
-        </CommonButton>
+        </CommonButton> */}
       </div>
       <Spin spinning={loading}>
         <div className="collection-list">

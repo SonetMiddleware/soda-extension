@@ -103,7 +103,7 @@ export default () => {
 
   const handleDaoClick = (item: DaoItem) => {
     setCurrentDao(item);
-    history.push('/daoDetail');
+    history.push('/daoDetailWithId?dao=' + item.id);
   };
 
   return (
@@ -149,7 +149,9 @@ export default () => {
                   handleDaoClick(item);
                 }}
               >
-                <img src={item.image} alt="" />
+                <div className="dao-img-container">
+                  <img src={item.image} alt="" />
+                </div>
                 <Tooltip title={item.name}>
                   <p>{item.name}</p>
                 </Tooltip>

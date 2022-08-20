@@ -51,11 +51,19 @@
       margin-right: 52px;
       cursor: pointer;
       height: 190px;
-      > img {
-        // width: 136px;
+      > .dao-img-container {
+        width: 136px;
         height: 136px;
         margin-bottom: 10px;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+        > img {
+          object-fit: contain;
+          width: 100%;
+        }
       }
+
       > p {
         text-align: left;
         font-family: 'Poppins';
