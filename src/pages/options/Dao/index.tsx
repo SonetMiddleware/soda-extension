@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import './index.less';
 import { useDaoModel, useWalletModel } from '@/models';
-import { Pagination, Spin, Tooltip, message } from 'antd';
+import { Pagination, Spin, Tooltip, message, Input } from 'antd';
 import CommonButton from '@/pages/components/Button';
 import { ListNoData } from '@soda/soda-core-ui';
 import { getDaoList, DaoItem } from '@soda/soda-core';
 import { useHistory } from 'umi';
-
+const { Search } = Input;
 enum ListSwitchEnum {
   All_List,
   My_List,
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 8;
 export default () => {
   const history = useHistory();
   const { setCurrentDao } = useDaoModel();
@@ -20,12 +20,13 @@ export default () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [listSwitch, setListSwitch] = useState<ListSwitchEnum>(
-    ListSwitchEnum.My_List,
+    ListSwitchEnum.All_List,
   );
   const [allMyDaos, setAllMyDaos] = useState<DaoItem[]>([]);
   const [allMyDaosFetched, setAllMyDaosFetched] = useState(false);
   const [daos, setDaos] = useState<DaoItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [daoName, setDaoName] = useState('');
 
   const handleListSwitch = (val: ListSwitchEnum) => {
     if (val !== listSwitch) {
@@ -38,8 +39,9 @@ export default () => {
     setAllMyDaos(res.data);
   };
 
-  const fetchDaoList = async (page: number) => {
+  const fetchDaoList = async (_page: number, daoName?: string) => {
     try {
+      if (loading) return;
       setLoading(true);
       let _allMyDaos: DaoItem[] = [];
       if (!allMyDaosFetched && address) {
@@ -50,10 +52,13 @@ export default () => {
       } else if (allMyDaos.length > 0) {
         _allMyDaos = allMyDaos;
       }
-      const params = {
-        offset: (page - 1) * PAGE_SIZE,
+      const params: any = {
+        offset: (_page - 1) * PAGE_SIZE,
         limit: PAGE_SIZE,
       };
+      if (daoName) {
+        params.name = daoName;
+      }
       if (listSwitch === ListSwitchEnum.My_List) {
         if (!address) {
           message.warn('No wallet address found.');
@@ -84,6 +89,7 @@ export default () => {
   };
 
   const handleChangePage = (newPage: number, pageSize: number | undefined) => {
+    setPage(newPage);
     fetchDaoList(newPage);
   };
 
@@ -110,16 +116,12 @@ export default () => {
     <div className="dao-container">
       <p className="page-title">DAO Resources</p>
       <div className="page-header">
+        <Search
+          className="dao-list-search-input"
+          placeholder="Search..."
+          onSearch={(value) => fetchDaoList(page, value)}
+        />
         <div className="list-switch">
-          <span
-            className={
-              listSwitch === ListSwitchEnum.My_List ? 'switch-active' : ''
-            }
-            onClick={() => handleListSwitch(ListSwitchEnum.My_List)}
-          >
-            View my DAO
-          </span>
-          <i>/</i>
           <span
             className={
               listSwitch === ListSwitchEnum.All_List ? 'switch-active' : ''
@@ -127,6 +129,15 @@ export default () => {
             onClick={() => handleListSwitch(ListSwitchEnum.All_List)}
           >
             DAO list
+          </span>
+          <i>/</i>
+          <span
+            className={
+              listSwitch === ListSwitchEnum.My_List ? 'switch-active' : ''
+            }
+            onClick={() => handleListSwitch(ListSwitchEnum.My_List)}
+          >
+            View my DAO
           </span>
         </div>
       </div>

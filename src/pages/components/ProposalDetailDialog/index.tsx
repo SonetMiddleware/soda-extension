@@ -12,6 +12,7 @@ import {
   getUserVoteInfo,
   sign,
   sha3,
+  getProposalPermission
 } from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -20,7 +21,7 @@ interface IProps {
   show: boolean;
   detail: Proposal;
   onClose: (updatedProposalId?: string) => void;
-  inDao: boolean;
+  inDao?: boolean;
 }
 
 export default (props: IProps) => {
@@ -31,6 +32,7 @@ export default (props: IProps) => {
   const { currentDao } = useDaoModel();
   const [voted, setVoted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [canVote, setCanVote] = useState(false);
 
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
@@ -98,6 +100,12 @@ export default (props: IProps) => {
         } else {
           setIsOpen(false);
         }
+        if(currentDao?.centralized === 1 ) { // public dao
+          setCanVote(true)
+        } else {
+          const res =  await getProposalPermission(currentDao?.id, address)
+          setCanVote(res)
+        }
       }
     })();
   }, [show]);
@@ -133,7 +141,7 @@ export default (props: IProps) => {
         </div>
 
         <div className={styles['vote-submit-results-container']}>
-          {isOpen && inDao && (
+          {isOpen && canVote && (
             <div className={styles['vote-container']}>
               <p className={styles['vote-title']}>Cast your vote</p>
               <Radio.Group

@@ -16,6 +16,7 @@ import {
   Proposal,
   getDaoList,
   getChainId,
+  getProposalPermission,
 } from '@soda/soda-core';
 import { DISCORD } from '@/constant/sns';
 
@@ -77,15 +78,20 @@ export default () => {
     }
   };
 
-  const fetchUserInDao = async () => {
-    const res = await getDaoList({ address });
-    const myDaos = res.data;
-    for (const item of myDaos) {
-      if (item.id === currentDao?.id) {
-        setInDao(true);
-        return;
-      }
-    }
+  // const fetchUserInDao = async () => {
+  //   const res = await getDaoList({ address });
+  //   const myDaos = res.data;
+  //   for (const item of myDaos) {
+  //     if (item.id === currentDao?.id) {
+  //       setInDao(true);
+  //       return;
+  //     }
+  //   }
+  // };
+
+  const fetchProposalPermission = async () => {
+    const res = await getProposalPermission(currentDao?.id, address);
+    setInDao(res);
   };
   useEffect(() => {
     (async () => {
@@ -95,7 +101,8 @@ export default () => {
   }, []);
   useEffect(() => {
     if (currentDao && address) {
-      fetchUserInDao();
+      // fetchUserInDao();
+      fetchProposalPermission();
     }
   }, [currentDao, address]);
 
@@ -219,7 +226,6 @@ export default () => {
           show={showModal}
           detail={selectedProposal!}
           onClose={handleDetailDialogClose}
-          inDao={inDao}
         />
       )}
     </div>
