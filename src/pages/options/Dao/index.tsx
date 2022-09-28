@@ -228,7 +228,6 @@ export default () => {
       </div>
       <Spin spinning={loading}>
         <div className="dao-list-container">
-          {daos.length === 0 && <ListNoData />}
           {viewType === View_Type.List && (
             <Table
               columns={columns}
