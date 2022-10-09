@@ -92,7 +92,7 @@ const App = (props: any) => {
         const config = getAppConfig(Number(chainId));
       } catch (e) {
         message.warning(
-          'Please switch to proper Metamask network. Valid Soda network: Polygon Mumbai testnet, Polygon mainnet, Rinkeby testnet, Ethereum mainnet',
+          'Please switch to proper Metamask network. Valid Soda network: Polygon Mumbai testnet, Polygon mainnet, Ethereum mainnet',
         );
       }
       setChainId(chainId);

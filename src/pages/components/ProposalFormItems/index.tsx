@@ -11,6 +11,7 @@ interface IProps {
 export default (props?: IProps) => {
   const { value = [], onChange, ...rest } = props || {};
   const [inputVal, setInputVal] = useState('');
+  const [error, setError] = useState('');
 
   const handleDelete = (index: number) => {
     const _values = [...value];
@@ -19,6 +20,12 @@ export default (props?: IProps) => {
   };
   const handleSave = () => {
     if (!inputVal) return;
+    if (inputVal.includes('|')) {
+      setError('Please do not enter "|".');
+      return;
+    } else {
+      setError('');
+    }
     const _values = [...value, inputVal];
     onChange?.(_values);
     setInputVal('');
@@ -43,9 +50,16 @@ export default (props?: IProps) => {
         <Input
           value={inputVal}
           onChange={(e) => {
-            setInputVal(e.target.value);
+            const value = e.target.value;
+            setInputVal(value);
+            if (value && value.includes('|')) {
+              setError('Please do not enter "|".');
+            } else {
+              setError('');
+            }
           }}
           onPressEnter={(e) => handleSave()}
+          status={error ? 'error' : ''}
         />
         <Button
           type="primary"
@@ -53,6 +67,7 @@ export default (props?: IProps) => {
           icon={<CheckOutlined />}
           onClick={handleSave}
         />
+        {error && <p className="items-error-text">{error}</p>}
       </div>
     </div>
   );

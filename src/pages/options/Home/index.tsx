@@ -18,8 +18,8 @@ export default () => {
         >
           Metamask
         </a>{' '}
-        . We support the Ethereum and Polygon networks, both on mainnet and
-        testnet. Please refer to this{' '}
+        . We support the Ethereum, Polygon mainnet and Polygon Mumbai testnet.
+        Please refer to this{' '}
         <a
           target="_blank"
           href="https://soda-extension.medium.com/guide-to-switching-networks-on-metamask-wallet-11dec806a4c3"

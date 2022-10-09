@@ -91,7 +91,7 @@ export default () => {
         String(startTime),
         String(endTime),
         String(values.ballot_threshold),
-        values.items.join(','),
+        values.items.join('|'),
         String(values.voter_type),
       );
       const res = await sign({
@@ -107,7 +107,7 @@ export default () => {
         startTime,
         endTime,
         ballotThreshold: values.ballot_threshold,
-        items: values.items.join(','),
+        items: values.items,
         voterType: values.voter_type,
         sig: res.result,
       });
@@ -297,6 +297,16 @@ export default () => {
                 required: true,
                 message: 'Please input item content.',
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (value && value.length > 1) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error('Please enter at least two options.'),
+                  );
+                },
+              }),
             ]}
           >
             <ProposalFormItems />

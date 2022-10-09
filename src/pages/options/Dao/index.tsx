@@ -197,7 +197,7 @@ export default () => {
   return (
     <div className="dao-container">
       <div className="dao-header">
-        <p className="dao-page-title">DAO Resources</p>
+        <p className="dao-page-title">DAOs</p>
         <ViewTypeSwitch value={viewType} onChange={setViewType} />
       </div>
       <div className="page-header">
