@@ -17,11 +17,13 @@ enum ListSwitchEnum {
 }
 
 const PAGE_SIZE = 10;
-const Chain_Map: Record<number, string> = {
+const Chain_Map: Record<number | string, string> = {
   137: 'Polygon',
   1: 'Ethereum',
   80001: 'Mumbai',
   4: 'Rinkeby',
+  flowmain: 'Flow',
+  flowtest: 'Flow Testnet',
 };
 
 export default () => {
@@ -69,6 +71,8 @@ export default () => {
       };
       if (daoName) {
         params.name = daoName;
+        params.offset = 0;
+        setPage(1);
       }
       if (listSwitch === ListSwitchEnum.My_List) {
         if (!address) {
@@ -148,8 +152,9 @@ export default () => {
       key: 'network',
       render: (val: any) => (
         <div className="dao-network">
-          <img src={[1, 4].includes(chainId) ? LogoEth : LogoPolygon} alt="" />
-          <span>{Chain_Map[Number(chainId)]}</span>
+          {[1, 4].includes(chainId) && <img src={LogoEth} />}
+          {[137, 80001].includes(chainId) && <img src={LogoPolygon} />}
+          <span>{Chain_Map[chainId]}</span>
         </div>
       ),
     },
@@ -263,7 +268,7 @@ export default () => {
                           src={[1, 4].includes(chainId) ? LogoEth : LogoPolygon}
                           alt=""
                         />
-                        <span>{Chain_Map[Number(chainId)]}</span>
+                        <span>{Chain_Map[chainId]}</span>
                       </div>
                     </div>
                   </div>

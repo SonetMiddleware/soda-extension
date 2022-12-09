@@ -19,16 +19,19 @@ import {
   getUserPage,
 } from '@/utils/app';
 import { useWalletModel } from '@/models';
+import { flowSign } from '@/utils/eventBus';
+import { getChainName } from '@soda/soda-util';
+import SignConfirmModal from '@/pages/components/SignConfirmModal';
 
 export default () => {
   const [bindResult, setBindResult] = useState<BindInfo[]>([]);
-  const { address, setAddress } = useWalletModel();
+  const { address, setAddress, chainId } = useWalletModel();
   const [appid, setAppId] = useState('');
   const [appHosts, setAppHosts] = useState([]);
 
   const fetchBindedResult = async () => {
-    const address = await getAddress();
-    setAddress(address);
+    // const address = await getAddress();
+    // setAddress(address);
     const res = await getBindResult({ address });
     setBindResult(res);
     const appItem = res.find((item) => item.application === TWITTER_APP_NAME);
@@ -38,15 +41,30 @@ export default () => {
   };
 
   const handleUnbind = async (item: BindInfo) => {
-    const res = await sign({
-      message: item.application + item.appid,
-      address: item.address,
-    });
+    // const res = await sign({
+    //   message: item.application + item.appid,
+    //   address: item.address,
+    // });
+    let sig;
+    const message = item.application + item.appid
+    if (typeof chainId === 'number') {
+      const sigRes = await sign({
+        message: message,
+        address: item.address,
+      });
+      sig = sigRes.result;
+    } else {
+      const sigRes: any = await flowSign(message);
+      console.log('sigRes: ', sigRes);
+      sig = JSON.stringify(sigRes);
+    }
+    const chain_name = await getChainName(chainId);
     const result = await unbind({
       address,
       appid: item.appid,
       application: item.application,
-      sig: res.result,
+      sig: sig,
+      chain_name,
     }); //TODO should return content id
     fetchBindedResult();
     if (result) {

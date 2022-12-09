@@ -8,10 +8,10 @@ import {
 } from '@soda/soda-core';
 import React, { useState, useEffect } from 'react';
 import { Input, Button, message as Notification } from 'antd';
-
+import { useDaoModel, useWalletModel } from '@/models';
 import './index.less';
 import { APP_NAME } from '@soda/twitter-kit';
-
+import { flowSign } from '@/utils/eventBus';
 const application = APP_NAME;
 interface IProps {
   address: string;
@@ -28,7 +28,7 @@ export default (props: IProps) => {
   const [myAcceptedCount, setMyAcceptedCount] = useState(0);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
-
+  const { chainId } = useWalletModel();
   const fetchMyCodeInfo = async () => {
     const code = await getReferralCode({
       address,
@@ -52,11 +52,23 @@ export default (props: IProps) => {
       try {
         setSubmitLoading(true);
         const message = submitCode;
-        const res = await sign({ message, address });
+        // const res = await sign({ message, address });
+        let sig;
+        if (typeof chainId === 'number') {
+          const sigRes = await sign({
+            message: message,
+            address,
+          });
+          sig = sigRes.result;
+        } else {
+          const sigRes: any = await flowSign(message);
+          console.log('sigRes: ', sigRes);
+          sig = JSON.stringify(sigRes);
+        }
         const result = await acceptReferralCode({
           address,
           referral: submitCode,
-          sig: res.result,
+          sig: sig,
         });
         if (result) {
           Notification.success(ACCEPT_SUCCESS_MSG);

@@ -22,7 +22,12 @@ export default (props: IProps) => {
         <p className={styles['proposal-title']} onClick={handleSelect}>
           {item.title}
         </p>
-        <p className={styles['proposal-desc']}>{item.description}</p>
+        <p
+          className={styles['proposal-desc']}
+          dangerouslySetInnerHTML={{ __html: item.description }}
+        >
+          {/* {item.description} */}
+        </p>
         <div className={styles['proposal-item-footer']}>
           <ProposalItemStatus status={item.status} />
           <p className="start-date-time">

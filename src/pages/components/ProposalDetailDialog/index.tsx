@@ -12,10 +12,12 @@ import {
   getUserVoteInfo,
   sign,
   sha3,
-  getProposalPermission
+  getProposalPermission,
 } from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { flowSign } from '@/utils/eventBus';
+import SignConfirmModal from '@/pages/components/SignConfirmModal';
 
 interface IProps {
   show: boolean;
@@ -28,11 +30,12 @@ export default (props: IProps) => {
   const { show, detail, onClose, inDao } = props;
   const [vote, setVote] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
-  const { address } = useWalletModel();
+  const { address, chainId } = useWalletModel();
   const { currentDao } = useDaoModel();
   const [voted, setVoted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [canVote, setCanVote] = useState(false);
+  const [signConfirmContent, setSignConfirmContent] = useState(null);
 
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
@@ -60,13 +63,31 @@ export default (props: IProps) => {
       setSubmitting(true);
       //@ts-ignore
       const str = sha3(detail.id, vote);
-      const res = await sign({ message: str || '', address });
+      // const res = await sign({ message: str || '', address });
+      let sig;
+      setSignConfirmContent({
+        content: [detail.id, vote].join(', '),
+        hash: str,
+        left: typeof chainId === 'number' ? false : true,
+      });
+      if (typeof chainId === 'number') {
+        const sigRes = await sign({
+          message: str || '',
+          address,
+        });
+        sig = sigRes.result;
+      } else {
+        const sigRes: any = await flowSign(str || '', true);
+        console.log('sigRes: ', sigRes);
+        sig = JSON.stringify(sigRes);
+      }
+      setSignConfirmContent(null);
       const result = await voteProposal({
         voter: address,
         collectionId: currentDao!.id,
         proposalId: detail.id,
         item: vote,
-        sig: res.result,
+        sig: sig,
       });
       if (result) {
         message.success('Vote successful.');
@@ -80,6 +101,7 @@ export default (props: IProps) => {
       setSubmitting(false);
       console.error(e);
       message.warn('Vote failed.');
+      setSignConfirmContent(null);
     }
   };
 
@@ -100,11 +122,12 @@ export default (props: IProps) => {
         } else {
           setIsOpen(false);
         }
-        if(currentDao?.centralized === 1 ) { // public dao
-          setCanVote(true)
+        if (currentDao?.centralized === 1) {
+          // public dao
+          setCanVote(true);
         } else {
-          const res =  await getProposalPermission(currentDao?.id, address)
-          setCanVote(res)
+          const res = await getProposalPermission(currentDao?.id, address);
+          setCanVote(res);
         }
       }
     })();
@@ -136,8 +159,11 @@ export default (props: IProps) => {
         </div>
 
         <div className={styles['divide-line']}></div>
-        <div className={styles['desc']}>
-          <p>{detail.description}</p>
+        <div
+          className={styles['desc']}
+          dangerouslySetInnerHTML={{ __html: detail.description }}
+        >
+          {/* <p>{detail.description}</p> */}
         </div>
 
         <div className={styles['vote-submit-results-container']}>
@@ -180,6 +206,14 @@ export default (props: IProps) => {
             </div>
           )}
           <ProposalResults items={detail.items} results={detail.results} />
+          <SignConfirmModal
+            visible={signConfirmContent !== null}
+            onClose={() => setSignConfirmContent(null)}
+            hint="MetaMask or Flow wallet will be opened and ask you to sign on a hash of your vote content."
+            content={signConfirmContent?.content}
+            hash={signConfirmContent?.hash}
+            left={signConfirmContent?.left}
+          />
         </div>
       </div>
     </Modal>

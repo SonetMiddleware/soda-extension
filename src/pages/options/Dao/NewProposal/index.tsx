@@ -27,17 +27,20 @@ import {
   ExclamationCircleOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-
+import { flowSign } from '@/utils/eventBus';
+import SignConfirmModal from '@/pages/components/SignConfirmModal';
 import moment from 'moment';
 import { useHistory, useLocation } from 'umi';
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 export default () => {
   const { currentDao, setCurrentDao } = useDaoModel();
-  const { address } = useWalletModel();
+  const { address, chainId } = useWalletModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [snapshotBlock, setSnapShotBlock] = useState<number>(0);
+  const [signConfirmContent, setSignConfirmContent] = useState(null);
+
   const history = useHistory();
   const location = useLocation();
   const VoterBallotOptions = [
@@ -57,11 +60,16 @@ export default () => {
 
   //TODO: change to mainnet api
   const getSnapShotBlockheight = async (startTimeMilliseconds: number) => {
+    const chainId = await getChainId();
+    if (typeof chainId === 'string') {
+      // snapshot no need for flow
+      return;
+    }
     if (!startTimeMilliseconds) {
       setSnapShotBlock(0);
       return;
     }
-    const chainId = await getChainId();
+
     const bs = await estimateBlockByTime(chainId, [startTimeMilliseconds]);
     console.log('[extension-options]: bs ', bs);
     if (bs && bs[0]) {
@@ -94,10 +102,35 @@ export default () => {
         values.items.join('|'),
         String(values.voter_type),
       );
-      const res = await sign({
-        message: strSha3 || '',
-        address,
+      let sig;
+      setSignConfirmContent({
+        content: [
+          String(snapshot),
+          //@ts-ignore
+          currentDao!.id,
+          values.title,
+          values.description,
+          String(startTime),
+          String(endTime),
+          String(values.ballot_threshold),
+          values.items.join('|'),
+          String(values.voter_type),
+        ].join(', '),
+        hash: strSha3,
+        left: typeof chainId === 'number' ? false : true,
       });
+      if (typeof chainId === 'number') {
+        const sigRes = await sign({
+          message: strSha3 || '',
+          address,
+        });
+        sig = sigRes.result;
+      } else {
+        const sigRes: any = await flowSign(strSha3 || '', true);
+        console.log('sigRes: ', sigRes);
+        sig = JSON.stringify(sigRes);
+      }
+      setSignConfirmContent(null);
       const result: any = await createProposal({
         creator: address,
         snapshotBlock: snapshot,
@@ -109,7 +142,7 @@ export default () => {
         ballotThreshold: values.ballot_threshold,
         items: values.items,
         voterType: values.voter_type,
-        sig: res.result,
+        sig: sig,
       });
       console.log('[extension] ', result);
       if (result && result.code === SUCCESS_CODE) {
@@ -130,6 +163,8 @@ export default () => {
     } catch (e) {
       console.error('[extension-proposal] newProposal: ', e);
       message.error('Create proposal failed.');
+      setSubmitting(false);
+      setSignConfirmContent(null);
     }
     setSubmitting(false);
   };
@@ -334,6 +369,14 @@ export default () => {
         >
           Cancel
         </CommonButton>
+        <SignConfirmModal
+          visible={signConfirmContent !== null}
+          onClose={() => setSignConfirmContent(null)}
+          hint="MetaMask or Flow wallet will be opened and ask you to sign on a hash of your new proposal content."
+          content={signConfirmContent?.content}
+          hash={signConfirmContent?.hash}
+          left={signConfirmContent?.left}
+        />
       </div>
     </div>
   );

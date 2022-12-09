@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import './App.less';
 import { HashRouter as Router, Switch, Link } from 'react-router-dom';
 import Accounts from '../popup/accounts';
@@ -22,6 +22,8 @@ import RouteWithSubRoutes, {
   IRouteProps,
 } from '../components/RouteWithSubRoutes';
 import { getAppConfig } from '@soda/soda-package-index';
+import FlowSignModal from '@/pages/components/FlowSignModal';
+import { eventBus, EVENT_KEY, flowSign } from '@/utils/eventBus';
 
 import { getAddress, getChainId } from '@soda/soda-core';
 
@@ -81,24 +83,58 @@ const routes: IRouteProps[] = [
   },
 ];
 const App = (props: any) => {
+  const [visible, setVisible] = useState(false);
+  const [flowSignMsg, setFlowSignMsg] = useState('');
+  const [flowSignModalRight, setFlowSignModalRight] = useState(false);
   const { hash: appPath } = props.location;
-  const { setAddress, setChainId } = useWalletModel();
+  const { setAddress, setChainId, chainId } = useWalletModel();
   console.debug('[app]: ', appPath);
+
+  const handleFlow = (res: any) => {
+    console.log(JSON.stringify(res));
+    setVisible(false);
+    if (res && res.data && Array.isArray(res.data)) {
+      eventBus.$emit(EVENT_KEY.FLOW_SIGN_SUCCESS, { data: res.data });
+    } else {
+      eventBus.$emit(EVENT_KEY.FLOW_SIGN_FAIL, { data: res });
+    }
+  };
 
   useEffect(() => {
     (async () => {
       const chainId = await getChainId();
+      const address = await getAddress();
       try {
-        const config = getAppConfig(Number(chainId));
+        const config = getAppConfig(chainId);
+        setChainId(chainId);
+        setAddress(address);
       } catch (e) {
+        console.log(e);
         message.warning(
           'Please switch to proper Metamask network. Valid Soda network: Polygon Mumbai testnet, Polygon mainnet, Ethereum mainnet',
         );
       }
-      setChainId(chainId);
-      const address = await getAddress();
-      setAddress(address);
     })();
+  }, []);
+
+  const flowNetwork = useMemo(() => {
+    return chainId === 'flowmain' ? 'mainnet' : 'testnet';
+  }, [chainId]);
+
+  // async function testFlowSign() {
+  //   const sig = await flowSign('hello world');
+  //   console.log(sig);
+  // }
+  useEffect(() => {
+    eventBus.$on(EVENT_KEY.FLOW_SIGN_START, (data: any) => {
+      setVisible(true);
+      setFlowSignMsg(data.msg);
+      setFlowSignModalRight(data.right);
+    });
+    // testFlowSign();
+    return () => {
+      eventBus.$off(EVENT_KEY.FLOW_SIGN_START);
+    };
   }, []);
   return (
     <div className="root-container">
@@ -291,6 +327,15 @@ const App = (props: any) => {
           </div>
         </div>
       </Router>
+      <FlowSignModal
+        visible={visible}
+        onClose={() => handleFlow(new Error('Flow sign canceled'))}
+        onHandle={handleFlow}
+        type="sign"
+        msgToSign={flowSignMsg}
+        network={flowNetwork}
+        right={flowSignModalRight}
+      />
     </div>
   );
 };
