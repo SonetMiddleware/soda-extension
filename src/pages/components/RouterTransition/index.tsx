@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReactNode, FC } from 'react';
-import { Switch, useLocation } from 'react-router-dom';
+import { Routes, useLocation } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './index.less';
 
@@ -12,7 +12,7 @@ const RouterTransition: FC<Props> = ({ children }) => {
   return (
     <TransitionGroup className="router-transition">
       <CSSTransition timeout={300} key={location.pathname} classNames="fade">
-        <Switch location={location}>{children}</Switch>
+        {children}
       </CSSTransition>
     </TransitionGroup>
   );

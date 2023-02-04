@@ -7,7 +7,8 @@ import { ListNoData } from '@soda/soda-core-ui';
 import { getDaoList, DaoItem } from '@soda/soda-core';
 import LogoEth from '@/theme/images/logo-ethereum.svg';
 import LogoPolygon from '@/theme/images/logo-polygon.svg';
-import { useHistory } from 'umi';
+// import { history } from '@umijs/max';
+import { useNavigate } from 'react-router-dom';
 import ItemStatus from '@/pages/components/ProposalItemStatus';
 import ViewTypeSwitch, { View_Type } from '@/pages/components/ViewTypeSwitch';
 const { Search } = Input;
@@ -27,7 +28,7 @@ const Chain_Map: Record<number | string, string> = {
 };
 
 export default () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { setCurrentDao } = useDaoModel();
   const { address, chainId } = useWalletModel();
   const [page, setPage] = useState(1);
@@ -124,7 +125,8 @@ export default () => {
 
   const handleDaoClick = (item: DaoItem) => {
     setCurrentDao(item);
-    history.push('/daoDetailWithId?dao=' + item.id);
+    // history.push('/daoDetailWithId?dao=' + item.id);
+    navigate('/daoDetailWithId?dao=' + item.id);
   };
 
   const columns = [

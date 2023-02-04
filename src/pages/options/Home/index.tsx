@@ -33,6 +33,15 @@ export default () => {
     console.log(sig);
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      const iframe = document.getElementsByTagName('iframe');
+      if (iframe[0]) {
+        iframe[0].remove();
+      }
+    }, 3000);
+  }, []);
+
   return (
     <div className="home-container">
       {/* <Button onClick={testFlowSign}>Test Sign</Button> */}

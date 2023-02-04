@@ -14,8 +14,8 @@
     "url": "https://github.com/platwin/soda-extension/issues"
   },
   "scripts": {
-    "start": "umi dev",
-    "build": "umi build",
+    "start": "max dev",
+    "build": "max build",
     "zip": "yarn build && yarn zip:only",
     "zip:only": "ts-node ./scripts/zip",
     "---------  ": "",
@@ -81,10 +81,10 @@
     "react-copy-to-clipboard": "^5.0.3",
     "react-dom": "^17.0.1",
     "react-infinite-scroller": "^1.2.4",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^6.6.1",
     "react-transition-group": "^4.4.2",
     "shadow-view": "^4.0.1",
-    "umi": "^3.3.3",
+    "umi-plugin-extensions": "^1.0.0",
     "umi-request": "^1.3.9",
     "web3": "^1.4.0",
     "web3-core": "^1.4.0",
@@ -107,6 +107,7 @@
     "@types/react-transition-group": "^4.4.1",
     "@types/webpack": "^4.41.22",
     "@umijs/fabric": "^2.2.2",
+    "@umijs/max": "^4",
     "@umijs/test": "^3.2.22",
     "antd-dayjs-webpack-plugin": "^1.0.6",
     "archiver": "^5.2.0",
@@ -125,8 +126,8 @@
     "prettier": "^2.2.1",
     "react-test-renderer": "^17.0.1",
     "semantic-release": "^17.3.3",
+    "soda-umi-plugin-extensions": "^1.0.0",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.3",
-    "umi-plugin-extensions": "*"
+    "typescript": "^4.1.3"
   }
 }

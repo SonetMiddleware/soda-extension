@@ -3,7 +3,7 @@ import './index.less';
 import { useDaoModel } from '@/models';
 import { Button, message, Modal, Select, Form, Input, DatePicker } from 'antd';
 import CommonButton from '@/pages/components/Button';
-import { useHistory } from 'umi';
+import { history } from '@umijs/max';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
 import { DaoItem, registerDao } from '@soda/soda-core';
@@ -12,7 +12,7 @@ export default () => {
   const { collectionForDaoCreation, setCurrentDao } = useDaoModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
-  const history = useHistory();
+  // const history = useHistory();
 
   const createDao = async () => {
     try {

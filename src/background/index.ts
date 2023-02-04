@@ -1,4 +1,3 @@
-const { browser } = require('webextension-polyfill-ts');
 import { getMessageHandler } from '@soda/soda-util';
 async function messageHandler(requestMsg: any) {
   const requestData = JSON.parse(requestMsg);
@@ -56,7 +55,7 @@ async function getInjectedScript() {
   try {
     return `{
       const script = document.createElement('script')
-      script.src = chrome.extension.getURL('event.umd.js');
+      script.src = chrome.runtime.getURL('event.umd.js');
         // .then((x) => x.text())
         // .then(JSON.stringify)}
       document.documentElement.appendChild(script)

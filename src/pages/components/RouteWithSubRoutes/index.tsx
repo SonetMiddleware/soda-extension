@@ -8,15 +8,6 @@ export interface IRouteProps {
 }
 
 function RouteWithSubRoutes(route: IRouteProps) {
-  return (
-    <Route
-      path={route.path}
-      render={(props) => (
-        // pass the sub-routes down to keep nesting
-        // @ts-ignore
-        <route.component {...props} routes={route.routes} />
-      )}
-    />
-  );
+  return <Route path={route.path} element={route.component} />;
 }
 export default RouteWithSubRoutes;

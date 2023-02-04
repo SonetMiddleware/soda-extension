@@ -2,7 +2,7 @@ import React from 'react';
 import showToast from '../Alert';
 import type { FC, ReactNode } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useIntl } from 'umi';
+import { useIntl } from '@umijs/max';
 
 type Props = {
   children: ReactNode;

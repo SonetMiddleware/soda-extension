@@ -1,15 +1,14 @@
 import React from 'react';
 import { useStoreModel } from '@/models';
 import PageTitle from '@/pages/components/PageTitle';
-import { useIntl } from 'umi';
+import { useIntl, history } from '@umijs/max';
 import { Button } from '@material-ui/core';
 import './index.less';
-import { useHistory } from 'react-router-dom';
 import CopyWrapper from '@/pages/components/CopyWrapper';
 
 export default () => {
   const { mnemonics } = useStoreModel();
-  const history = useHistory();
+  // const history = useHistory();
   const t = useIntl();
   return (
     <div>

@@ -8,7 +8,7 @@ import IconDiscord from '@/theme/images/icon-discord-gray.svg';
 import CommonButton from '@/pages/components/Button';
 import ProposalItem from '@/pages/components/ProposalItem';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
-import { useHistory, useLocation } from 'umi';
+import { history, useLocation } from '@umijs/max';
 import {
   formatDate,
   getProposalList,
@@ -23,7 +23,6 @@ import { DISCORD } from '@/constant/sns';
 export default () => {
   const PAGE_SIZE = 10;
   const { setCurrentDao, currentDao } = useDaoModel();
-  const history = useHistory();
   const location = useLocation();
   const [chainId, setChainId] = useState(1);
   const [filterText, setFilterText] = useState('');
@@ -169,7 +168,7 @@ export default () => {
                 target="__discord__"
                 rel="noreferrer"
               >
-                DISCORD[chainId][currentDao?.id].name
+                DISCORD[chainId][currentDao?.id].name   
               </a>
             </p>
           )}

@@ -1,7 +1,7 @@
 //add fonts
 const fa = document.createElement('style');
 fa.type = 'text/css';
-const regular = chrome.extension.getURL('fonts/Poppins-Regular.ttf');
+const regular = chrome.runtime.getURL('fonts/Poppins-Regular.ttf');
 fa.textContent = `@font-face { font-family: "Poppins"; src: url("${regular}"); }`;
 document.head.appendChild(fa);
 

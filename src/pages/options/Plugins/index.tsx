@@ -7,21 +7,21 @@ export default () => {
       <h2 className="page-title">Plugins</h2>
       <div className="plugins-list">
         <img
-          src={chrome.extension.getURL('images/facebook.png')}
+          src={chrome.runtime.getURL('images/facebook.png')}
           alt=""
           onClick={() => {
             window.open('https://www.facebook.com/', '__facebook__');
           }}
         />
         <img
-          src={chrome.extension.getURL('images/twitter.png')}
+          src={chrome.runtime.getURL('images/twitter.png')}
           alt=""
           onClick={() => {
             window.open('https://twitter.com/home', '__twitter__');
           }}
         />
         <img
-          src={chrome.extension.getURL('images/plus.png')}
+          src={chrome.runtime.getURL('images/plus.png')}
           alt=""
           onClick={() => {
             message.info('More integrations coming soon...');
