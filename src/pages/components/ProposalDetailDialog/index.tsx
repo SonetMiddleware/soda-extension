@@ -13,6 +13,7 @@ import {
   sign,
   sha3,
   getProposalPermission,
+  getVotePermission,
 } from '@soda/soda-core';
 import { useDaoModel, useWalletModel } from '@/models';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -126,8 +127,13 @@ export default (props: IProps) => {
           // public dao
           setCanVote(true);
         } else {
-          const res = await getProposalPermission(currentDao?.id, address);
-          setCanVote(res);
+          const result = await getVotePermission({
+            collection_id: currentDao?.id,
+            voter_type: detail.voteType,
+            voter: address,
+            proposal_id: detail.id,
+          });
+          setCanVote(result);
         }
       }
     })();
