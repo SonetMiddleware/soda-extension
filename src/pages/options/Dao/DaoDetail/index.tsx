@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './index.less';
-import { Input, Button, Pagination } from 'antd';
+import { Input, Button, Pagination, Spin } from 'antd';
 import { useDaoModel, useWalletModel } from '@/models';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
@@ -34,18 +34,26 @@ export default () => {
   const { address } = useWalletModel();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [selectedProposal, setSelectedProposal] = useState<Proposal>();
   const fetchProposalList = async (daoId: string) => {
-    const listResp = await getProposalList({
-      dao: daoId,
-      page,
-      gap: PAGE_SIZE,
-    });
-    const list = listResp.data;
-    setTotal(listResp.total);
-    setList(list);
-    setFilterList(list);
+    try {
+      setLoading(true);
+      const listResp = await getProposalList({
+        dao: daoId,
+        page,
+        gap: PAGE_SIZE,
+      });
+      const list = listResp.data;
+      setTotal(listResp.total);
+      setList(list);
+      setFilterList(list);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchDaoDetail = async (daoId: string) => {
@@ -107,7 +115,7 @@ export default () => {
   }, [currentDao, address]);
 
   useEffect(() => {
-    if (!location.pathname.includes('daoDetailWithId') && currentDao) {
+    if (currentDao) {
       fetchProposalList(currentDao.id);
     } else {
       console.log(location);
@@ -198,29 +206,31 @@ export default () => {
           New Proposal
         </CommonButton>
       </div>
-      <div className="proposal-list-container">
-        <div className="proposal-list">
-          {filterList.map((item) => (
-            <ProposalItem
-              key={item.id}
-              item={item}
-              onSelect={() => {
-                setShowModal(true);
-                setSelectedProposal(item);
-              }}
+      <Spin spinning={loading}>
+        <div className="proposal-list-container">
+          <div className="proposal-list">
+            {filterList.map((item) => (
+              <ProposalItem
+                key={item.id}
+                item={item}
+                onSelect={() => {
+                  setShowModal(true);
+                  setSelectedProposal(item);
+                }}
+              />
+            ))}
+          </div>
+          <div className="list-pagination">
+            <Pagination
+              total={total}
+              pageSize={PAGE_SIZE}
+              onChange={handleChangePage}
+              current={page}
+              showSizeChanger={false}
             />
-          ))}
+          </div>
         </div>
-        <div className="list-pagination">
-          <Pagination
-            total={total}
-            pageSize={PAGE_SIZE}
-            onChange={handleChangePage}
-            current={page}
-            showSizeChanger={false}
-          />
-        </div>
-      </div>
+      </Spin>
       {selectedProposal && (
         <ProposalDetailDialog
           show={showModal}

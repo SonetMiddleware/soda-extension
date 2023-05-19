@@ -52,6 +52,35 @@ export default () => {
     setAllMyDaos(res.data);
   };
 
+  const fetchDaoListNew = async () => {
+    try {
+      if (loading) return;
+      setLoading(true);
+      const params: any = {
+        offset: (page - 1) * PAGE_SIZE,
+        limit: PAGE_SIZE,
+        name: daoName,
+      };
+      if (listSwitch === ListSwitchEnum.My_List) {
+        if (!address) {
+          message.warn('No wallet address found.');
+          setTotal(0);
+          setDaos([]);
+          setLoading(false);
+          return;
+        }
+        params.address = address;
+      }
+      const { total, data } = await getDaoList(params);
+      setTotal(total);
+      setDaos(data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchDaoList = async (_page: number, daoName?: string) => {
     try {
       if (loading) return;
@@ -72,7 +101,7 @@ export default () => {
       if (daoName) {
         params.name = daoName;
         params.offset = 0;
-        setPage(1);
+        // setPage(1);
       }
       if (listSwitch === ListSwitchEnum.My_List) {
         if (!address) {
@@ -105,22 +134,12 @@ export default () => {
 
   const handleChangePage = (newPage: number, pageSize: number | undefined) => {
     setPage(newPage);
-    fetchDaoList(newPage);
+    // fetchDaoList(newPage);
   };
 
-  // useEffect(() => {
-  //   (async () => {
-  //     const res = await getDaoList({ address });
-  //     setAllMyDaos(res.data);
-  //   })();
-  // }, []);
   useEffect(() => {
-    fetchDaoList(1);
-  }, [listSwitch]);
-
-  useEffect(() => {
-    fetchAllMyDaoList();
-  }, [address]);
+    fetchDaoListNew();
+  }, [listSwitch, address, page, daoName]);
 
   const handleDaoClick = (item: DaoItem) => {
     setCurrentDao(item);
@@ -209,7 +228,7 @@ export default () => {
         <Search
           className="dao-list-search-input"
           placeholder="Search..."
-          onSearch={(value) => fetchDaoList(page, value)}
+          onSearch={(value) => setDaoName(value)}
         />
         <div className="list-switch">
           <span
