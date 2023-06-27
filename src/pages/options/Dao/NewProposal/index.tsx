@@ -52,6 +52,10 @@ export default () => {
       value: 2,
       label: '1 ballot per NFT',
     },
+    {
+      value: 6,
+      label: '1 ballot per Address',
+    },
     // {
     //   value: 3,
     //   label: '1 ballot per SON',
@@ -87,6 +91,7 @@ export default () => {
       setSubmitting(true);
       const values = await form.validateFields();
       const startTime = values.period[0].valueOf();
+      // const startTime = Date.now() + 3 * 60 * 1000; //TODO test only
       const endTime = values.period[1].valueOf();
       const snapshot = snapshotBlock;
       //@ts-ignore

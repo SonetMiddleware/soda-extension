@@ -1,13 +1,22 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
-import { Button, Modal, Radio, Space, message, Tooltip } from 'antd';
+import {
+  Button,
+  Modal,
+  Radio,
+  Space,
+  message,
+  Tooltip,
+  Checkbox,
+  Input,
+} from 'antd';
 import IconClose from '@/theme/images/icon-close.png';
 import ProposalStatus from '../ProposalItemStatus';
 import ProposalResults from '../ProposalResults';
+import type { Proposal } from '@soda/soda-core';
 import {
   formatDateTime,
   ProposalStatusEnum,
-  Proposal,
   vote as voteProposal,
   getUserVoteInfo,
   sign,
@@ -19,14 +28,15 @@ import { useDaoModel, useWalletModel } from '@/models';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { flowSign } from '@/utils/eventBus';
 import SignConfirmModal from '@/pages/components/SignConfirmModal';
-
+import ProposalCommentsDialog from '../ProposalCommentsDialog';
+const TextArea = Input.TextArea;
 interface IProps {
   show: boolean;
   detail: Proposal;
   onClose: (updatedProposalId?: string) => void;
   inDao?: boolean;
 }
-
+const MaxCommentLength = 400;
 export default (props: IProps) => {
   const { show, detail, onClose, inDao } = props;
   const [vote, setVote] = useState<string>();
@@ -37,7 +47,10 @@ export default (props: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [canVote, setCanVote] = useState(false);
   const [signConfirmContent, setSignConfirmContent] = useState(null);
-
+  const [submitComment, setSubmitComment] = useState(false);
+  const [comment, setComment] = useState('');
+  const [commentError, setCommentError] = useState('');
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
   const totalSupporters = useMemo(() => {
     const totalVotersNum = detail.results.reduce((a, b) => a + b);
     if (totalVotersNum >= detail.ballotThreshold) {
@@ -49,6 +62,16 @@ export default (props: IProps) => {
 
   const handleVoteChange = (e: any) => {
     setVote(e.target.value);
+  };
+
+  const handleCommentChange = (e: any) => {
+    const value = e.target.value;
+    setComment(value);
+    if (value && value.length > MaxCommentLength) {
+      setCommentError(`No more than ${MaxCommentLength} characters`);
+    } else {
+      setCommentError('');
+    }
   };
 
   const handleVoteSubmit = async () => {
@@ -89,6 +112,7 @@ export default (props: IProps) => {
         proposalId: detail.id,
         item: vote,
         sig: sig,
+        comment: comment,
       });
       if (result) {
         message.success('Vote successful.');
@@ -194,6 +218,29 @@ export default (props: IProps) => {
                   ))}
                 </Space>
               </Radio.Group>
+              {canVote && !voted && (
+                <div className="comment">
+                  <Checkbox
+                    checked={submitComment}
+                    onChange={(e) => {
+                      setSubmitComment(e.target.checked);
+                    }}
+                    className="proposal-start-now"
+                  >
+                    Submit Comment
+                  </Checkbox>
+                  {submitComment && (
+                    <TextArea
+                      value={comment}
+                      onChange={handleCommentChange}
+                      placeholder="Comment"
+                    />
+                  )}
+                  {commentError && (
+                    <p className="comment-error">{commentError}</p>
+                  )}
+                </div>
+              )}
               {!voted && (
                 <div>
                   <Button
@@ -211,7 +258,14 @@ export default (props: IProps) => {
               )}
             </div>
           )}
-          <ProposalResults items={detail.items} results={detail.results} />
+          <div>
+            <ProposalResults items={detail.items} results={detail.results} />
+            <div style={{ marginTop: '14px' }}>
+              <Button type="link" onClick={() => setCommentModalOpen(true)}>
+                Comments
+              </Button>
+            </div>
+          </div>
           <SignConfirmModal
             visible={signConfirmContent !== null}
             onClose={() => setSignConfirmContent(null)}
@@ -222,6 +276,12 @@ export default (props: IProps) => {
           />
         </div>
       </div>
+      <ProposalCommentsDialog
+        open={commentModalOpen}
+        onClose={() => setCommentModalOpen(false)}
+        collection_id={currentDao!.id}
+        proposal_id={detail.id}
+      />
     </Modal>
   );
 };
