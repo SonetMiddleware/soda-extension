@@ -5,7 +5,6 @@ import { MyAccount, MyAccountDisplay } from '@soda/soda-core-ui';
 import { useWalletModel } from '@/models';
 import { Button, Modal } from 'antd';
 import { flowSign } from '@/utils/eventBus';
-import { getLocal, saveLocal, StorageKeys, removeLocal } from '@/utils/storage';
 
 export default () => {
   const { setAddress, setChainId, address, chainId } = useWalletModel();
@@ -16,7 +15,7 @@ export default () => {
     chain: string | number;
   }) => {
     setAddress(account.addr);
-    setChainId(account.chain);
+    setChainId(String(account.chain));
   };
 
   const handleSwitchChain = () => {
@@ -54,7 +53,7 @@ export default () => {
         {address && (
           <MyAccountDisplay
             address={address}
-            chainId={chainId}
+            chainId={Number(chainId)}
             onSwitch={handleSwitchChain}
           />
         )}

@@ -126,7 +126,6 @@
     "prettier": "^2.2.1",
     "react-test-renderer": "^17.0.1",
     "semantic-release": "^17.3.3",
-    "soda-umi-plugin-extensions": "^1.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   }

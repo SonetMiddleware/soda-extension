@@ -7,11 +7,12 @@ import { history } from '@umijs/max';
 import IconTwitter from '@/theme/images/icon-twitter-gray.svg';
 import IconFB from '@/theme/images/icon-facebook-gray.svg';
 import { DaoItem, registerDao } from '@soda/soda-core';
-
+import { useNavigate } from 'react-router-dom';
 export default () => {
   const { collectionForDaoCreation, setCurrentDao } = useDaoModel();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
   // const history = useHistory();
 
   const createDao = async () => {
