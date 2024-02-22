@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './App.less';
-import { HashRouter as Router, Switch, Link } from 'react-router-dom';
+import {
+  HashRouter,
+  Routes,
+  Link,
+  Outlet,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 import Accounts from '../popup/accounts';
 import AccountsHome from '../popup/accounts/home';
 import AccountsList from '../popup/accounts/list';
@@ -82,11 +89,12 @@ const routes: IRouteProps[] = [
     component: Home,
   },
 ];
-const App = (props: any) => {
+const Layout = () => {
   const [visible, setVisible] = useState(false);
   const [flowSignMsg, setFlowSignMsg] = useState('');
   const [flowSignModalRight, setFlowSignModalRight] = useState(false);
-  const { hash: appPath } = props.location;
+  const location = useLocation();
+  const { hash: appPath } = location;
   const { setAddress, setChainId, chainId } = useWalletModel();
   console.debug('[app]: ', appPath);
 
@@ -138,195 +146,182 @@ const App = (props: any) => {
   }, []);
   return (
     <div className="root-container">
-      <Router>
-        <div className="options-container">
-          <div className="navbar">
-            <img
-              className="logo"
-              src={chrome.extension.getURL('images/Sodalogo.png')}
-              alt=""
-            />
+      <div className="options-container">
+        <div className="navbar">
+          <img
+            className="logo"
+            src={chrome.runtime.getURL('images/Sodalogo.png')}
+            alt=""
+          />
 
-            <ul style={{ listStyleType: 'none' }}>
-              <li>
-                <Link to="/">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/'
-                          ? chrome.extension.getURL(
-                              'images/icon-home-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-home.svg')
-                      }
-                      alt=""
-                    />
-                    Home
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/accounts/home">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/accounts/home' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/accounts/home'
-                          ? chrome.extension.getURL(
-                              'images/icon-account-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-account.svg')
-                      }
-                      alt=""
-                    />
-                    Account
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/plugins">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/plugins' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/plugins'
-                          ? chrome.extension.getURL(
-                              'images/icon-plugins-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-chart.svg')
-                      }
-                      alt=""
-                    />
-                    Plugins
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/resources">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/resources' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/resources'
-                          ? chrome.extension.getURL(
-                              'images/icon-discovery-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-discovery.svg')
-                      }
-                      alt=""
-                    />
-                    NFT Resources
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/dao">
-                  <span
-                    className={`link-item ${
-                      appPath.includes('#/dao') ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath.includes('#/dao')
-                          ? chrome.extension.getURL(
-                              'images/icon-dao-active.svg',
-                            )
-                          : chrome.extension.getURL('images/icon-dao.png')
-                      }
-                      alt=""
-                    />
-                    DAO
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/settings">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/settings' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/settings'
-                          ? chrome.extension.getURL(
-                              'images/icon-setting-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-setting.svg')
-                      }
-                      alt=""
-                    />
-                    Settings
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/help">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/help' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/help'
-                          ? chrome.extension.getURL(
-                              'images/icon-help-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-help.svg')
-                      }
-                      alt=""
-                    />
-                    Help
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/about">
-                  <span
-                    className={`link-item ${
-                      appPath === '#/about' ? 'link-item-active' : ''
-                    }`}
-                  >
-                    <img
-                      src={
-                        appPath === '#/about'
-                          ? chrome.extension.getURL(
-                              'images/icon-about-active.png',
-                            )
-                          : chrome.extension.getURL('images/icon-about.svg')
-                      }
-                      alt=""
-                    />
-                    About
-                  </span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className="options-content">
-            <Switch>
-              {routes.map((route, i) => (
-                <RouteWithSubRoutes key={i} {...route} />
-              ))}
-            </Switch>
-          </div>
+          <ul style={{ listStyleType: 'none' }}>
+            <li>
+              <Link to="/">
+                <span
+                  className={`link-item ${
+                    appPath === '#/' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/'
+                        ? chrome.runtime.getURL('images/icon-home-active.png')
+                        : chrome.runtime.getURL('images/icon-home.svg')
+                    }
+                    alt=""
+                  />
+                  Home
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/accounts/home">
+                <span
+                  className={`link-item ${
+                    appPath === '#/accounts/home' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/accounts/home'
+                        ? chrome.runtime.getURL(
+                            'images/icon-account-active.png',
+                          )
+                        : chrome.runtime.getURL('images/icon-account.svg')
+                    }
+                    alt=""
+                  />
+                  Account
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/plugins">
+                <span
+                  className={`link-item ${
+                    appPath === '#/plugins' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/plugins'
+                        ? chrome.runtime.getURL(
+                            'images/icon-plugins-active.png',
+                          )
+                        : chrome.runtime.getURL('images/icon-chart.svg')
+                    }
+                    alt=""
+                  />
+                  Plugins
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/resources">
+                <span
+                  className={`link-item ${
+                    appPath === '#/resources' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/resources'
+                        ? chrome.runtime.getURL(
+                            'images/icon-discovery-active.png',
+                          )
+                        : chrome.runtime.getURL('images/icon-discovery.svg')
+                    }
+                    alt=""
+                  />
+                  NFT Resources
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/dao">
+                <span
+                  className={`link-item ${
+                    appPath.includes('#/dao') ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath.includes('#/dao')
+                        ? chrome.runtime.getURL('images/icon-dao-active.svg')
+                        : chrome.runtime.getURL('images/icon-dao.png')
+                    }
+                    alt=""
+                  />
+                  DAO
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/settings">
+                <span
+                  className={`link-item ${
+                    appPath === '#/settings' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/settings'
+                        ? chrome.runtime.getURL(
+                            'images/icon-setting-active.png',
+                          )
+                        : chrome.runtime.getURL('images/icon-setting.svg')
+                    }
+                    alt=""
+                  />
+                  Settings
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/help">
+                <span
+                  className={`link-item ${
+                    appPath === '#/help' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/help'
+                        ? chrome.runtime.getURL('images/icon-help-active.png')
+                        : chrome.runtime.getURL('images/icon-help.svg')
+                    }
+                    alt=""
+                  />
+                  Help
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/about">
+                <span
+                  className={`link-item ${
+                    appPath === '#/about' ? 'link-item-active' : ''
+                  }`}
+                >
+                  <img
+                    src={
+                      appPath === '#/about'
+                        ? chrome.runtime.getURL('images/icon-about-active.png')
+                        : chrome.runtime.getURL('images/icon-about.svg')
+                    }
+                    alt=""
+                  />
+                  About
+                </span>
+              </Link>
+            </li>
+          </ul>
         </div>
-      </Router>
+        <div className="options-content">
+          <Outlet />
+        </div>
+      </div>
+
       <FlowSignModal
         visible={visible}
         onClose={() => handleFlow(new Error('Flow sign canceled'))}
@@ -340,9 +335,34 @@ const App = (props: any) => {
   );
 };
 
+const App = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="accounts" element={<Accounts />}>
+          <Route path="home" element={<AccountsHome />} />
+          <Route path="list" element={<AccountsList />} />
+        </Route>
+        <Route path="plugins" element={<Plugins />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="help" element={<Help />} />
+        <Route path="about" element={<About />} />
+        <Route path="dao" element={<DAO />} />
+        <Route path="daoDetail" element={<DaoDetail />} />
+        <Route path="daoDetailWithId" element={<DaoDetail />} />
+        <Route path="resources" element={<Resources />} />
+        <Route path="daoCreate" element={<DaoCreate />} />
+        <Route path="daoNewProposal" element={<NewProposal />} />
+      </Route>
+    </Routes>
+  );
+};
 export default (props: any) => (
   <ConfigProvider locale={enUS}>
-    <App {...props} />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </ConfigProvider>
 );
 

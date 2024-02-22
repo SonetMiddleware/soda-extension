@@ -30,7 +30,7 @@ import {
 import { flowSign } from '@/utils/eventBus';
 import SignConfirmModal from '@/pages/components/SignConfirmModal';
 import moment from 'moment';
-import { useHistory, useLocation } from 'umi';
+import { history, useLocation } from '@umijs/max';
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 export default () => {
@@ -41,7 +41,6 @@ export default () => {
   const [snapshotBlock, setSnapShotBlock] = useState<number>(0);
   const [signConfirmContent, setSignConfirmContent] = useState(null);
 
-  const history = useHistory();
   const location = useLocation();
   const VoterBallotOptions = [
     {

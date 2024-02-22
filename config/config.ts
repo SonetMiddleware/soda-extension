@@ -1,13 +1,16 @@
-import { defineConfig } from 'umi';
+import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
+  plugins: [require.resolve('umi-plugin-extensions')],
   define: {
     'process.env.API_HOST': 'https://testapi2.platwin.io:49336/api/v1', // 'https://testapi2.platwin.io/api/v1',
   },
-  nodeModulesTransform: {
-    type: 'none',
-  },
+
   locale: { default: 'en-US' },
+  model: {},
+  antd: {},
+  request: {},
+  jsMinifier: 'terser',
   extensions: {
     name: 'Soda',
     description:
@@ -16,7 +19,8 @@ export default defineConfig({
       page: '@/pages/options',
       openInTab: true,
     },
-    background: { scripts: ['@/background/index'], persistent: false },
+    background: { service_worker: '@/background/index' },
+
     popupUI: '@/pages/popup',
     contentScripts: [
       // {
@@ -49,10 +53,15 @@ export default defineConfig({
     permissions: ['storage', 'tabs'],
     extends: {
       web_accessible_resources: [
-        'injected.js',
-        'inject-hook.umd.min.js',
-        'images/*.png',
-        'fonts/*.*',
+        {
+          resources: [
+            'injected.js',
+            'inject-hook.umd.min.js',
+            'images/*.png',
+            'fonts/*.*',
+          ],
+          matches: ['https://twitter.com/*', 'https://www.facebook.com/*'],
+        },
       ],
     },
   },

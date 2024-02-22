@@ -46,7 +46,7 @@ export default () => {
     //   address: item.address,
     // });
     let sig;
-    const message = item.application + item.appid
+    const message = item.application + item.appid;
     if (typeof chainId === 'number') {
       const sigRes = await sign({
         message: message,
@@ -100,7 +100,7 @@ export default () => {
         <div key={item.application} className="account-list-item">
           <div className="header">
             <img
-              src={chrome.extension.getURL(getIcon(item.application))}
+              src={chrome.runtime.getURL(getIcon(item.application))}
               alt=""
             />
             <p>{item.application}</p>
@@ -110,7 +110,7 @@ export default () => {
               Connect
             </a>
             <img
-              src={chrome.extension.getURL('images/icon-arrow-right.png')}
+              src={chrome.runtime.getURL('images/icon-arrow-right.png')}
               alt=""
             />
           </div>
@@ -123,7 +123,7 @@ export default () => {
         <div key={item.application} className="account-list-item">
           <div className="bind-header">
             <img
-              src={chrome.extension.getURL(getIcon(item.application))}
+              src={chrome.runtime.getURL(getIcon(item.application))}
               alt=""
             />
             <p>{item.application}</p>
@@ -141,7 +141,7 @@ export default () => {
             </div>
             <img
               onClick={() => window.open(link, '_blank')}
-              src={chrome.extension.getURL('images/icon-arrow-right.png')}
+              src={chrome.runtime.getURL('images/icon-arrow-right.png')}
               alt=""
             />
           </div>

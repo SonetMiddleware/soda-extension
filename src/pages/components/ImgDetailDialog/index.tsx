@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import styles from './index.less';
 import { useWalletModel, useDaoModel } from '@/models';
 import { Modal, Popover, message } from 'antd';
 import {
@@ -7,31 +6,30 @@ import {
   IBindResultData,
   ICollectionItem,
   getChainId,
-  getMinter,
-  getTwitterBindResult,
-  getOrderByTokenId,
+  getBindResult,
   PLATFORM,
   getFavNFT,
-  addToFav,
+  addTokenToFav,
+  getRole,
 } from '@soda/soda-core';
-import { getTwitterId, getFacebookId } from '@soda/soda-core';
+// import {getOrderByTokenId} from '@soda/soda-asset'
 import IconMarket from '@/theme/images/icon-market.png';
 import IconDao from '@/theme/images/icon-dao.svg';
 import IconProposal from '@/theme/images/icon-proposal.svg';
 import IconMinter from '@/theme/images/icon-minter.png';
 import IconOwner from '@/theme/images/icon-owner.png';
 import IconFav from '@/theme/images/icon-fav.png';
-import { useHistory } from 'umi';
+import { history } from '@umijs/max';
+
 
 interface IProps {
   show: boolean;
   onClose: () => void;
-  nft?: IOwnedNFTData;
+  nft: IOwnedNFTData;
   collection?: ICollectionItem;
 }
 
 export default (props: IProps) => {
-  const history = useHistory();
   const [isInFav, setIsInFav] = useState(false);
   const { setCurrentDao } = useDaoModel();
   const { show, onClose, nft, collection } = props;
@@ -46,32 +44,34 @@ export default (props: IProps) => {
 
   const fetchInfo = async () => {
     const ownerAddress = account;
-    let minterAddress = '';
-    if (!isCurrentMainnet) {
-      minterAddress = await getMinter(nft!.token_id);
-    }
+
+    const role: { owner?: string; minter?: string } = await getRole({
+      token: nft,
+    });
+    nft.owner = role.owner;
+    nft.minter = role.minter;
     const ownerBindResult =
-      (await getTwitterBindResult({
-        addr: ownerAddress,
+      (await getBindResult({
+        address: nft.owner,
       })) || [];
     const bindings = ownerBindResult.filter((item) => item.content_id);
     console.log('ownerBindings: ', bindings);
     setOwnerPlatformAccount(bindings);
-    if (minterAddress) {
-      const minterBindResult =
-        (await getTwitterBindResult({
-          addr: minterAddress,
-        })) || [];
-      const minterBindings = minterBindResult.filter((item) => item.content_id);
-      setMinterPlatformAccount(minterBindings);
-      console.log('minterBindings: ', minterBindings);
-    }
-    const order = await getOrderByTokenId(nft!.token_id);
-    console.log('order: ', order);
 
-    if (order) {
-      setOrderId(order.order_id);
-    }
+    const minterBindResult =
+      (await getBindResult({
+        address: owner.minter,
+      })) || [];
+    const minterBindings = minterBindResult.filter((item) => item.content_id);
+    setMinterPlatformAccount(minterBindings);
+    console.log('minterBindings: ', minterBindings);
+
+    // const order = await getOrderByTokenId(nft!.token_id);
+    // console.log('order: ', order);
+
+    // if (order) {
+    //   setOrderId(order.order_id);
+    // }
 
     if (nft?.contract && nft?.token_id) {
       const favNFTs = await getFavNFT({
@@ -117,7 +117,14 @@ export default (props: IProps) => {
         fav: 1,
         uri: nft!.uri,
       };
-      await addToFav(params);
+      await addTokenToFav({
+        address: account,
+        token: {
+          contract: nft!.contract,
+          tokenId: nft!.token_id,
+          source: nft!.uri,
+        },
+      });
       setIsInFav(true);
       message.success('Added to favorite successfully!');
     } catch (err) {

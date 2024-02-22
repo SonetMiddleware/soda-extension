@@ -14,7 +14,7 @@ import CommonButton from '@/pages/components/Button';
 import DaoDetailDialog from '@/pages/components/DaoDetailDialog';
 import { useDaoModel } from '@/models';
 import { useWalletModel } from '@/models';
-import { useHistory } from 'umi';
+import { history } from '@umijs/max';
 
 interface IProps {
   address: string;
@@ -36,7 +36,7 @@ export default (props: IProps) => {
   const [selectedCollection, setSelectedCollection] = useState<CollectionDao>();
 
   const { setCollectionForDaoCreation, setCurrentDao } = useDaoModel();
-  const history = useHistory();
+  // const history = useHistory();
 
   const fetchOwnedList = useCallback(async () => {
     if (address) {

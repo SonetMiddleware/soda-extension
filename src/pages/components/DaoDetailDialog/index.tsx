@@ -8,7 +8,8 @@ import IconFacebook from '@/theme/images/icon-facebook-gray.svg';
 import IconDiscord from '@/theme/images/icon-discord-gray.svg';
 import { useDaoModel, useWalletModel } from '@/models';
 import CommonButton from '@/pages/components/Button';
-import { useHistory } from 'umi';
+import { history } from '@umijs/max';
+
 import { DISCORD } from '@/constant/sns';
 interface IProps {
   show: boolean;
@@ -19,7 +20,7 @@ export default (props: IProps) => {
   const { show, onClose } = props;
   const [chainId, setChainId] = useState(1);
   const { currentDao } = useDaoModel();
-  const history = useHistory();
+
 
   useEffect(() => {
     (async () => {

@@ -2,14 +2,12 @@ import React, { useEffect } from 'react';
 import PageTitle from '@/pages/components/PageTitle';
 import { useStoreModel } from '@/models';
 import showToast from '@/pages/components/Alert';
-import { useIntl } from 'umi';
+import { history, useIntl } from '@umijs/max';
 import { Button, Form, Input } from 'antd';
 import './index.less';
-import { saveMnenonics, removeLocal, StorageKeys } from '@/utils';
-import { useHistory } from 'react-router-dom';
+// import { saveMnenonics, removeLocal, StorageKeys } from '@/utils';
 
 export default () => {
-  const history = useHistory();
   const [form] = Form.useForm();
   const { mnemonics, encrypedMnemonics } = useStoreModel();
   const t = useIntl();
@@ -29,8 +27,8 @@ export default () => {
         values['word2'].trim() === mnemonics[4] &&
         values['word3'].trim() === mnemonics[10]
       ) {
-        await saveMnenonics(encrypedMnemonics);
-        await removeLocal(StorageKeys.MNEMONICS_CREATING);
+        // await saveMnenonics(encrypedMnemonics);
+        // await removeLocal(StorageKeys.MNEMONICS_CREATING);
         showToast({
           message: t.formatMessage({ id: 'create_success' }),
           type: 'success',

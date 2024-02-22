@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styles from './style.less';
-import { BrowserRouter as Router, Switch, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import init from '@soda/soda-core';
 import Welcome from './welcome';
 // import Create from './seed/create';
@@ -80,7 +80,6 @@ const routes: IRouteProps[] = [
 ];
 
 const Index = () => {
-  const history = useHistory();
   useEffect(() => {
     (async () => {
       const mnesCreating = await getLocal(StorageKeys.MNEMONICS_CREATING);
@@ -98,15 +97,7 @@ const Index = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className={styles.app}>
-        <Router>
-          <RouterTransition>
-            <Switch>
-              {routes.map((route, i) => (
-                <RouteWithSubRoutes key={i} {...route} />
-              ))}
-            </Switch>
-          </RouterTransition>
-        </Router>
+        <Welcome />
       </div>
     </ThemeProvider>
   );

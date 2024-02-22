@@ -8,7 +8,7 @@ import IconDiscord from '@/theme/images/icon-discord-gray.svg';
 import CommonButton from '@/pages/components/Button';
 import ProposalItem from '@/pages/components/ProposalItem';
 import ProposalDetailDialog from '@/pages/components/ProposalDetailDialog';
-import { useHistory, useLocation } from 'umi';
+import { history, useLocation, useSearchParams } from '@umijs/max';
 import {
   formatDate,
   getProposalList,
@@ -19,11 +19,10 @@ import {
   getProposalPermission,
 } from '@soda/soda-core';
 import { DISCORD } from '@/constant/sns';
-
+import { useNavigate } from 'react-router-dom';
 export default () => {
   const PAGE_SIZE = 10;
   const { setCurrentDao, currentDao } = useDaoModel();
-  const history = useHistory();
   const location = useLocation();
   const [chainId, setChainId] = useState(1);
   const [filterText, setFilterText] = useState('');
@@ -34,8 +33,9 @@ export default () => {
   const { address } = useWalletModel();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  console.log('searchParams: ', searchParams);
   const [selectedProposal, setSelectedProposal] = useState<Proposal>();
   const fetchProposalList = async (daoId: string) => {
     try {
@@ -119,7 +119,7 @@ export default () => {
       fetchProposalList(currentDao.id);
     } else {
       console.log(location);
-      const { dao: daoId } = location.query;
+      const daoId = searchParams.get('dao');
       if (daoId) {
         fetchDaoDetail(daoId);
         fetchProposalList(daoId);
@@ -182,10 +182,7 @@ export default () => {
             </p>
           )}
         </div>
-        <Button
-          className="dao-detail-back"
-          onClick={() => history.push('/dao')}
-        >
+        <Button className="dao-detail-back" onClick={() => navigate('/dao')}>
           Back
         </Button>
       </div>
