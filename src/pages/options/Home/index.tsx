@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './index.less';
 import FlowSignModal from '@/pages/components/FlowSignModal';
-import { MyAccount, MyAccountDisplay } from '@soda/soda-core-ui';
+import {
+  MyAccount,
+  MyAccountDisplay,
+  removeLocal,
+  StorageKeys,
+} from '@soda/soda-core-ui';
 import { useWalletModel } from '@/models';
 import { Button, Modal } from 'antd';
 import { flowSign } from '@/utils/eventBus';
@@ -23,6 +28,7 @@ export default () => {
   };
 
   const handleLogout = () => {
+    removeLocal(StorageKeys.LOGINED_ACCOUNT);
     setAddress('');
     setChainId('');
   };

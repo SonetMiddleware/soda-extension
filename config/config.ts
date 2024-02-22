@@ -1,7 +1,6 @@
 import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
-  outputPath: 'dist',
   plugins: [require.resolve('umi-plugin-extensions')],
   define: {
     'process.env.API_HOST': 'https://testapi2.platwin.io:49336/api/v1', // 'https://testapi2.platwin.io/api/v1',
@@ -11,6 +10,7 @@ export default defineConfig({
   model: {},
   antd: {},
   request: {},
+  jsMinifier: 'terser',
   extensions: {
     name: 'Soda',
     description:
